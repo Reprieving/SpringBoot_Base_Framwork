@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.balance.work.mapper.AppInterfaceMapper">
+    <resultMap id="interfaceTreeMap" type="ApiTreeNode">
+        <id property="id" column="id"></id>
+        <result property="pid" column="parent_id"></result>
+        <result property="label" column="interface_name"></result>
+        <result property="isProjectRoot" column="is_project_root"></result>
+    </resultMap>
+
+    <resultMap id="interfaceInfoMap" type="AppInterface">
+        <id property="id" column="api_id"></id>
+        <result property="versionNo" column="version_no"></result>
+        <result property="interfaceName" column="interface_name"></result>
+        <result property="httpType" column="http_type"></result>
+        <result property="url" column="url"></result>
+        <result property="reqParamContent" column="req_param_content"></result>
+        <result property="rspParamContent" column="rsp_param_content"></result>
+        <result property="isValid" column="is_valid"></result>
+        <collection property="reqParamStatement" ofType="com.balance.work.entity.ParamStatement">
+            <id property="id" column="ps_id"></id>
+            <result property="appInterfaceId" column="appInterface_id"/>
+            <result property="dataKey" column="data_key"/>
+            <result property="dataType" column="data_type"/>
+            <result property="remark" column="remark"/>
+            <result property="reqRspType" column="req_rsp_type"/>
+        </collection>
+
+        <collection property="rspParamStatement" ofType="com.balance.work.entity.ParamStatement">
+            <id property="id" column="ps_id"></id>
+            <result property="appInterfaceId" column="appInterface_id"/>
+            <result property="dataKey" column="data_key"/>
+            <result property="dataType" column="data_type"/>
+            <result property="remark" column="remark"/>
+            <result property="reqRspType" column="req_rsp_type"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectInterfaces4Tree" resultMap="interfaceTreeMap">
+      SELECT id,parent_id,interface_name,is_project_root FROM work_api WHERE project_id = #{project.id}
+    </select>
+
+    <insert id="insertAppInterface" parameterType="com.balance.work.entity.AppInterface">
+      INSERT INTO work_api (id, parent_id, project_id, version_no, interface_name, http_type, url,
+       req_param_content, rsp_param_content, create_by, create_time,
+       is_project_root, is_directory, is_valid)
+      VALUES (#{appInterface.id},#{appInterface.parentId},#{appInterface.projectsId},#{appInterface.versionNo},#{appInterface.interfaceName},
+      #{appInterface.httpType},#{appInterface.url},#{appInterface.reqParamContent},#{appInterface.rspParamContent},#{appInterface.createBy},
+      #{appInterface.createTime},#{appInterface.isProjectRoot},#{appInterface.isDirectory}, #{appInterface.isValid}
+      )
+    </insert>
+
+    <insert id="insertParamStatement">
+        INSERT INTO work_param_statement (id, appInterface_id, data_key, data_type, remark, req_rsp_type) VALUES
+        <foreach collection="paramStatementList" item="ps" separator=",">
+            (#{ps.id},#{ps.appInterfaceId},#{ps.dataKey},#{ps.dataType},#{ps.remark},#{ps.reqRspType})
+        </foreach>
+    </insert>
+
+    <select id="selectInterfaceById" resultMap="interfaceInfoMap">
+        SELECT a.id AS api_id,a.version_no,a.interface_name,a.http_type,a.url,a.req_param_content,a.rsp_param_content,a.is_valid,
+                p.id AS ps_id,p.appInterface_id,p.data_key,p.data_type,p.remark,p.req_rsp_type
+          FROM work_api a
+          LEFT JOIN work_param_statement p ON a.id = p.appInterface_id
+         WHERE a.id = #{appInterface.id}
+    </select>
+
+    <update id="updateAppInterfaceById">
+        UPDATE work_api
+        <set>
+            <if test="appInterface.interfaceName != null">
+                interface_name = #{appInterface.interfaceName},
+            </if>
+            <if test="appInterface.httpType != null">
+                http_type = #{appInterface.httpType},
+            </if>
+            <if test="appInterface.url != null">
+                url = #{appInterface.url},
+            </if>
+            <if test="appInterface.reqParamContent != null">
+                req_param_content = #{appInterface.reqParamContent},
+            </if>
+            <if test="appInterface.rspParamContent != null">
+                rsp_param_content = #{appInterface.rspParamContent},
+            </if>
+        </set>
+        WHERE id = #{appInterface.id}
+    </update>
+
+    <delete id="deleteAppInterfaceById">
+        DELETE FROM work_param_statement WHERE appInterface_id = #{appInterface.id}
+    </delete>
+</mapper>

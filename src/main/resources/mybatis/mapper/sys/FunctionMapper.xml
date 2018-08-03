@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.balance.sys.mapper.FunctionMapper">
+    <resultMap id="funcTreeMap" type="FuncTreeNode">
+        <id property="id" column="id"></id>
+        <result property="pid" column="parent_id"></result>
+        <result property="name" column="function_name"></result>
+        <result property="label" column="function_name"></result>
+        <result property="module" column="module_name"></result>
+        <result property="component" column="component"></result>
+        <result property="iconCode" column="icon_code"></result>
+        <result property="url" column="url"></result>
+        <result property="isMenu" column="is_menu"></result>
+    </resultMap>
+
+    <resultMap id="functionMap" type="Function">
+        <id property="id" column="id"></id>
+        <result property="parentId" column="parent_id"></result>
+        <result property="functionName" column="function_name"></result>
+        <result property="moduleName" column="module_name"></result>
+        <result property="component" column="component"></result>
+        <result property="iconCode" column="icon_code"></result>
+        <result property="url" column="url"></result>
+        <result property="isMenu" column="is_menu"></result>
+        <result property="isValid" column="is_valid"></result>
+    </resultMap>
+
+    <select id="selectFuncList" resultMap="funcTreeMap">
+        <choose>
+            <when test=" subscriberId != null and subscriberId == '1'.toString()">
+                SELECT id,parent_id,module_name,function_name,component,icon_code,path,url,is_menu FROM sys_function
+            </when>
+            <otherwise>
+                SELECT
+                  id,parent_id,function_name,component,path,url,is_menu,module_name,icon_code
+                FROM
+                    sys_function d
+                WHERE
+                    d.id IN (
+                        SELECT
+                            function_id
+                        FROM
+                            sys_role_function c
+                        WHERE
+                            c.role_id IN (
+                                SELECT
+                                    b.role_id
+                                FROM
+                                    sys_subscriber a
+                                LEFT JOIN sys_subscriber_role b ON a.id = b.subscriber_id
+                                WHERE
+                                    a.id = '10000'
+                            )
+                    )
+            </otherwise>
+        </choose>
+    </select>
+    
+    <insert id="insertFuc" parameterType="com.balance.sys.entity.Function">
+        INSERT INTO sys_function(id,parent_id,module_name,function_name,url,is_menu,component,icon_code,create_by,create_time,is_valid)
+        VALUES (#{function.id},#{function.parentId},#{function.moduleName},#{function.functionName},#{function.url},#{function.isMenu},#{function.component},
+                #{function.iconCode},#{function.createBy},#{function.createTime},#{function.isValid})
+    </insert>
+
+    <select id="selectFunc" resultMap="functionMap">
+        select * from sys_function a where a.id = #{function.id}
+    </select>
+</mapper>
