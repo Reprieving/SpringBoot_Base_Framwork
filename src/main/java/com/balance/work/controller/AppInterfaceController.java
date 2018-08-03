@@ -29,6 +29,7 @@ public class AppInterfaceController {
 
     @RequestMapping("create")
     public Result<?> createInterface(String dataStr) throws SQLException {
+        System.out.println(11);
         try {
             AppInterface appInterface = JSON.parseObject(dataStr, AppInterface.class);
             appInterfaceSpecs.createInterface(appInterface);
