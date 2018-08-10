@@ -24,9 +24,6 @@ public class AppInterfaceController {
     @Autowired
     private AppInterfaceSpecs appInterfaceSpecs;
 
-    @Autowired
-    private BaseSpecs baseSpecs;
-
     @RequestMapping("create")
     public Result<?> createInterface(String dataStr) throws SQLException {
         try {
