@@ -7,6 +7,5 @@ public class DataTypeErrorException extends Exception{
 
     public DataTypeErrorException(String message){
         super(message);
-
     }
 }
