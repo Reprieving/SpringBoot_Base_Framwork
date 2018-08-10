@@ -3,7 +3,6 @@ package com.balance.core.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-
 import java.io.File;
 import java.io.Serializable;
 
@@ -22,6 +21,6 @@ public class TransferObject implements Serializable{
     private String operatorType; //上传,下载,删除
     private byte[] bytes;// 文件字节数组
     private String message;
-    private String status = "success"; // 状态, 成功success，失败fail
+    private String state = "success"; // 状态, 成功success，失败fail
 
 }
