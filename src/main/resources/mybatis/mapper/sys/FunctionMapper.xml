@@ -11,7 +11,7 @@
         <result property="component" column="component"></result>
         <result property="iconCode" column="icon_code"></result>
         <result property="url" column="url"></result>
-        <result property="isMenu" column="is_menu"></result>
+        <result property="isLeaf" column="is_leaf"></result>
     </resultMap>
 
     <resultMap id="functionMap" type="Function">
@@ -22,18 +22,18 @@
         <result property="component" column="component"></result>
         <result property="iconCode" column="icon_code"></result>
         <result property="url" column="url"></result>
-        <result property="isMenu" column="is_menu"></result>
+        <result property="isLeaf" column="is_leaf"></result>
         <result property="isValid" column="is_valid"></result>
     </resultMap>
 
     <select id="selectFuncList" resultMap="funcTreeMap">
         <choose>
             <when test=" subscriberId != null and subscriberId == '1'.toString()">
-                SELECT id,parent_id,module_name,function_name,component,icon_code,path,url,is_menu FROM sys_function
+                SELECT id,parent_id,module_name,function_name,component,icon_code,path,url,is_leaf FROM sys_function
             </when>
             <otherwise>
                 SELECT
-                  id,parent_id,function_name,component,path,url,is_menu,module_name,icon_code
+                  id,parent_id,function_name,component,path,url,is_leaf,module_name,icon_code
                 FROM
                     sys_function d
                 WHERE
@@ -58,7 +58,7 @@
     </select>
     
     <insert id="insertFuc" parameterType="com.balance.sys.entity.Function">
-        INSERT INTO sys_function(id,parent_id,module_name,function_name,url,is_menu,component,icon_code,create_by,create_time,is_valid)
+        INSERT INTO sys_function(id,parent_id,module_name,function_name,url,is_leaf,component,icon_code,create_by,create_time,is_valid)
         VALUES (#{function.id},#{function.parentId},#{function.moduleName},#{function.functionName},#{function.url},#{function.isMenu},#{function.component},
                 #{function.iconCode},#{function.createBy},#{function.createTime},#{function.isValid})
     </insert>

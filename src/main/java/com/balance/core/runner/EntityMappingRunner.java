@@ -2,6 +2,8 @@ package com.balance.core.runner;
 
 import com.balance.core.mybatis.annotation.Column;
 import com.balance.core.mybatis.annotation.Table;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -19,8 +21,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
-//@Component
-public class EntityMappingRunnerListenerImpl implements ApplicationListener {
+@Component
+public class EntityMappingRunner implements ApplicationRunner {
 
     @Resource
     private DataSource dataSource;
@@ -31,7 +33,7 @@ public class EntityMappingRunnerListenerImpl implements ApplicationListener {
     @Resource
     private JdbcTemplate jdbcTemplate;
 
-    public void onApplicationEvent(ApplicationEvent applicationEvent) {
+    public void run(ApplicationArguments arguments) {
         try {
             Map<String, Object> entityMap = this.applicationContext.getBeansWithAnnotation(com.balance.core.mybatis.annotation.Table.class);
             Connection connection = dataSource.getConnection();
@@ -64,7 +66,7 @@ public class EntityMappingRunnerListenerImpl implements ApplicationListener {
                             }
                         }
                         if (!columnExistFlag) {
-                            throw new RuntimeException(table + "'s " + column.name() + " is not exist.");
+                            throw new RuntimeException("table[" + table.name() + "]'s column[" + column.name() + "] doesn't exist.");
                         }
                     }
                 }

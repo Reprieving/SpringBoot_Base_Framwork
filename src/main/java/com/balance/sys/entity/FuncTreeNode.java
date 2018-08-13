@@ -20,6 +20,6 @@ public class FuncTreeNode implements Serializable {
     private String module;
     private String iconCode;
     private String url;
-    private String isMenu;
+    private String isLeaf;
     private List<FuncTreeNode> children = new ArrayList<>();
 }
