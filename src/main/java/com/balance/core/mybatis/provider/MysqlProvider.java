@@ -4,10 +4,12 @@ package com.balance.core.mybatis.provider;
 import com.balance.core.mybatis.TableUtil;
 import com.balance.core.mybatis.annotation.Column;
 import com.balance.core.mybatis.annotation.Id;
+import com.balance.utils.UUIDUtils;
 import com.balance.utils.ValueCheckUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +36,12 @@ public class MysqlProvider {
         for (int i = 0; i < fields.length; i++) {
             Field f = fields[i];
             Column column = f.getAnnotation(Column.class);
-            if (column != null) {
+            Id id = f.getAnnotation(Id.class);
+            if(id!=null){
                 f.setAccessible(true);
+                f.set(object, UUIDUtils.createUUID());
+            }
+            if (column != null) {
                 dbColumnList.add(column.name());
                 voAttrList.add(PREFIX + f.getName() + SUFFIX);
             }
@@ -53,11 +59,20 @@ public class MysqlProvider {
         Field[] fields = object.getClass()
                 .getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
-            Column column = fields[i].getAnnotation(Column.class);
-            Object attrVal = fields[i].get(clazz);
-            if (column != null && attrVal != null) {
-                dbColumnList.add(column.name());
-                voAttrList.add(attrVal);
+            Field f = fields[i];
+            Column column = f.getAnnotation(Column.class);
+            Id id = f.getAnnotation(Id.class);
+            if(id!=null) {
+                f.setAccessible(true);
+                f.set(object, UUIDUtils.createUUID());
+            }
+            if (column != null) {
+                f.setAccessible(true);
+                Object attrVal = fields[i].get(object);
+                if(attrVal != null){
+                    dbColumnList.add(column.name());
+                    voAttrList.add(PREFIX + f.getName() + SUFFIX);
+                }
             }
         }
         return new SQL() {{
@@ -82,7 +97,6 @@ public class MysqlProvider {
                 idPoColumn = f.getName();
             }
         }
-
         ValueCheckUtils.notEmpty(tableName, clazz.getName() + " need Table annotation");
         ValueCheckUtils.notEmpty(idDbColumn, clazz.getName() + " need Id annotation");
 
@@ -90,7 +104,7 @@ public class MysqlProvider {
         String finalIdPoColumn = idPoColumn;
         return new SQL() {{
             DELETE_FROM(tableName);
-            WHERE(finalIdDbColumn + PREFIX + finalIdPoColumn + SUFFIX);
+            WHERE(finalIdDbColumn + EQUAL + PREFIX + finalIdPoColumn + SUFFIX);
         }}.toString();
     }
 
@@ -113,7 +127,7 @@ public class MysqlProvider {
             }
             if (column != null && id_annotation == null) {
                 f.setAccessible(true);
-                setList.add(column.name() + EQUAL + PREFIX + f.get(clazz) + SUFFIX);
+                setList.add(column.name() + EQUAL + PREFIX + f.getName() + SUFFIX);
             }
         }
 

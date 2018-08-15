@@ -57,7 +57,7 @@ public class Subscriber implements Serializable{
 
     //是否有效
     @Column(name = "is_valid")
-    private String isValid = "1";
+    private Boolean isValid = true;
 
     //value column
     //角色

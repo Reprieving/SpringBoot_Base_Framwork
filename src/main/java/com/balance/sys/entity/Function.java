@@ -62,7 +62,7 @@ public class Function implements Serializable{
 
     //是否有效
     @Column(name = "is_valid")
-    private Boolean isValid;
+    private Boolean isValid = true;
 
 
 

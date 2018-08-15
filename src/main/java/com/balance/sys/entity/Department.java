@@ -43,6 +43,6 @@ public class Department implements Serializable {
     private Timestamp createTime;
 
     @Column(name = "is_valid")
-    private String isValid;
+    private Boolean isValid = true;
 
 }

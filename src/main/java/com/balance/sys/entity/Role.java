@@ -44,7 +44,7 @@ public class Role implements Serializable{
 
     //是否有效
     @Column(name = "is_valid")
-    private String isValid;
+    private Boolean isValid = true;
 
     //value column
     private List<Function> functionList;

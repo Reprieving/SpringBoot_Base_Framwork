@@ -7,9 +7,9 @@
     <settings>
         <setting name="logImpl" value="STDOUT_LOGGING" />
     </settings>
-    <!--<plugins>-->
-        <!--<plugin interceptor="com.balance.core.mybatis.interceptor.PageInterceptor">-->
-            <!--<property name="sqlIdByPageRegex" value=".+ByPage$" />-->
-        <!--</plugin>-->
-    <!--</plugins>-->
+    <plugins>
+        <plugin interceptor="com.balance.core.mybatis.interceptor.PageInterceptor">
+            <property name="sqlIdByPageRegex" value=".+ByPage$" />
+        </plugin>
+    </plugins>
 </configuration>
