@@ -38,7 +38,6 @@ public class FunctionService {
     public Function viewFuc(Function function) throws Exception {
         Function f = baseMapper.selectById(function.getId(),Function.class);
         return f;
-//        return functionMapper.selectFunc(function);
     }
 
 }
