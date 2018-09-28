@@ -1,10 +1,8 @@
 package com.balance.core.controller;
 
 import com.balance.core.dto.Result;
-import com.balance.core.specs.BaseSpecs;
 import com.balance.utils.ResultUtils;
 import com.balance.work.Exception.DataErrorException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -13,8 +11,6 @@ import java.sql.SQLException;
 
 @ControllerAdvice
 public class BaseController {
-    @Autowired
-    protected BaseSpecs baseSpecs;
 
     @ExceptionHandler(SQLException.class)
     @ResponseBody

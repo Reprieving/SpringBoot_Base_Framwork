@@ -1,4 +1,4 @@
-package com.balance.work.specs.service;
+package com.balance.work.service;
 
 import com.balance.utils.ParamStatementUtils;
 import com.balance.utils.TreeNodeUtils;
@@ -9,7 +9,6 @@ import com.balance.work.entity.AppInterface;
 import com.balance.work.entity.ParamStatement;
 import com.balance.work.entity.Project;
 import com.balance.work.mapper.AppInterfaceMapper;
-import com.balance.work.specs.AppInterfaceSpecs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.sql.SQLException;
@@ -17,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class AppInterfaceService implements AppInterfaceSpecs {
+public class AppInterfaceService {
 
     @Autowired
     private AppInterfaceMapper appInterfaceMapper;

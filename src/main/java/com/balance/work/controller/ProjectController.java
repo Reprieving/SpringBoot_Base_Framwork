@@ -3,7 +3,7 @@ package com.balance.work.controller;
 import com.balance.core.dto.Result;
 import com.balance.work.entity.Project;
 import com.balance.utils.ResultUtils;
-import com.balance.work.specs.ProjectSpecs;
+import com.balance.work.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,12 +17,12 @@ import java.util.List;
 public class ProjectController{
 
     @Autowired
-    private ProjectSpecs projectSpecs;
+    private ProjectService projectService;
 
     @RequestMapping("create")
     public Result<?> createProject(Project project) throws SQLException,ArithmeticException {
         try {
-            projectSpecs.createProject(project);
+            projectService.createProject(project);
             return ResultUtils.success(null,"Create success");
         } catch (SQLException e){
             throw new SQLException("Sql exception");
@@ -34,7 +34,7 @@ public class ProjectController{
     @RequestMapping("subProjects")
     public Result<?> querySubProjects(Project project) throws SQLException {
         try{
-            List<Project> projectList = projectSpecs.querySubProjects(project);
+            List<Project> projectList = projectService.querySubProjects(project);
             return ResultUtils.success(projectList,"Query Success");
         }catch (SQLException e){
             throw new SQLException("sql exception");

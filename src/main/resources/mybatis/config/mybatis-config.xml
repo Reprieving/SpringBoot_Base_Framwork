@@ -11,5 +11,8 @@
         <plugin interceptor="com.balance.core.mybatis.interceptor.PageInterceptor">
             <property name="sqlIdByPageRegex" value=".+ByPage$" />
         </plugin>
+        <plugin interceptor="com.balance.core.mybatis.interceptor.BaseResultSetInterceptor">
+
+        </plugin>
     </plugins>
 </configuration>

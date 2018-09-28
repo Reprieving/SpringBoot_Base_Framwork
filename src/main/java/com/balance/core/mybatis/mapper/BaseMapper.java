@@ -15,23 +15,23 @@ import java.util.stream.Collector;
 @Repository
 public interface BaseMapper {
     @InsertProvider(type = MysqlProvider.class,method = "insert")
-    void insert(Object entity);
+    void insert(@Param(MysqlProvider.CLAZZ)Object entity) throws Exception;
 
     @InsertProvider(type = MysqlProvider.class,method = "insertSelective")
-    void insertSelective(Object entity);
+    void insertSelective(@Param(MysqlProvider.CLAZZ)Object entity) throws Exception;
 
     @DeleteProvider(type = MysqlProvider.class,method = "delete")
-    void delete(Object entity);
+    void delete(@Param(MysqlProvider.CLAZZ)Object entity) throws Exception;
 
     @UpdateProvider(type = MysqlProvider.class,method = "update")
-    void update(Object entity);
+    void update(@Param(MysqlProvider.CLAZZ)Object entity) throws Exception;
 
     @SelectProvider(type = MysqlProvider.class,method = "selectById")
-    <T> T selectById(Object entity);
+    <T> T selectById(@Param(MysqlProvider.ID_VALUE) Serializable id,@Param(MysqlProvider.CLAZZ) Class<T> tClass) throws Exception;
 
     @SelectProvider(type = MysqlProvider.class,method = "selectListByIds")
-    <T> List<T> selectListByIds(@Param(MysqlProvider.PARAM_LIST) Collection<? extends Serializable> idList,
+    <T> List<T> selectListByIds(@Param(MysqlProvider.PARAM_LIST) List<Object> idList,
                             @Param(MysqlProvider.CLAZZ) Class<T> clazz,
-                            @Param(MysqlProvider.PAGINATION) Pagination pagination);
+                            @Param(MysqlProvider.PAGINATION) Pagination pagination) throws Exception;
 
 }

@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 
 @SpringBootApplication
-@MapperScan("com.balance.*.mapper")
+@MapperScan("com.balance.**.mapper")
 @EnableCaching
 public class BootStrapApplication {
 	public static void main(String[] args) {

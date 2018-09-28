@@ -4,7 +4,6 @@ import com.balance.core.dto.Pagination;
 import com.balance.sys.entity.Subscriber;
 import com.balance.sys.mapper.FunctionMapper;
 import com.balance.sys.mapper.SubscriberMapper;
-import com.balance.sys.specs.SubscriberSpecs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class SubscriberService implements SubscriberSpecs {
+public class SubscriberService {
     private final static Logger logger = LoggerFactory.getLogger(SubscriberService.class);
 
     @Autowired

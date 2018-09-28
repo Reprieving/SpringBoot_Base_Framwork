@@ -5,7 +5,7 @@ import com.balance.core.dto.Result;
 import com.balance.sys.entity.FuncTreeNode;
 import com.balance.sys.entity.Function;
 import com.balance.sys.entity.Subscriber;
-import com.balance.sys.specs.FunctionSpecs;
+import com.balance.sys.specs.service.FunctionService;
 import com.balance.utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,30 +17,30 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class FunctionController extends BaseController {
     @Autowired
-    private FunctionSpecs functionSpecs;
+    private FunctionService functionService;
 
     @RequestMapping("subsFuncTree")
     public FuncTreeNode querySubsFuncTree(Subscriber subscriber){
-        FuncTreeNode funcTreeNode = functionSpecs.queryFuncTree(subscriber.getId());
+        FuncTreeNode funcTreeNode = functionService.queryFuncTree(subscriber.getId());
         return funcTreeNode;
     }
 
     @RequestMapping("allFuncTree")
     public FuncTreeNode queryFuncTree(){
-        FuncTreeNode funcTreeNode = functionSpecs.queryFuncTree("1");
+        FuncTreeNode funcTreeNode = functionService.queryFuncTree("1");
         return funcTreeNode;
     }
 
     @RequestMapping("create")
     public Result<?> createFunc(Function function){
-        functionSpecs.createFunc(function);
+        functionService.createFunc(function);
         return ResultUtils.success(null,"success");
     }
 
     @RequestMapping("info")
     public Result<?> viewFunc(Function function) throws Exception {
         try{
-            return ResultUtils.success(functionSpecs.viewFuc(function),"success");
+            return ResultUtils.success(functionService.viewFuc(function),"success");
         }catch (Exception e){
             e.printStackTrace();
             throw new Exception("Server Error");

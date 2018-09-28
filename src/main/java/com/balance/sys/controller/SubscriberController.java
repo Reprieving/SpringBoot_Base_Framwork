@@ -4,7 +4,7 @@ import com.balance.core.controller.BaseController;
 import com.balance.core.dto.Pagination;
 import com.balance.core.dto.Result;
 import com.balance.sys.entity.Subscriber;
-import com.balance.sys.specs.SubscriberSpecs;
+import com.balance.sys.specs.service.SubscriberService;
 import com.balance.utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,11 +16,11 @@ import java.util.List;
 public class SubscriberController extends BaseController{
 
     @Autowired
-    private SubscriberSpecs subscriberSpecs;
+    private SubscriberService subscriberService;
 
     @RequestMapping("add")
     public Object add(Subscriber subscriber){
-        subscriberSpecs.insertOne(subscriber);
+        subscriberService.insertOne(subscriber);
         return subscriber;
     }
 
@@ -28,7 +28,7 @@ public class SubscriberController extends BaseController{
     public Result<?> list(Subscriber subscriber) throws Exception{
         Pagination pagination = new Pagination();
         subscriber.setId("5");
-        List<Subscriber> list = subscriberSpecs.selectList(pagination,subscriber);
+        List<Subscriber> list = subscriberService.selectList(pagination,subscriber);
 
         return ResultUtils.success(list,"success");
     }

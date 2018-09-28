@@ -4,7 +4,6 @@ import com.balance.core.controller.BaseController;
 import com.balance.core.dto.Result;
 import com.balance.sys.entity.Department;
 import com.balance.utils.ResultUtils;
-import com.balance.utils.UUIDUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +15,7 @@ import java.sql.Timestamp;
 @CrossOrigin
 public class DepartmentController extends BaseController {
 
+
     @RequestMapping("info")
     public Result<?> viewDepartment() throws Exception {
         Department department = new Department();
@@ -24,7 +24,6 @@ public class DepartmentController extends BaseController {
         department.setCharger("11");
         department.setCreateBy("1");
         department.setCreateTime(new Timestamp(System.currentTimeMillis()));
-        baseSpecs.delete(department);
         return ResultUtils.success(null,"success");
     }
 

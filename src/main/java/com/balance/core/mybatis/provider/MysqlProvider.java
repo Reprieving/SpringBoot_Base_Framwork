@@ -9,13 +9,15 @@ import com.balance.utils.ValueCheckUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
 
-import java.io.File;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class MysqlProvider {
+    public static final String ID_VALUE = "idVal";
+
     private static final String AS = " AS ";
     public static final String PARAM_LIST = "tList";
     public static final String CLAZZ = "clazz";
@@ -140,13 +142,17 @@ public class MysqlProvider {
         return new SQL() {{
             UPDATE(tableName);
             SET(StringUtils.join(setList.toArray(), ","));
-            WHERE(finalIdDbColumn + EQUAL + PREFIX + finalIdPoColumn + SUFFIX);
+            WHERE(finalIdDbColumn + EQUAL + PREFIX + ID_VALUE + SUFFIX);
         }}.toString();
     }
 
 
-    public String selectById(Object object) throws Exception {
-        Class<?> clazz = object.getClass();
+    public String selectById(Map<String, Object> objects) throws Exception {
+        Class<?> clazz = (Class<?>) objects.get(CLAZZ);
+        Serializable id = (Serializable) objects.get(ID_VALUE);
+
+        Object object = clazz.newInstance();
+
         String tableName = TableUtil.getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
         String idPoColumn = "";
@@ -181,7 +187,7 @@ public class MysqlProvider {
         return new SQL() {{
             SELECT(StringUtils.join(dbColumnList, ","));
             FROM(tableName);
-            WHERE(finalIdDbColumn + EQUAL + PREFIX + finalIdColumn + SUFFIX);
+            WHERE(finalIdDbColumn + EQUAL + PREFIX + ID_VALUE + SUFFIX);
         }}.toString();
     }
 

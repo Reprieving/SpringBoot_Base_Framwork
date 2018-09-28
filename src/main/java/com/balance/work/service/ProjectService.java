@@ -1,4 +1,4 @@
-package com.balance.work.specs.service;
+package com.balance.work.service;
 
 import com.balance.utils.UUIDUtils;
 import com.balance.work.entity.AppInterface;
@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Service
-public class ProjectService implements ProjectSpecs {
+public class ProjectService {
 
     @Autowired
     private ProjectMapper projectMapper;
