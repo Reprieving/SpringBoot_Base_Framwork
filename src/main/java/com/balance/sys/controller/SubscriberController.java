@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("subscriber")
-public class SubscriberController extends BaseController{
+public class SubscriberController{
 
     @Autowired
     private SubscriberService subscriberService;

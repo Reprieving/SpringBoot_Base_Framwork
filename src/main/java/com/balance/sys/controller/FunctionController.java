@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("function")
 @CrossOrigin
-public class FunctionController extends BaseController {
+public class FunctionController{
     @Autowired
     private FunctionService functionService;
 

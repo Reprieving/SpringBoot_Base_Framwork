@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @RestController
 @RequestMapping("department")
 @CrossOrigin
-public class DepartmentController extends BaseController {
+public class DepartmentController{
 
 
     @RequestMapping("info")
