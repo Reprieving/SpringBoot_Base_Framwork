@@ -1,7 +1,6 @@
-package com.balance.sys.specs.service;
+package com.balance.sys.service;
 
 import com.balance.core.mybatis.mapper.BaseMapper;
-import com.balance.core.service.BaseService;
 import com.balance.sys.entity.FuncTreeNode;
 import com.balance.sys.entity.Function;
 import com.balance.sys.mapper.FunctionMapper;
@@ -9,9 +8,6 @@ import com.balance.utils.TreeNodeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 

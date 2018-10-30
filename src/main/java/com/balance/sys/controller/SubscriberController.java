@@ -3,8 +3,9 @@ package com.balance.sys.controller;
 import com.balance.core.controller.BaseController;
 import com.balance.core.dto.Pagination;
 import com.balance.core.dto.Result;
+import com.balance.core.service.BaseService;
 import com.balance.sys.entity.Subscriber;
-import com.balance.sys.specs.service.SubscriberService;
+import com.balance.sys.service.SubscriberService;
 import com.balance.utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,9 +19,13 @@ public class SubscriberController extends BaseController{
     @Autowired
     private SubscriberService subscriberService;
 
+    @Autowired
+    private BaseService baseService;
+
     @RequestMapping("add")
-    public Object add(Subscriber subscriber){
-        subscriberService.insertOne(subscriber);
+    public Object add(Subscriber subscriber) throws Exception {
+//        subscriberService.insertOne(subscriber);
+        baseService.insert(subscriber);
         return subscriber;
     }
 

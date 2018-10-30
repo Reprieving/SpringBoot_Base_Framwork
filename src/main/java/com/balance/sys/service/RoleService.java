@@ -1,4 +1,4 @@
-package com.balance.sys.specs.service;
+package com.balance.sys.service;
 
 import org.springframework.stereotype.Service;
 

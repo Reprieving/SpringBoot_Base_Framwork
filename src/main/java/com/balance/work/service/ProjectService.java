@@ -5,7 +5,6 @@ import com.balance.work.entity.AppInterface;
 import com.balance.work.entity.Project;
 import com.balance.work.mapper.AppInterfaceMapper;
 import com.balance.work.mapper.ProjectMapper;
-import com.balance.work.specs.ProjectSpecs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

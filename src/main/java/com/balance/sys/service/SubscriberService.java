@@ -1,4 +1,4 @@
-package com.balance.sys.specs.service;
+package com.balance.sys.service;
 
 import com.balance.core.dto.Pagination;
 import com.balance.sys.entity.Subscriber;

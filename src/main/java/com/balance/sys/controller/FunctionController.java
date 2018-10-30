@@ -5,7 +5,7 @@ import com.balance.core.dto.Result;
 import com.balance.sys.entity.FuncTreeNode;
 import com.balance.sys.entity.Function;
 import com.balance.sys.entity.Subscriber;
-import com.balance.sys.specs.service.FunctionService;
+import com.balance.sys.service.FunctionService;
 import com.balance.utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
