@@ -38,13 +38,7 @@ public class FunctionController{
     }
 
     @RequestMapping("info")
-    public Result<?> viewFunc(Function function) throws Exception {
-        try{
-            return ResultUtils.success(functionService.viewFuc(function),"success");
-        }catch (Exception e){
-            e.printStackTrace();
-            throw new Exception("Server Error");
-        }
-
+    public Result<?> viewFunc(Function function)  {
+        return ResultUtils.success(functionService.viewFuc(function),"success");
     }
 }

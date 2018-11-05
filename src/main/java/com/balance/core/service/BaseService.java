@@ -13,23 +13,23 @@ public class BaseService {
     @Autowired
     protected BaseMapper baseMapper;
 
-    public void insert(Object entity) throws Exception {
+    public void insert(Object entity) {
         baseMapper.insert(entity);
     }
 
-    public void insertSelective(Object entity) throws Exception {
+    public void insertSelective(Object entity){
         baseMapper.insertSelective(entity);
     }
 
-    public void delete(Object entity) throws Exception {
+    public void delete(Object entity) {
         baseMapper.delete(entity);
     }
 
-    public void update(Object entity) throws Exception {
+    public void update(Object entity){
         baseMapper.update(entity);
     }
 
-    public <T> T selectById(Serializable id, Class<T> clazz) throws Exception {
+    public <T> T selectById(Serializable id, Class<T> clazz) {
         return baseMapper.selectById(id, clazz);
     }
 

@@ -31,7 +31,7 @@ public class FunctionService {
         functionMapper.insertFuc(function);
     }
 
-    public Function viewFuc(Function function) throws Exception {
+    public Function viewFuc(Function function){
         Function f = baseMapper.selectById(function.getId(),Function.class);
         return f;
     }

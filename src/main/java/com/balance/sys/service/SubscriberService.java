@@ -16,14 +16,9 @@ import java.util.UUID;
 
 @Service
 public class SubscriberService {
-    private final static Logger logger = LoggerFactory.getLogger(SubscriberService.class);
 
     @Autowired
     private SubscriberMapper subscriberMapper;
-
-    @Autowired
-    private FunctionMapper functionMapper;
-
 
     @Transactional
     public void insertOne(Subscriber subscriber) {

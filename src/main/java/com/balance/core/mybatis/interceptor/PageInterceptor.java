@@ -1,6 +1,7 @@
 package com.balance.core.mybatis.interceptor;
 
 
+import com.balance.core.constance.MybatisConst;
 import com.balance.core.dto.Pagination;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
@@ -10,7 +11,6 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 
 import java.sql.Connection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -30,8 +30,10 @@ public class PageInterceptor implements Interceptor {
             Map<?, ?> parameterMap = (Map<?, ?>) boundSql.getParameterObject();
             Set<?> keySet = parameterMap.keySet();
             for (Object o : keySet){
-                if("pagination".equals(o.toString())){
-                    Pagination pagination = (Pagination) parameterMap.get("pagination");
+                if(MybatisConst.PAGINATION.equals(o.toString())){
+                    Pagination pagination = (Pagination) parameterMap.get(MybatisConst.PAGINATION);
+                    //统计sql并修改pagination的总数目
+                    pagination.setTotalRecordNumber(999);
                     if(pagination!=null){
                         String pageSql = sql + " limit " + pagination.getStartRow() + "," + pagination.getPageSize();
                         metaObject.setValue("delegate.boundSql.sql", pageSql);
