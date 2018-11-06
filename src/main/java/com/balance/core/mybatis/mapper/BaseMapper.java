@@ -1,16 +1,12 @@
 package com.balance.core.mybatis.mapper;
 
 import com.balance.core.dto.Pagination;
-import com.balance.core.mybatis.MapKeyConst;
 import com.balance.core.mybatis.provider.MysqlProvider;
-import com.balance.work.entity.AppInterface;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collector;
 
 @Repository
 public interface BaseMapper {

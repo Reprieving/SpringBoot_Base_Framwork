@@ -138,7 +138,6 @@ public class MysqlProvider {
 
 
         String finalIdDbColumn = idDbColumn;
-        String finalIdPoColumn = idPoColumn;
         return new SQL() {{
             UPDATE(tableName);
             SET(StringUtils.join(setList.toArray(), ","));
@@ -181,8 +180,7 @@ public class MysqlProvider {
 
         ValueCheckUtils.notEmpty(tableName, clazz.getName() + " need Table annotation");
         ValueCheckUtils.notEmpty(idDbColumn, clazz.getName() + " need Id annotation");
-
-        String finalIdColumn = idPoColumn;
+        
         String finalIdDbColumn = idDbColumn;
         return new SQL() {{
             SELECT(StringUtils.join(dbColumnList, ","));

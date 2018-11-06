@@ -22,9 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Intercepts(@Signature(method="handleResultSets", type=ResultSetHandler.class, args={Statement.class}))
 public class BaseResultSetInterceptor implements Interceptor {
-
-    private static final List<ResultMapping> EMPTY_RESULT_MAPPING = new ArrayList(0);
-
     private Logger logger = LoggerFactory.getLogger(BaseResultSetInterceptor.class);
 
     @Override
@@ -34,7 +31,7 @@ public class BaseResultSetInterceptor implements Interceptor {
         Object target = invocation.getTarget();
         DefaultResultSetHandler resultSetHandler = (DefaultResultSetHandler) target;
         // 利用反射获取参数对象
-        ParameterHandler parameterHandler = reflectParamterHandler(resultSetHandler);
+        ParameterHandler parameterHandler = reflectParameterHandler(resultSetHandler);
         Map<String, Object> parameterObj = (Map<String, Object>) parameterHandler.getParameterObject();
 
         Field field = ReflectionUtils.findField(DefaultResultSetHandler.class, "parameterHandler");
@@ -90,21 +87,6 @@ public class BaseResultSetInterceptor implements Interceptor {
 
     }
 
-    //这个方法就是与jdbc中操作ResultSet
-    private Object handlerResultSet(ResultSet resultSet) {
-        return null;
-    }
-
-    private void closeResultSet(ResultSet resultSet) {
-        if (resultSet != null) {
-            try {
-                resultSet.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     @Override
     public Object plugin(Object o) {
         return Plugin.wrap(o, this);
@@ -115,7 +97,7 @@ public class BaseResultSetInterceptor implements Interceptor {
 
     }
 
-    private ParameterHandler reflectParamterHandler(DefaultResultSetHandler resultSetHandler){
+    private ParameterHandler reflectParameterHandler(DefaultResultSetHandler resultSetHandler){
         Field field = ReflectionUtils.findField(DefaultResultSetHandler.class, "parameterHandler");
         field.setAccessible(true);
         Object value = null;

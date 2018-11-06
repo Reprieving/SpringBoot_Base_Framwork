@@ -24,7 +24,6 @@ public class SubscriberController{
 
     @RequestMapping("add")
     public Object add(Subscriber subscriber) throws Exception {
-//        subscriberService.insertOne(subscriber);
         baseService.insert(subscriber);
         return subscriber;
     }
@@ -35,7 +34,9 @@ public class SubscriberController{
         subscriber.setId("5");
         List<Subscriber> list = subscriberService.selectList(pagination,subscriber);
 
-        return ResultUtils.success(list,"success");
+        pagination.setObjectList(list);
+
+        return ResultUtils.success(pagination,"success");
     }
 
 

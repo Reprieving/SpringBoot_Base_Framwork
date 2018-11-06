@@ -1,12 +1,15 @@
 package com.balance.core.dto;
 
 
+import java.util.List;
+
 public class Pagination {
     private int pageNum;//当前页码
     private int pageSize=10;//每页条目数
     private int startRow;//查询起始行
     private int totalRecordNumber;// 总共的记录条数
     private int totalPageNumber;// 总共的页数，通过总共的记录条数以及每页大小计算而得
+    private List<?> objectList;
 
     public int getPageNum() {
         return pageNum;
@@ -48,5 +51,13 @@ public class Pagination {
 
     public void setTotalPageNumber(int totalPageNumber) {
         this.totalPageNumber = totalPageNumber;
+    }
+
+    public List<?> getObjectList() {
+        return objectList;
+    }
+
+    public void setObjectList(List<?> objectList) {
+        this.objectList = objectList;
     }
 }
