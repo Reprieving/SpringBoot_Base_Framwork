@@ -1,6 +1,5 @@
 package com.balance.sys.controller;
 
-import com.balance.core.controller.BaseController;
 import com.balance.core.dto.Pagination;
 import com.balance.core.dto.Result;
 import com.balance.core.service.BaseService;

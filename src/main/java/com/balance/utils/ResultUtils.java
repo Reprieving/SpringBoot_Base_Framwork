@@ -5,8 +5,7 @@ import com.balance.core.dto.Result;
 public class ResultUtils {
     public static final Integer RSP_SUCCESS = 0;
     public static final Integer RSP_FAIL = -1;
-    public static final Integer RSP_NONE_DATA = 1;
-
+    public static final Integer RSP_LOGIN = 1;
 
     //request success
     public static Result success(Object data, String msg){
