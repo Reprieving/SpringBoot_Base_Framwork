@@ -14,7 +14,6 @@ import java.io.Serializable;
 @Setter
 @Alias("SubscriberRole")
 @Table(name = "sys_subscriber_role")
-@Component
 public class SubscriberRole implements Serializable {
     private static final long serialVersionUID = -3735896857992515934L;
 

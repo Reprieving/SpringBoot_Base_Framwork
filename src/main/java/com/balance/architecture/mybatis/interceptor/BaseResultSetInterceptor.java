@@ -2,7 +2,7 @@ package com.balance.architecture.mybatis.interceptor;
 
 import com.balance.architecture.mybatis.mapper.BaseMapper;
 import com.balance.architecture.mybatis.provider.MysqlProvider;
-import com.balance.utils.ResultSetUtils;
+import com.balance.utils.JDBCResultSetUtils;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.executor.resultset.DefaultResultSetHandler;
 import org.apache.ibatis.executor.resultset.ResultSetHandler;
@@ -66,7 +66,7 @@ public class BaseResultSetInterceptor implements Interceptor {
         AtomicInteger atomicInteger = new AtomicInteger();
         while (resultSet.next()){
             atomicInteger.addAndGet(1);
-            resultSetList.add(ResultSetUtils.getBean(resultSet, entityClass));
+            resultSetList.add(JDBCResultSetUtils.getBean(resultSet, entityClass));
         }
 
         Integer resultSetRows = atomicInteger.intValue();

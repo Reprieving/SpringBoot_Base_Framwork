@@ -15,7 +15,6 @@ import java.sql.Timestamp;
 @Getter
 @Alias("Function")
 @Table(name = "sys_function")
-@Component
 public class Function implements Serializable{
     private static final long serialVersionUID = 92968053084215365L;
 

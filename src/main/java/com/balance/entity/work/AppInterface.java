@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @Alias("AppInterface")
 @Table(name = "work_api")
-@Component
+//@Component
 public class AppInterface implements Serializable {
     private static final long serialVersionUID = 4556114888253887694L;
 

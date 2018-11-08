@@ -14,7 +14,6 @@ import java.io.Serializable;
 @Setter
 @Alias("RoleFunction")
 @Table(name = "sys_role_function")
-@Component
 public class RoleFunction implements Serializable {
     private static final long serialVersionUID = 6683333238467964092L;
 

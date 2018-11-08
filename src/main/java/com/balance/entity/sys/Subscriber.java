@@ -17,7 +17,6 @@ import java.util.List;
 @Getter
 @Alias("Subscriber")
 @Table(name = "sys_subscriber")
-@Component
 public class Subscriber implements Serializable{
     private static final long serialVersionUID = -5647904280794995483L;
 

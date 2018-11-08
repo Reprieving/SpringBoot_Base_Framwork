@@ -16,7 +16,6 @@ import java.util.List;
 @Setter
 @Alias("Role")
 @Table(name = "sys_role")
-@Component
 public class Role implements Serializable{
     private static final long serialVersionUID = -1883711698685811644L;
 

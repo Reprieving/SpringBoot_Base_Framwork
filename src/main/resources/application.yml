@@ -4,8 +4,8 @@ server:
 spring:
   datasource:
     username: root
-    password: root
-    url: jdbc:mysql://localhost:3306/basis?characterEncoding=utf8&useSSL=true
+    password: aliyun@Mysql2018
+    url: jdbc:mysql://47.99.209.130:3306/basic?characterEncoding=utf8&useSSL=false
     driver-class-name: com.mysql.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     filters: stat
@@ -35,6 +35,5 @@ spring:
 
 mybatis:
   mapperLocations: classpath:mybatis/mapper/**/*.xml
-  typeAliasesPackage: com.balance.sys.entity
-                        com.balance.work.entity
+  typeAliasesPackage: com.balance.entity
   configLocation: classpath:mybatis/config/mybatis-config.xml

@@ -1,10 +1,16 @@
 package com.balance.architecture.runner;
 
+import com.balance.architecture.mybatis.MybatisConfig;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Table;
+import com.balance.utils.MineClassUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
@@ -17,7 +23,9 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class EntityMappingRunner implements ApplicationRunner {
@@ -31,15 +39,20 @@ public class EntityMappingRunner implements ApplicationRunner {
     @Resource
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private MybatisConfig mybatisConfig;
+
+
     public void run(ApplicationArguments arguments) {
         try {
-            Map<String, Object> entityMap = this.applicationContext.getBeansWithAnnotation(com.balance.architecture.mybatis.annotation.Table.class);
+            List<Class> clazzList = MineClassUtils.getClassFromPackage(mybatisConfig.getTypeAliasesPackage());
             Connection connection = dataSource.getConnection();
             DatabaseMetaData meta = connection.getMetaData();
-            for (Map.Entry<String, Object> entry : entityMap.entrySet()) {
-                Class<? extends Object> clazz = entry.getValue()
-                        .getClass();
+            for (Class<?> clazz : clazzList) {
                 Table table = clazz.getAnnotation(Table.class);
+                if(table == null){
+                    continue;
+                }
                 ResultSet rs = meta.getTables(null, null, table.name(), new String[]{"TABLE"});
                 boolean tableExistFlag = false;
                 while (rs.next()) {

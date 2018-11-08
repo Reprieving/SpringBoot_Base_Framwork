@@ -15,7 +15,6 @@ import java.sql.Timestamp;
 @Setter
 @Alias("Department")
 @Table(name = "sys_department")
-@Component
 public class Department implements Serializable {
 
     private static final long serialVersionUID = 9177358339345306837L;
