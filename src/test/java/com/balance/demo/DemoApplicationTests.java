@@ -1,6 +1,6 @@
 package com.balance.demo;
 
-import com.balance.core.mybatis.mapper.BaseMapper;
+import com.balance.architecture.mybatis.mapper.BaseMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;

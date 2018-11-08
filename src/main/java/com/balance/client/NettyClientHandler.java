@@ -1,8 +1,8 @@
 package com.balance.client;
 
-import com.balance.core.dto.TransferObject;
-import com.balance.core.exception.DataTypeErrorException;
-import com.balance.core.exception.StateErrorException;
+import com.balance.architecture.dto.TransferObject;
+import com.balance.architecture.exception.DataTypeErrorException;
+import com.balance.architecture.exception.StateErrorException;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;

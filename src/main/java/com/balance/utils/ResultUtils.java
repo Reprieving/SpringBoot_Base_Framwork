@@ -1,6 +1,6 @@
 package com.balance.utils;
 
-import com.balance.core.dto.Result;
+import com.balance.architecture.dto.Result;
 
 public class ResultUtils {
     public static final Integer RSP_SUCCESS = 0;

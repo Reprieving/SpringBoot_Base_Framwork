@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.balance.sys.mapper.FunctionMapper">
+<mapper namespace="com.balance.mapper.sys.FunctionMapper">
     <resultMap id="funcTreeMap" type="FuncTreeNode">
         <id property="id" column="id"></id>
         <result property="pid" column="parent_id"></result>
@@ -57,7 +57,7 @@
         </choose>
     </select>
     
-    <insert id="insertFuc" parameterType="com.balance.sys.entity.Function">
+    <insert id="insertFuc" parameterType="com.balance.entity.sys.Function">
         INSERT INTO sys_function(id,parent_id,module_name,function_name,url,is_leaf,component,icon_code,create_by,create_time,is_valid)
         VALUES (#{function.id},#{function.parentId},#{function.moduleName},#{function.functionName},#{function.url},#{function.isMenu},#{function.component},
                 #{function.iconCode},#{function.createBy},#{function.createTime},#{function.isValid})

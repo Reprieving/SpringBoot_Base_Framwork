@@ -1,7 +1,7 @@
 package com.balance.utils;
 
-import com.balance.sys.entity.FuncTreeNode;
-import com.balance.work.entity.ApiTreeNode;
+import com.balance.entity.sys.FuncTreeNode;
+import com.balance.entity.work.ApiTreeNode;
 
 import java.util.ArrayList;
 import java.util.List;

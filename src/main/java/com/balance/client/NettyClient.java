@@ -1,6 +1,6 @@
 package com.balance.client;
 
-import com.balance.core.dto.TransferObject;
+import com.balance.architecture.dto.TransferObject;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;

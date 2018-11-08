@@ -1,7 +1,7 @@
 package com.balance.utils;
 
-import com.balance.work.entity.AppInterface;
-import com.balance.work.entity.ParamStatement;
+import com.balance.entity.work.AppInterface;
+import com.balance.entity.work.ParamStatement;
 
 import java.util.ArrayList;
 import java.util.List;

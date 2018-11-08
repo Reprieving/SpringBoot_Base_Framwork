@@ -1,6 +1,6 @@
 package com.balance.utils;
 
-import com.balance.core.mybatis.annotation.Column;
+import com.balance.architecture.mybatis.annotation.Column;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
