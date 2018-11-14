@@ -4,12 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.dto.Result;
 import com.balance.utils.JwtUtils;
 import com.balance.utils.ResultUtils;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@Component
 public class AuthorityInterceptor implements HandlerInterceptor{
 
     @Override
@@ -21,7 +23,7 @@ public class AuthorityInterceptor implements HandlerInterceptor{
                 return true;
             }
         }
-        Result result = ResultUtils.error(ResultUtils.RSP_LOGIN,"");
+        Result result = ResultUtils.reLogin("re-login");
         httpServletResponse.getWriter().write(JSONObject.toJSONString(result));
         return false;
     }

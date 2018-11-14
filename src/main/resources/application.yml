@@ -5,7 +5,7 @@ spring:
   datasource:
     username: root
     password: root
-    url: jdbc:mysql://localhost:3306/basic?characterEncoding=utf8&useSSL=false
+    url: jdbc:mysql://localhost:3306/basis?characterEncoding=utf8&useSSL=false
     driver-class-name: com.mysql.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     filters: stat
@@ -21,17 +21,26 @@ spring:
     testOnReturn: false
     poolPreparedStatements: true
     maxOpenPreparedStatements: 20
-#  redis:
-#    database: 0
-#    host: 127.0.0.1
-#    password: GJQVNRLF
-#    port: 6379
-#    jedis:
-#      pool:
-#        max-active: 8
-#        min-idle: 0
-#        max-idle: 8
-#        max-wait: -1
+
+jetcache:
+  statIntervalMinutes: 15
+  areaInCacheName: false
+  local:
+    default:
+      type: linkedhashmap
+      keyConvertor: fastjson
+  remote:
+    default:
+      type: redis
+      keyConvertor: fastjson
+      valueEncoder: java
+      valueDecoder: java
+      poolConfig:
+        minIdle: 5
+        maxIdle: 20
+        maxTotal: 50
+      host: 127.0.0.1
+      port: 6379
 
 mybatis:
   mapperLocations: classpath:mybatis/mapper/**/*.xml
