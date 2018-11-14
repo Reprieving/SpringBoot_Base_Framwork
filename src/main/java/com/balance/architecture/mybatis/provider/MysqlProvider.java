@@ -20,7 +20,9 @@ public class MysqlProvider {
 
     private static final String AS = " AS ";
     public static final String PARAM_LIST = "tList";
+    public static final String OBJECT_LIST = "objectList";
     public static final String CLAZZ = "clazz";
+    public static final String ENTITY = "entity";
     public static final String PAGINATION = "pagination";
     private static final String IN = " IN ";
     private static final String EQUAL = " = ";
@@ -28,15 +30,16 @@ public class MysqlProvider {
     private static final String SUFFIX = "}";
     private static final String PARAM = "'";
 
-    public String insert(Object object) throws Exception {
-        Class<?> clazz = object.getClass();
+    public String insert(Map<String, Object> map) throws Exception {
+        Class<?> clazz = (Class<?>) map.get(CLAZZ);
+        Object object = map.get(ENTITY);
         String tableName = TableUtil.getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
         List<Object> voAttrList = new ArrayList<>(20);
-        Field[] fields = object.getClass()
-                .getDeclaredFields();
+        Field[] fields = object.getClass().getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
             Field f = fields[i];
+
             Column column = f.getAnnotation(Column.class);
             Id id = f.getAnnotation(Id.class);
             if(id!=null){
@@ -45,7 +48,8 @@ public class MysqlProvider {
             }
             if (column != null) {
                 dbColumnList.add(column.name());
-                voAttrList.add(PREFIX + f.getName() + SUFFIX);
+                f.setAccessible(true);
+                voAttrList.add(checkValue(f.get(object)));
             }
         }
         return new SQL() {{
@@ -53,8 +57,9 @@ public class MysqlProvider {
         }}.toString();
     }
 
-    public String insertSelective(Object object) throws Exception {
-        Class<?> clazz = object.getClass();
+    public String insertIfNotNull(Map<String, Object> map) throws Exception {
+        Class<?> clazz = (Class<?>) map.get(CLAZZ);
+        Object object = map.get(ENTITY);
         String tableName = TableUtil.getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
         List<Object> voAttrList = new ArrayList<>(20);
@@ -73,7 +78,7 @@ public class MysqlProvider {
                 Object attrVal = fields[i].get(object);
                 if(attrVal != null){
                     dbColumnList.add(column.name());
-                    voAttrList.add(PREFIX + f.getName() + SUFFIX);
+                    voAttrList.add(checkValue(f.get(object)));
                 }
             }
         }
@@ -82,12 +87,13 @@ public class MysqlProvider {
         }}.toString();
     }
 
-    public String delete(Object object) throws Exception {
-        Class<?> clazz = object.getClass();
+    public String delete(Map<String, Object> map) throws Exception {
+        Class<?> clazz = (Class<?>) map.get(CLAZZ);
+        Object object = map.get(ENTITY);
         String tableName = TableUtil.getTableName(clazz);
         Field[] fields = object.getClass()
                 .getDeclaredFields();
-        String idPoColumn = "";
+        Object idPoVal = null;
         String idDbColumn = "";
         for (int i = 0; i < fields.length; i++) {
             Field f = fields[i];
@@ -96,40 +102,40 @@ public class MysqlProvider {
                 f.setAccessible(true);
                 Column column_annotation = f.getAnnotation(Column.class);
                 idDbColumn = column_annotation.name();
-                idPoColumn = f.getName();
+                idPoVal = f.get(object);
             }
         }
         ValueCheckUtils.notEmpty(tableName, clazz.getName() + " need Table annotation");
         ValueCheckUtils.notEmpty(idDbColumn, clazz.getName() + " need Id annotation");
 
         String finalIdDbColumn = idDbColumn;
-        String finalIdPoColumn = idPoColumn;
+        Object finalIdPoColumn = idPoVal;
         return new SQL() {{
             DELETE_FROM(tableName);
-            WHERE(finalIdDbColumn + EQUAL + PREFIX + finalIdPoColumn + SUFFIX);
+            WHERE(finalIdDbColumn + EQUAL + checkValue(finalIdPoColumn));
         }}.toString();
     }
 
-    public String update(Object object) throws Exception {
-        Class<?> clazz = object.getClass();
+    public String update(Map<String, Object> map) throws Exception {
+        Class<?> clazz = (Class<?>) map.get(CLAZZ);
+        Object object = map.get(ENTITY);
         String tableName = TableUtil.getTableName(clazz);
         List<String> setList = new ArrayList<>(20);
-        String idPoColumn = "";
         String idDbColumn = "";
-
+        Object idPoVal = null;
         Field[] fields = object.getClass()
                 .getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
             Field f = fields[i];
+            f.setAccessible(true);
             Column column = f.getAnnotation(Column.class);
             Id id_annotation = f.getAnnotation(Id.class);
             if (id_annotation != null) {
-                idPoColumn = f.getName();
                 idDbColumn = column.name();
+                idPoVal = f.get(object);
             }
             if (column != null && id_annotation == null) {
-                f.setAccessible(true);
-                setList.add(column.name() + EQUAL + PREFIX + f.getName() + SUFFIX);
+                setList.add(column.name() + EQUAL + checkValue(f.get(object)));
             }
         }
 
@@ -138,23 +144,20 @@ public class MysqlProvider {
 
 
         String finalIdDbColumn = idDbColumn;
+        Object finalIdPoVal = idPoVal;
         return new SQL() {{
             UPDATE(tableName);
             SET(StringUtils.join(setList.toArray(), ","));
-            WHERE(finalIdDbColumn + EQUAL + PREFIX + ID_VALUE + SUFFIX);
+            WHERE(finalIdDbColumn + EQUAL + checkValue(finalIdPoVal));
         }}.toString();
     }
 
 
     public String selectById(Map<String, Object> objects) throws Exception {
         Class<?> clazz = (Class<?>) objects.get(CLAZZ);
-        Serializable id = (Serializable) objects.get(ID_VALUE);
-
         Object object = clazz.newInstance();
-
         String tableName = TableUtil.getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
-        String idPoColumn = "";
         String idDbColumn = "";
         Field[] fields = object.getClass()
                 .getDeclaredFields();
@@ -164,7 +167,6 @@ public class MysqlProvider {
             String voColumn = f.getName();
             Id id_annotation = f.getAnnotation(Id.class);
             if (id_annotation != null) {
-                idPoColumn = voColumn;
                 f.setAccessible(true);
                 isId = true;
             }
@@ -189,46 +191,46 @@ public class MysqlProvider {
         }}.toString();
     }
 
-    public String selectListByIds(Map<String, Object> objects) throws Exception {
-        List<Object> objectList = (List<Object>) objects.get(PARAM_LIST);
-        ValueCheckUtils.notEmpty(objectList, objectList.getClass()
-                .getName() + " data list's size must greater than zero");
+    public String selectAll(Map<String, Object> objects) throws Exception {
         Class<?> clazz = (Class<?>) objects.get(CLAZZ);
         String tableName = TableUtil.getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
-        List<Object> idList = new ArrayList<>(20);
         String idDbColumn = "";
         Field[] fields = clazz.getDeclaredFields();
-        for (int j = 0; j < objectList.size(); j++) {
-            for (int i = 0; i < fields.length; i++) {
-                boolean isId = false;
-                Field f = fields[i];
-                String voColumn = f.getName();
-                Id id_annotation = f.getAnnotation(Id.class);
-                if (id_annotation != null) {
-                    isId = true;
-                    idList.add(PARAM + objectList.get(j) + PARAM);
+        for (int i = 0; i < fields.length; i++) {
+            boolean isId = false;
+            Field f = fields[i];
+            String voColumn = f.getName();
+            Id id_annotation = f.getAnnotation(Id.class);
+            if (id_annotation != null) {
+                isId = true;
+            }
+            Column column_annotation = f.getAnnotation(Column.class);
+            if (column_annotation != null) {
+                String dbColumn = column_annotation.name();
+                if (isId) {
+                    idDbColumn = dbColumn;
                 }
-                Column column_annotation = f.getAnnotation(Column.class);
-                if (column_annotation != null) {
-                    String dbColumn = column_annotation.name();
-                    if (isId) {
-                        idDbColumn = dbColumn;
-                    }
-                    if(j<1){
-                        dbColumnList.add(dbColumn + " " + AS + " " + voColumn);
-                    }
-                }
+                dbColumnList.add(dbColumn + " " + AS + " " + voColumn);
             }
         }
         ValueCheckUtils.notEmpty(tableName, clazz.getName() + " need Table annotation");
         ValueCheckUtils.notEmpty(idDbColumn, clazz.getName() + " need Id annotation");
 
-        String finalIdDbColumn = idDbColumn;
         return new SQL() {{
             SELECT(StringUtils.join(dbColumnList, ","));
             FROM(tableName);
-            WHERE(finalIdDbColumn + IN + "(" + StringUtils.join(idList, ",") + ")");
         }}.toString();
+    }
+
+    public Object checkValue(Object object){
+        if(!(object instanceof Boolean)){
+            object = PARAM+object+PARAM;
+        }
+        return object;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(0 % 100);
     }
 }

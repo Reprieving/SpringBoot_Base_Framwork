@@ -47,4 +47,7 @@ public class Role implements Serializable{
 
     //value column
     private List<Function> functionList;
+
+    //value column
+    private List<RoleFunction> roleFunctions;
 }
