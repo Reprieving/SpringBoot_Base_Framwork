@@ -4,8 +4,8 @@ server:
 spring:
   datasource:
     username: root
-    password: aliyun@Mysql2018
-    url: jdbc:mysql://47.99.209.130:3306/basic?characterEncoding=utf8&useSSL=false
+    password: root
+    url: jdbc:mysql://localhost:3306/basic?characterEncoding=utf8&useSSL=false
     driver-class-name: com.mysql.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     filters: stat
