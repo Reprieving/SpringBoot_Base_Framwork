@@ -12,6 +12,7 @@ import org.apache.ibatis.jdbc.SQL;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,10 @@ public class MysqlProvider {
     public static final String ID_VALUE = "idVal";
 
     private static final String AS = " AS ";
+    private static final String AND = " AND ";
+    private static final String AND_11 = " 1=1 ";
     public static final String WHERE_STR = "whereStr";
+    public static final String PARAM_MAP = "paramMap";
     public static final String WHERE_VALUE = "whereValue";
     public static final String WHERE = " where ";
     public static final String PARAM_LIST = "tList";
@@ -225,6 +229,36 @@ public class MysqlProvider {
         }}.toString();
     }
 
+    public String selectOneByWhereMap(Map<String, Object> objects) throws Exception {
+        Class<?> clazz = (Class<?>) objects.get(CLAZZ);
+        Map<String, Object> map = (Map<String, Object>) objects.get(PARAM_MAP);
+        Object object = clazz.newInstance();
+        String tableName = TableUtil.getTableName(clazz);
+        List<String> dbColumnList = new ArrayList<>(20);
+        Field[] fields = object.getClass()
+                .getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            Field f = fields[i];
+            String voColumn = f.getName();
+            Column column_annotation = f.getAnnotation(Column.class);
+            if (column_annotation != null) {
+                String dbColumn = column_annotation.name();
+                dbColumnList.add(dbColumn + " " + AS + " " + voColumn);
+            }
+        }
+
+        ValueCheckUtils.notEmpty(tableName, clazz.getName() + " need Table annotation");
+        return new SQL() {{
+            SELECT(StringUtils.join(dbColumnList, ","));
+            FROM(tableName);
+            String whereStr = "";
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                whereStr += AND + entry.getKey() + checkValue(entry.getValue());
+            }
+            WHERE(AND_11 + whereStr);
+        }}.toString();
+    }
+
     public String selectAll(Map<String, Object> objects) throws Exception {
         Class<?> clazz = (Class<?>) objects.get(CLAZZ);
 
@@ -273,9 +307,37 @@ public class MysqlProvider {
         }}.toString();
     }
 
+    public String selectListByWhereMap(Map<String, Object> objects) throws Exception {
+        Class<?> clazz = (Class<?>) objects.get(CLAZZ);
+        Map<String, Object> map = (Map<String, Object>) objects.get(PARAM_MAP);
+        String tableName = TableUtil.getTableName(clazz);
+        List<String> dbColumnList = new ArrayList<>(20);
+        Field[] fields = clazz.getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            Field f = fields[i];
+            String voColumn = f.getName();
+            Column column_annotation = f.getAnnotation(Column.class);
+            if (column_annotation != null) {
+                String dbColumn = column_annotation.name();
+                dbColumnList.add(dbColumn + " " + AS + " " + voColumn);
+            }
+        }
+        ValueCheckUtils.notEmpty(tableName, clazz.getName() + " need Table annotation");
+
+        return new SQL() {{
+            SELECT(StringUtils.join(dbColumnList, ","));
+            FROM(tableName);
+            String whereStr = "";
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                whereStr += AND + entry.getKey() + checkValue(entry.getValue());
+            }
+            WHERE(AND_11 + whereStr);
+        }}.toString();
+    }
+
 
     public Object checkValue(Object object) throws BussinessException {
-        isHasSQLInject((String) object);
+//        isHasSQLInject((String) object);
 
         if (!(object instanceof Boolean)) {
             object = PARAM + object + PARAM;
@@ -283,7 +345,7 @@ public class MysqlProvider {
         return object;
     }
 
-    //字符串过滤，防止sql注入。
+    //sql注入字符串过滤
     public static void isHasSQLInject(String str) throws BussinessException {
         Boolean isHasSQLInject = false;
         str = str.toUpperCase().trim();

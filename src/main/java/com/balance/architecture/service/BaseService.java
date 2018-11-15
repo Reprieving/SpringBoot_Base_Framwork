@@ -15,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BaseService {
@@ -93,6 +95,14 @@ public class BaseService {
         }
     }
 
+    public <T> T selectOneByWhereMap(Map<String,Object> paramMap, Class<T> clazz) {
+        try {
+            return baseMapper.selectOneByWhereMap(paramMap, clazz);
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
+
     public <T> List<T> selectAll(Class<T> clazz, Pagination pagination) {
         try {
             return (List<T>) baseMapper.selectAll(clazz, pagination).get(0);
@@ -103,7 +113,23 @@ public class BaseService {
 
     public <T> List<T> selectListByWhere(String whereStr, Object objectValue, Class<T> clazz, Pagination pagination) {
         try {
-            return (List<T>) baseMapper.selectListByWhere(whereStr,objectValue,clazz, pagination).get(0);
+            T o = baseMapper.selectListByWhere(whereStr,objectValue,clazz, pagination).get(0);
+            if(!(o instanceof List)){
+                return Arrays.asList(o);
+            }
+            return (List<T>) o;
+        } catch (NullPointerException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public <T> List<T> selectListByWhereMap(Map<String,Object> paramMap, Class<T> clazz, Pagination pagination) {
+        try {
+            T o = baseMapper.selectListByWhereMap(paramMap,clazz, pagination).get(0);
+            if(!(o instanceof List)){
+                return Arrays.asList(o);
+            }
+            return (List<T>) o;
         } catch (NullPointerException e) {
             return new ArrayList<>();
         }

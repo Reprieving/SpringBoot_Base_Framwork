@@ -19,8 +19,15 @@ public class AppUserController {
 
     @RequestMapping("register")
     public Result<?> register(User user) throws BussinessException {
+        user.setUserName("1");
         userService.createUser(user);
         return ResultUtils.success("注册成功");
+    }
+
+    @RequestMapping("login")
+    public Result<?> login(User user) throws BussinessException {
+        String loginToken = userService.login(user);
+        return ResultUtils.success("登录成功");
     }
 
 }
