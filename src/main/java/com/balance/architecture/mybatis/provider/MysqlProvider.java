@@ -1,7 +1,7 @@
 package com.balance.architecture.mybatis.provider;
 
 
-import com.balance.architecture.exception.BussinessException;
+import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.mybatis.TableUtil;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
@@ -12,7 +12,6 @@ import org.apache.ibatis.jdbc.SQL;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -336,7 +335,7 @@ public class MysqlProvider {
     }
 
 
-    public Object checkValue(Object object) throws BussinessException {
+    public Object checkValue(Object object) throws BusinessException {
 //        isHasSQLInject((String) object);
 
         if (!(object instanceof Boolean)) {
@@ -346,7 +345,7 @@ public class MysqlProvider {
     }
 
     //sql注入字符串过滤
-    public static void isHasSQLInject(String str) throws BussinessException {
+    public static void isHasSQLInject(String str) throws BusinessException {
         Boolean isHasSQLInject = false;
         str = str.toUpperCase().trim();
         String[] inj_str_array = SQL_INJ_STR.split("\\|");
@@ -357,7 +356,7 @@ public class MysqlProvider {
             }
         }
         if (isHasSQLInject) {
-            throw new BussinessException("请勿输入特殊字符");
+            throw new BusinessException("请勿输入特殊字符");
         }
     }
 

@@ -87,7 +87,7 @@ public class BaseService {
         }
     }
 
-    public <T> T selectOneByWhere(String whereStr,Object objectValue, Class<T> clazz) {
+    public <T> T selectOneByWhereString(String whereStr,Object objectValue, Class<T> clazz) {
         try {
             return baseMapper.selectOneByWhere(whereStr,objectValue, clazz);
         } catch (NullPointerException e) {
@@ -111,7 +111,7 @@ public class BaseService {
         }
     }
 
-    public <T> List<T> selectListByWhere(String whereStr, Object objectValue, Class<T> clazz, Pagination pagination) {
+    public <T> List<T> selectListByWhereString(String whereStr, Object objectValue, Class<T> clazz, Pagination pagination) {
         try {
             T o = baseMapper.selectListByWhere(whereStr,objectValue,clazz, pagination).get(0);
             if(!(o instanceof List)){

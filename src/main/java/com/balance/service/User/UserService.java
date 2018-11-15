@@ -1,7 +1,7 @@
 package com.balance.service.User;
 
 import com.balance.architecture.dto.Pagination;
-import com.balance.architecture.exception.BussinessException;
+import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.entity.user.User;
 import com.balance.mapper.user.UserMapper;
@@ -17,12 +17,12 @@ public class UserService extends BaseService{
     @Autowired
     private UserMapper userMapper;
 
-    public void createUser(User user) throws BussinessException {
-        List<User> user1 = selectListByWhere("user_name=",user.getUserName(),User.class,null);
+    public void createUser(User user) throws BusinessException {
+        User user1 = selectOneByWhereString("user_name=",user.getUserName(),User.class);
         if(user1!=null){
-            throw new BussinessException("用户已存在");
+            throw new BusinessException("用户已存在");
         }
-//        super.insertIfNotNull(user);
+        super.insertIfNotNull(user);
     }
 
     public String login(User user) {
