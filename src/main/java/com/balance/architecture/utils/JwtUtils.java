@@ -1,4 +1,4 @@
-package com.balance.utils;
+package com.balance.architecture.utils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -55,7 +55,7 @@ public class JwtUtils {
         String token = JWT.create().withHeader(map)
                 .withClaim(TOKEN_CLAIM_USERNAME, userName)
                 .withClaim(TOKEN_CLAIM_USERID, userId)
-                .withExpiresAt(new Date(EXPIRE_TIME))
+                .withExpiresAt(new Date(System.currentTimeMillis()+EXPIRE_TIME))
                 .sign(algorithm);
         return token;
     }

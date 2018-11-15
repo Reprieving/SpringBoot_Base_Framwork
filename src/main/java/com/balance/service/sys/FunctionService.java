@@ -4,7 +4,7 @@ import com.balance.architecture.mybatis.mapper.BaseMapper;
 import com.balance.entity.sys.FuncTreeNode;
 import com.balance.entity.sys.Function;
 import com.balance.mapper.sys.FunctionMapper;
-import com.balance.utils.TreeNodeUtils;
+import com.balance.architecture.utils.TreeNodeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

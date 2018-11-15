@@ -4,12 +4,11 @@ package com.balance.architecture.mybatis.provider;
 import com.balance.architecture.mybatis.TableUtil;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
-import com.balance.utils.UUIDUtils;
-import com.balance.utils.ValueCheckUtils;
+import com.balance.architecture.utils.UUIDUtils;
+import com.balance.architecture.utils.ValueCheckUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
 
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;

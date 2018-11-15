@@ -1,4 +1,4 @@
-package com.balance.utils;
+package com.balance.architecture.utils;
 
 import com.balance.entity.sys.FuncTreeNode;
 import com.balance.entity.work.ApiTreeNode;

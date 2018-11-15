@@ -1,4 +1,4 @@
-package com.balance.utils;
+package com.balance.architecture.utils;
 
 import java.util.UUID;
 

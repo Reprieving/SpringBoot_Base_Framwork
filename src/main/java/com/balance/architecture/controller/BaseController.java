@@ -1,7 +1,7 @@
 package com.balance.architecture.controller;
 
 import com.balance.architecture.dto.Result;
-import com.balance.utils.ResultUtils;
+import com.balance.architecture.utils.ResultUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;

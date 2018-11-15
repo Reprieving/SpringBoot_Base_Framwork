@@ -1,6 +1,6 @@
 package com.balance.service.work;
 
-import com.balance.utils.UUIDUtils;
+import com.balance.architecture.utils.UUIDUtils;
 import com.balance.entity.work.AppInterface;
 import com.balance.entity.work.Project;
 import com.balance.mapper.work.AppInterfaceMapper;

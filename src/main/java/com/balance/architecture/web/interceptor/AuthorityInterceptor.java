@@ -2,8 +2,8 @@ package com.balance.architecture.web.interceptor;
 
 import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.dto.Result;
-import com.balance.utils.JwtUtils;
-import com.balance.utils.ResultUtils;
+import com.balance.architecture.utils.JwtUtils;
+import com.balance.architecture.utils.ResultUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;

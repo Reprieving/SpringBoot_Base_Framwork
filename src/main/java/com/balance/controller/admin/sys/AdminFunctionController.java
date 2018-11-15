@@ -5,15 +5,14 @@ import com.balance.entity.sys.FuncTreeNode;
 import com.balance.entity.sys.Function;
 import com.balance.entity.sys.Subscriber;
 import com.balance.service.sys.FunctionService;
-import com.balance.utils.ResultUtils;
+import com.balance.architecture.utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("function")
-public class FunctionController{
+@RequestMapping("admin/function")
+public class AdminFunctionController {
     @Autowired
     private FunctionService functionService;
 

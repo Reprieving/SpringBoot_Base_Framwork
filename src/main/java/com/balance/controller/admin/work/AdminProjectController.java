@@ -1,7 +1,7 @@
 package com.balance.controller.admin.work;
 
 import com.balance.architecture.dto.Result;
-import com.balance.utils.ResultUtils;
+import com.balance.architecture.utils.ResultUtils;
 import com.balance.entity.work.Project;
 import com.balance.service.work.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +13,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 @RestController
-@RequestMapping("project")
+@RequestMapping("admin/project")
 @CrossOrigin
-public class ProjectController{
+public class AdminProjectController {
 
     @Autowired
     private ProjectService projectService;

@@ -1,4 +1,4 @@
-package com.balance.utils;
+package com.balance.architecture.utils;
 
 import com.balance.architecture.mybatis.annotation.Column;
 

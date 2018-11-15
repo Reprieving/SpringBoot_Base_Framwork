@@ -2,7 +2,7 @@ package com.balance.architecture.mybatis.interceptor;
 
 import com.balance.architecture.mybatis.mapper.BaseMapper;
 import com.balance.architecture.mybatis.provider.MysqlProvider;
-import com.balance.utils.JDBCResultSetUtils;
+import com.balance.architecture.utils.JDBCResultSetUtils;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.executor.resultset.DefaultResultSetHandler;
 import org.apache.ibatis.executor.resultset.ResultSetHandler;

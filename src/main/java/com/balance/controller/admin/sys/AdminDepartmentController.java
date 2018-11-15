@@ -2,16 +2,15 @@ package com.balance.controller.admin.sys;
 
 import com.balance.architecture.dto.Result;
 import com.balance.entity.sys.Department;
-import com.balance.utils.ResultUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import com.balance.architecture.utils.ResultUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.Timestamp;
 
 @RestController
-@RequestMapping("department")
-public class DepartmentController{
+@RequestMapping("admin/department")
+public class AdminDepartmentController {
 
 
     @RequestMapping("info")

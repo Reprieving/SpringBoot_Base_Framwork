@@ -2,7 +2,7 @@ package com.balance.controller.admin.work;
 
 import com.alibaba.fastjson.JSON;
 import com.balance.architecture.dto.Result;
-import com.balance.utils.ResultUtils;
+import com.balance.architecture.utils.ResultUtils;
 import com.balance.entity.work.ApiTreeNode;
 import com.balance.entity.work.AppInterface;
 import com.balance.entity.work.Project;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.sql.SQLException;
 
 @RestController
-@RequestMapping("appInterface")
+@RequestMapping("admin/appInterface")
 @CrossOrigin
-public class AppInterfaceController {
+public class AdminAppInterfaceController {
 
     @Autowired
     private AppInterfaceService appInterfaceService;

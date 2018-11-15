@@ -4,20 +4,16 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.service.BaseService;
 import com.balance.entity.sys.Role;
-import com.balance.utils.ResultUtils;
+import com.balance.architecture.utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.Serializable;
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("role")
-public class RoleController {
+@RequestMapping("admin/role")
+public class AdminRoleController {
 
     @Autowired
     private BaseService baseService;
