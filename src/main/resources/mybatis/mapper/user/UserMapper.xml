@@ -13,8 +13,4 @@
         <result property="createTime" column="create_time"></result>
         <result property="status" column="status"></result>
     </resultMap>
-    <select id="selectUserByUserName" resultType="java.lang.Integer">
-        select count(1) from "user" WHERE user_name = #{userName}
-    </select>
-
 </mapper>
