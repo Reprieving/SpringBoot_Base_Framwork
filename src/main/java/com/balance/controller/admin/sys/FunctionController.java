@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("function")
-@CrossOrigin
 public class FunctionController{
     @Autowired
     private FunctionService functionService;

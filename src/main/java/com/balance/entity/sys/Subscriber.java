@@ -35,7 +35,7 @@ public class Subscriber implements Serializable{
     private String realName;
 
     //密码
-    @Column(name = "pass_word")
+    @Column(name = "password")
     private String password;
 
     //部门id
@@ -62,4 +62,11 @@ public class Subscriber implements Serializable{
     //角色
     private List<Role> roleList;
 
+    //value column
+    //subscriberFunctionTree
+    private FuncTreeNode funcTreeNode;
+
+    //value column
+    //loginToken
+    private String loginToken;
 }

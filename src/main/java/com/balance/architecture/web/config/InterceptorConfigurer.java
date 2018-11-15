@@ -6,8 +6,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 @Configuration
-public class WebAppConfigurer extends WebMvcConfigurationSupport {
+public class InterceptorConfigurer extends WebMvcConfigurationSupport {
+
+
 
     @Autowired
     private AuthorityInterceptor authorityInterceptor;
@@ -17,6 +23,9 @@ public class WebAppConfigurer extends WebMvcConfigurationSupport {
         // addPathPatterns 用于添加拦截规则
         // excludePathPatterns 用户排除拦截
         registry.addInterceptor(authorityInterceptor).addPathPatterns("/**");
+
+
+//        registry.addInterceptor(authorityInterceptor).excludePathPatterns("/function/subsFuncTree");
         super.addInterceptors(registry);
     }
 }

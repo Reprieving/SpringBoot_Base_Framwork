@@ -14,4 +14,5 @@ public interface SubscriberMapper {
     List<Subscriber> selectList(@Param(MybatisConst.PAGINATION) Pagination pagination, @Param("subscriber")Subscriber subscriber);
 
 
+    Subscriber selectSubscriberByLogin(@Param("userName")String userName, @Param("password")String password);
 }

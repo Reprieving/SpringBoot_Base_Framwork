@@ -11,7 +11,6 @@ import java.sql.Timestamp;
 
 @RestController
 @RequestMapping("department")
-@CrossOrigin
 public class DepartmentController{
 
 

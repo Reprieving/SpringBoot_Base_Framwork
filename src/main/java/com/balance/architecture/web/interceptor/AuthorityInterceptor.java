@@ -10,16 +10,25 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
-public class AuthorityInterceptor implements HandlerInterceptor{
+public class AuthorityInterceptor implements HandlerInterceptor {
+
+    private static final List<String> excludePath = new ArrayList<>(Arrays.asList("/subscriber/login"));
 
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
-        String token = httpServletRequest.getHeader(JwtUtils.TOKEN_NAME);
-        if(null != token){
+        if (excludePath.contains(httpServletRequest.getRequestURI())) {
+            return true;
+        }
+
+        String token = httpServletRequest.getHeader(JwtUtils.REQ_HEADER_TOKEN_NAME);
+        if (null != token) {
             Boolean verifyJwtResult = JwtUtils.verifyJwt(token);
-            if(verifyJwtResult){
+            if (verifyJwtResult) {
                 return true;
             }
         }

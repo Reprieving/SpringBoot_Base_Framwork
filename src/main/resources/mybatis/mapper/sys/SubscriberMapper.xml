@@ -25,4 +25,8 @@
         SELECT * FROM sys_subscriber
     </select>
 
+    <select id="selectSubscriberByLogin" resultMap="subscriberMap">
+        SELECT id,user_name FROM sys_subscriber where user_name = #{userName} and password = #{password}
+    </select>
+
 </mapper>

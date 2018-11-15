@@ -23,14 +23,20 @@ public class JwtUtils {
     public static final String TOKEN_SECRET = "680dd9891cda8ffa6a6259e5cbd8ab8e";
 
     /**
-     * 前端token字段
+     * tokenName
      */
     public static final String TOKEN_NAME = "accessToken";
+
+    /**
+     * request header tokenName
+     */
+    public static final String REQ_HEADER_TOKEN_NAME = "Login-Token";
 
     /**
      * token claim userName
      */
     private static final String TOKEN_CLAIM_USERNAME = "userName";
+    private static final String TOKEN_CLAIM_USERID = "userId";
 
     /**
      * 创建token
@@ -39,14 +45,16 @@ public class JwtUtils {
      * @throws IllegalArgumentException
      * @throws UnsupportedEncodingException
      */
-    public static String creatToken(Subscriber subscriber) throws IllegalArgumentException, UnsupportedEncodingException {
+    public static String createToken(Subscriber subscriber) throws IllegalArgumentException, UnsupportedEncodingException {
         Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
         String userName = subscriber.getUserName();
+        String userId = subscriber.getId();
         Map<String, Object> map = new HashMap<>();
         map.put("alg", "HS256");
         map.put("typ", "JWT");
         String token = JWT.create().withHeader(map)
                 .withClaim(TOKEN_CLAIM_USERNAME, userName)
+                .withClaim(TOKEN_CLAIM_USERID, userId)
                 .withExpiresAt(new Date(EXPIRE_TIME))
                 .sign(algorithm);
         return token;

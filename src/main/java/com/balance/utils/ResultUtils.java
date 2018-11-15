@@ -16,8 +16,24 @@ public class ResultUtils {
         return result;
     }
 
+    //request success
+    public static Result success(String msg){
+        Result result = new Result();
+        result.setStateCode(RSP_SUCCESS);
+        result.setMessage(msg);
+        return result;
+    }
+
     //request fail
     public static Result error(int code,String msg){
+        Result result = new Result();
+        result.setStateCode(RSP_FAIL);
+        result.setMessage(msg);
+        return result;
+    }
+
+    //request fail
+    public static Result error(String msg){
         Result result = new Result();
         result.setStateCode(RSP_FAIL);
         result.setMessage(msg);

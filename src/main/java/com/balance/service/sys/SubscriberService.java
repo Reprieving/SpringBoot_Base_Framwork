@@ -35,4 +35,8 @@ public class SubscriberService {
         return  subscriberMapper.selectList(pagination, subscriber);
     }
 
+    public Subscriber getSubscriberByLogin(String userName, String password) {
+        return subscriberMapper.selectSubscriberByLogin(userName, password);
+
+    }
 }
