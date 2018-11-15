@@ -25,7 +25,13 @@ public interface BaseMapper {
     @SelectProvider(type = MysqlProvider.class, method = "selectById")
     <T> T selectById(@Param(MysqlProvider.ID_VALUE) Serializable id, @Param(MysqlProvider.CLAZZ) Class<T> tClass);
 
+    @SelectProvider(type = MysqlProvider.class, method = "selectByWhere")
+    <T> T selectOneByWhere(@Param(MysqlProvider.WHERE_STR) String whereStr,@Param(MysqlProvider.WHERE_VALUE) Object value, @Param(MysqlProvider.CLAZZ) Class<T> tClass);
+
     @SelectProvider(type = MysqlProvider.class, method = "selectAll")
     <T> List<T> selectAll(@Param(MysqlProvider.CLAZZ) Class<T> clazz, @Param(MysqlProvider.PAGINATION) Pagination pagination);
+
+    @SelectProvider(type = MysqlProvider.class, method = "selectListByWhere")
+    <T> List<T> selectListByWhere(@Param(MysqlProvider.WHERE_STR) String whereStr,@Param(MysqlProvider.WHERE_VALUE) Object value,@Param(MysqlProvider.CLAZZ) Class<T> clazz, @Param(MysqlProvider.PAGINATION) Pagination pagination);
 
 }

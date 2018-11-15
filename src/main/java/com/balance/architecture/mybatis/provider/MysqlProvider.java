@@ -1,6 +1,7 @@
 package com.balance.architecture.mybatis.provider;
 
 
+import com.balance.architecture.exception.BussinessException;
 import com.balance.architecture.mybatis.TableUtil;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
@@ -18,6 +19,9 @@ public class MysqlProvider {
     public static final String ID_VALUE = "idVal";
 
     private static final String AS = " AS ";
+    public static final String WHERE_STR = "whereStr";
+    public static final String WHERE_VALUE = "whereValue";
+    public static final String WHERE = " where ";
     public static final String PARAM_LIST = "tList";
     public static final String OBJECT_LIST = "objectList";
     public static final String CLAZZ = "clazz";
@@ -28,6 +32,9 @@ public class MysqlProvider {
     private static final String PREFIX = "#{";
     private static final String SUFFIX = "}";
     private static final String PARAM = "'";
+
+    private static final String SQL_INJ_STR = "'|and|exec|union|create|insert|select|delete|update|count|*|%|chr|mid|master|truncate|char|declare|xp_|or|--|+|=|";
+
 
     public String insert(Map<String, Object> map) throws Exception {
         Class<?> clazz = (Class<?>) map.get(CLAZZ);
@@ -41,7 +48,7 @@ public class MysqlProvider {
 
             Column column = f.getAnnotation(Column.class);
             Id id = f.getAnnotation(Id.class);
-            if(id!=null){
+            if (id != null) {
                 f.setAccessible(true);
                 f.set(object, UUIDUtils.createUUID());
             }
@@ -68,14 +75,14 @@ public class MysqlProvider {
             Field f = fields[i];
             Column column = f.getAnnotation(Column.class);
             Id id = f.getAnnotation(Id.class);
-            if(id!=null) {
+            if (id != null) {
                 f.setAccessible(true);
                 f.set(object, UUIDUtils.createUUID());
             }
             if (column != null) {
                 f.setAccessible(true);
                 Object attrVal = fields[i].get(object);
-                if(attrVal != null){
+                if (attrVal != null) {
                     dbColumnList.add(column.name());
                     voAttrList.add(checkValue(f.get(object)));
                 }
@@ -181,7 +188,7 @@ public class MysqlProvider {
 
         ValueCheckUtils.notEmpty(tableName, clazz.getName() + " need Table annotation");
         ValueCheckUtils.notEmpty(idDbColumn, clazz.getName() + " need Id annotation");
-        
+
         String finalIdDbColumn = idDbColumn;
         return new SQL() {{
             SELECT(StringUtils.join(dbColumnList, ","));
@@ -190,31 +197,50 @@ public class MysqlProvider {
         }}.toString();
     }
 
-    public String selectAll(Map<String, Object> objects) throws Exception {
+    public String selectOneByWhere(Map<String, Object> objects) throws Exception {
         Class<?> clazz = (Class<?>) objects.get(CLAZZ);
+        String whereStr = (String) objects.get(WHERE_STR);
+        Object whereValue = objects.get(WHERE_VALUE);
+        Object object = clazz.newInstance();
         String tableName = TableUtil.getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
-        String idDbColumn = "";
-        Field[] fields = clazz.getDeclaredFields();
+        Field[] fields = object.getClass()
+                .getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
-            boolean isId = false;
             Field f = fields[i];
             String voColumn = f.getName();
-            Id id_annotation = f.getAnnotation(Id.class);
-            if (id_annotation != null) {
-                isId = true;
-            }
             Column column_annotation = f.getAnnotation(Column.class);
             if (column_annotation != null) {
                 String dbColumn = column_annotation.name();
-                if (isId) {
-                    idDbColumn = dbColumn;
-                }
+                dbColumnList.add(dbColumn + " " + AS + " " + voColumn);
+            }
+        }
+
+        ValueCheckUtils.notEmpty(tableName, clazz.getName() + " need Table annotation");
+
+        return new SQL() {{
+            SELECT(StringUtils.join(dbColumnList, ","));
+            FROM(tableName);
+            WHERE(whereStr + checkValue(whereValue));
+        }}.toString();
+    }
+
+    public String selectAll(Map<String, Object> objects) throws Exception {
+        Class<?> clazz = (Class<?>) objects.get(CLAZZ);
+
+        String tableName = TableUtil.getTableName(clazz);
+        List<String> dbColumnList = new ArrayList<>(20);
+        Field[] fields = clazz.getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            Field f = fields[i];
+            String voColumn = f.getName();
+            Column column_annotation = f.getAnnotation(Column.class);
+            if (column_annotation != null) {
+                String dbColumn = column_annotation.name();
                 dbColumnList.add(dbColumn + " " + AS + " " + voColumn);
             }
         }
         ValueCheckUtils.notEmpty(tableName, clazz.getName() + " need Table annotation");
-        ValueCheckUtils.notEmpty(idDbColumn, clazz.getName() + " need Id annotation");
 
         return new SQL() {{
             SELECT(StringUtils.join(dbColumnList, ","));
@@ -222,14 +248,58 @@ public class MysqlProvider {
         }}.toString();
     }
 
-    public Object checkValue(Object object){
-        if(!(object instanceof Boolean)){
-            object = PARAM+object+PARAM;
+    public String selectListByWhere(Map<String, Object> objects) throws Exception {
+        Class<?> clazz = (Class<?>) objects.get(CLAZZ);
+        String whereStr = (String) objects.get(WHERE_STR);
+        Object whereValue = objects.get(WHERE_VALUE);
+        String tableName = TableUtil.getTableName(clazz);
+        List<String> dbColumnList = new ArrayList<>(20);
+        Field[] fields = clazz.getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            Field f = fields[i];
+            String voColumn = f.getName();
+            Column column_annotation = f.getAnnotation(Column.class);
+            if (column_annotation != null) {
+                String dbColumn = column_annotation.name();
+                dbColumnList.add(dbColumn + " " + AS + " " + voColumn);
+            }
+        }
+        ValueCheckUtils.notEmpty(tableName, clazz.getName() + " need Table annotation");
+
+        return new SQL() {{
+            SELECT(StringUtils.join(dbColumnList, ","));
+            FROM(tableName);
+            WHERE(whereStr + checkValue(whereValue));
+        }}.toString();
+    }
+
+
+    public Object checkValue(Object object) throws BussinessException {
+        isHasSQLInject((String) object);
+
+        if (!(object instanceof Boolean)) {
+            object = PARAM + object + PARAM;
         }
         return object;
     }
 
+    //字符串过滤，防止sql注入。
+    public static void isHasSQLInject(String str) throws BussinessException {
+        Boolean isHasSQLInject = false;
+        str = str.toUpperCase().trim();
+        String[] inj_str_array = SQL_INJ_STR.split("\\|");
+        for (String sql : inj_str_array) {
+            if (str.indexOf(sql) > -1) {
+                isHasSQLInject = true;
+                break;
+            }
+        }
+        if (isHasSQLInject) {
+            throw new BussinessException("请勿输入特殊字符");
+        }
+    }
+
     public static void main(String[] args) {
-        System.out.println(0 % 100);
+
     }
 }
