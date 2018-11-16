@@ -1,4 +1,4 @@
-package com.balance.entity.goods;
+package com.balance.entity.shop;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,10 +8,10 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class GoodsBrand {
+public class GoodsSpeceValue {
     private BigInteger id;
-    private String brandName;
+    private BigInteger spuId;
+    private String specValue;
     private Timestamp createTime;
     private Timestamp updateTime;
-
 }

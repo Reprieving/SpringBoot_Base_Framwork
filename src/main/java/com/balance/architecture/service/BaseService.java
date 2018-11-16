@@ -31,18 +31,19 @@ public class BaseService {
     private SqlSessionTemplate sqlSessionTemplate;
 
     @Transactional
-    public <T> void insert(T entity) {
-        baseMapper.insert(entity.getClass(), entity);
+    public <T> Integer insert(T entity) {
+        return baseMapper.insert(entity.getClass(), entity);
     }
 
     @Transactional
-    public <T> void insertIfNotNull(T entity) {
-        baseMapper.insertIfNotNull(entity.getClass(), entity);
+    public <T> Integer insertIfNotNull(T entity) {
+        return baseMapper.insertIfNotNull(entity.getClass(), entity);
 
     }
 
     @Transactional
-    public <T> void insertBatch(List<T> entityList,Boolean insertNull) {
+    public <T> Integer insertBatch(List<T> entityList,Boolean insertNull) {
+        Integer flag;
         ValueCheckUtils.notEmpty(entityList, "entityList can't be null");
 
         Class clazz = entityList.get(0).getClass();
@@ -62,21 +63,22 @@ public class BaseService {
                     session.clearCache();
                 }
             }
+            flag = 1;
         } catch (Exception e) {
+            flag = 0;
             session.rollback();
         } finally {
             session.close();
         }
+        return flag;
     }
 
-    @Transactional
-    public void delete(Object entity) {
-        baseMapper.delete(entity.getClass(), entity);
+    public Integer delete(Object entity) {
+        return baseMapper.delete(entity.getClass(), entity);
     }
 
-    @Transactional
-    public void update(Object entity) {
-        baseMapper.update(entity.getClass(), entity);
+    public Integer update(Object entity) {
+        return baseMapper.update(entity.getClass(), entity);
     }
 
     public <T> T selectOneById(Serializable id, Class<T> clazz) {

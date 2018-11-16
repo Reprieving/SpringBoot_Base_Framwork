@@ -3,6 +3,7 @@ package com.balance.architecture.mybatis.interceptor;
 import com.balance.architecture.mybatis.mapper.BaseMapper;
 import com.balance.architecture.mybatis.provider.MysqlProvider;
 import com.balance.architecture.utils.JDBCResultSetUtils;
+import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.executor.resultset.DefaultResultSetHandler;
 import org.apache.ibatis.executor.resultset.ResultSetHandler;
@@ -18,7 +19,10 @@ import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Intercepts(@Signature(method="handleResultSets", type=ResultSetHandler.class, args={Statement.class}))
+@Intercepts({
+        @Signature(method="handleResultSets", type=ResultSetHandler.class, args={Statement.class}),
+//        @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class })
+})
 public class BaseResultSetInterceptor implements Interceptor {
     private Logger logger = LoggerFactory.getLogger(BaseResultSetInterceptor.class);
 

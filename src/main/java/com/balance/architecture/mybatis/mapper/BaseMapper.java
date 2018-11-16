@@ -18,7 +18,7 @@ public interface BaseMapper {
      * @param entity
      */
     @InsertProvider(type = MysqlProvider.class, method = "insert")
-    void insert(@Param(MysqlProvider.CLAZZ) Object clazz, @Param(MysqlProvider.ENTITY) Object entity);
+    Integer insert(@Param(MysqlProvider.CLAZZ) Object clazz, @Param(MysqlProvider.ENTITY) Object entity);
 
     /**
      * insert one record's not null property
@@ -26,7 +26,7 @@ public interface BaseMapper {
      * @param entity
      */
     @InsertProvider(type = MysqlProvider.class, method = "insertIfNotNull")
-    void insertIfNotNull(@Param(MysqlProvider.CLAZZ) Object clazz, @Param(MysqlProvider.ENTITY) Object entity);
+    Integer insertIfNotNull(@Param(MysqlProvider.CLAZZ) Object clazz, @Param(MysqlProvider.ENTITY) Object entity);
 
     /**
      * delete one record
@@ -34,7 +34,7 @@ public interface BaseMapper {
      * @param entity
      */
     @DeleteProvider(type = MysqlProvider.class, method = "delete")
-    void delete(@Param(MysqlProvider.CLAZZ) Object clazz, @Param(MysqlProvider.ENTITY) Object entity);
+    Integer delete(@Param(MysqlProvider.CLAZZ) Object clazz, @Param(MysqlProvider.ENTITY) Object entity);
 
     /**
      * update one record
@@ -42,7 +42,7 @@ public interface BaseMapper {
      * @param entity
      */
     @UpdateProvider(type = MysqlProvider.class, method = "update")
-    void update(@Param(MysqlProvider.CLAZZ) Object clazz, @Param(MysqlProvider.ENTITY) Object entity);
+    Integer update(@Param(MysqlProvider.CLAZZ) Object clazz, @Param(MysqlProvider.ENTITY) Object entity);
 
     /**
      * select one by id

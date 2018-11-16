@@ -9,10 +9,8 @@ import java.util.List;
 
 @Repository
 public interface SubscriberMapper {
-    void insertUser(Subscriber subscriber);
 
     List<Subscriber> selectList(@Param(MybatisConst.PAGINATION) Pagination pagination, @Param("subscriber")Subscriber subscriber);
-
 
     Subscriber selectSubscriberByLogin(@Param("userName")String userName, @Param("password")String password);
 }

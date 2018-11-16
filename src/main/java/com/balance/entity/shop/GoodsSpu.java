@@ -1,4 +1,4 @@
-package com.balance.entity.goods;
+package com.balance.entity.shop;
 
 import lombok.Getter;
 import lombok.Setter;

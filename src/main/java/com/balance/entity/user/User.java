@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 @Getter
 @Alias("User")
 @Table(name = "user")
-public class User implements Serializable{
+public class User implements Serializable{ //用户信息
 
     private static final long serialVersionUID = 368896404002697116L;
     @Id
@@ -42,6 +42,7 @@ public class User implements Serializable{
     @Column(name = "create_time")
     private Timestamp createTime;//注册时间
 
+    //UserConst.USER_STATUS_*
     @Column(name = "status")
     private Integer status;//状态
 }

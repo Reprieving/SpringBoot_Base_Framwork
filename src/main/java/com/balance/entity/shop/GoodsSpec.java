@@ -1,4 +1,4 @@
-package com.balance.entity.goods;
+package com.balance.entity.shop;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,11 +6,12 @@ import lombok.Setter;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-@Getter
 @Setter
-public class ShopInfo {
+@Getter
+public class GoodsSpec {
     private BigInteger id;
-    private String shopName;
+    private String specNo;
+    private String specName;
     private Timestamp createTime;
     private Timestamp updateTime;
 }

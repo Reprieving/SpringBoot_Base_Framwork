@@ -16,7 +16,7 @@
     </resultMap>
 
     <insert id="insertUser" parameterType="com.balance.entity.sys.Subscriber">
-        INSERT INTO sys_subscriber (id,user_name,real_name,pass_word,department_id,work_number,create_by,create_time,is_valid)
+        INSERT INTO sys_subscriber (id,user_name,real_name,password,department_id,work_number,create_by,create_time,is_valid)
           VALUES (#{subscriber.id},#{subscriber.userName},#{subscriber.realName},#{subscriber.password},#{subscriber.departmenid}
                   ,#{subscriber.workNumber},#{subscriber.createBy},#{subscriber.createTime},#{subscriber.isValid})
     </insert>

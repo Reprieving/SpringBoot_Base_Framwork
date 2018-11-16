@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.balance.entity.sys.Subscriber;
+import com.balance.entity.user.User;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -61,6 +62,28 @@ public class JwtUtils {
     }
 
     /**
+     * 创建token
+     * @param user
+     * @return
+     * @throws IllegalArgumentException
+     * @throws UnsupportedEncodingException
+     */
+    public static String createToken(User user) throws IllegalArgumentException, UnsupportedEncodingException {
+        Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
+        String userName = user.getUserName();
+        String userId = user.getId();
+        Map<String, Object> map = new HashMap<>();
+        map.put("alg", "HS256");
+        map.put("typ", "JWT");
+        String token = JWT.create().withHeader(map)
+                .withClaim(TOKEN_CLAIM_USERNAME, userName)
+                .withClaim(TOKEN_CLAIM_USERID, userId)
+                .withExpiresAt(new Date(System.currentTimeMillis()+EXPIRE_TIME))
+                .sign(algorithm);
+        return token;
+    }
+
+    /**
      * 验证token
      * @param token
      * @return
@@ -78,7 +101,7 @@ public class JwtUtils {
     }
 
     /**
-     * 验证token
+     * 获取token
      * @param token
      * @return
      */
