@@ -22,6 +22,8 @@ public class MissionComplete implements Serializable{
     @Column(name = "id")
     private String id;
 
+
+
     @Column(name = "mission_id")
     private String missionId; //任务id
 

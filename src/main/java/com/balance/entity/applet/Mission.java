@@ -64,4 +64,9 @@ public class Mission implements Serializable {
 
     @Column(name = "is_valid")
     private Integer isValid; //是否有效
+
+
+    //---扩展
+    private Integer state; //状态
+    private String missionCompleteId;//任务完成表id
 }
