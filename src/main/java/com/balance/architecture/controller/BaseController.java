@@ -21,7 +21,8 @@ public class BaseController {
     public Result<?> exceptionHandler(Exception e) {
         logger.error(getExceptionInfo(e));
         String[] arr = e.getClass().getName().split("\\.");
-        Result<?> result = ResultUtils.error(ResultUtils.RSP_FAIL, arr[arr.length - 1]);
+//        Result<?> result = ResultUtils.error(ResultUtils.RSP_FAIL, arr[arr.length - 1]);
+        Result<?> result = ResultUtils.error(ResultUtils.RSP_FAIL, e.getMessage());
         return result;
     }
 
