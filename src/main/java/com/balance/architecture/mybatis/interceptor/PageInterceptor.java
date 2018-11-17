@@ -3,6 +3,7 @@ package com.balance.architecture.mybatis.interceptor;
 
 import com.balance.architecture.constance.MybatisConst;
 import com.balance.architecture.dto.Pagination;
+import com.balance.architecture.mybatis.MybatisMapperParam;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
@@ -29,28 +30,20 @@ public class PageInterceptor implements Interceptor {
         String sql = boundSql.getSql();
 
         Object parameterObject =  boundSql.getParameterObject();
-        if(parameterObject instanceof Map){
-            Map<?, ?> parameterMap = (Map<?, ?>) boundSql.getParameterObject();
-            Set<?> keySet = parameterMap.keySet();
-            for (Object o : keySet){
-                if(MybatisConst.PAGINATION.equals(o.toString())){
-                    Pagination pagination = (Pagination) parameterMap.get(MybatisConst.PAGINATION);
-
-                    if(pagination!=null){
-                        String countSql = "select count(*)from (" + sql + ")a";
-                        Connection connection = (Connection) invocation.getArgs()[0];
-                        PreparedStatement countStatement = connection.prepareStatement(countSql);
-                        ParameterHandler parameterHandler = (ParameterHandler) metaObject.getValue("delegate.parameterHandler");
-                        parameterHandler.setParameters(countStatement);
-                        ResultSet rs = countStatement.executeQuery();
-                        if (rs.next()) {
-                            pagination.setTotalRecordNumber(rs.getInt(1));
-                        }
-                        String pageSql = sql + " limit " + pagination.getStartRow() + "," + pagination.getPageSize();
-                        metaObject.setValue("delegate.boundSql.sql", pageSql);
-                    }
-                    break;
+        if(parameterObject instanceof MybatisMapperParam){
+            Pagination pagination = ((MybatisMapperParam) parameterObject).getPagination();
+            if(pagination!=null){
+                String countSql = "select count(*)from (" + sql + ")a";
+                Connection connection = (Connection) invocation.getArgs()[0];
+                PreparedStatement countStatement = connection.prepareStatement(countSql);
+                ParameterHandler parameterHandler = (ParameterHandler) metaObject.getValue("delegate.parameterHandler");
+                parameterHandler.setParameters(countStatement);
+                ResultSet rs = countStatement.executeQuery();
+                if (rs.next()) {
+                    pagination.setTotalRecordNumber(rs.getInt(1));
                 }
+                String pageSql = sql + " limit " + pagination.getStartRow() + "," + pagination.getPageSize();
+                metaObject.setValue("delegate.boundSql.sql", pageSql);
             }
         }
         return invocation.proceed();

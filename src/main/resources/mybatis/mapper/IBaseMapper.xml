@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="baseMapper">
+    <insert id="insertOne">
+        INSERT INTO ${tableName}
+        <foreach collection="dbColumnList" open="(" close=")" separator="," item="item">
+            ${item}
+        </foreach>
+        VALUES
+        <foreach collection="voAttrList" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM ${tableName}
+        WHERE ${idDbColumn} = #{idPoVal}
+    </delete>
+
+    <update id="update">
+        UPDATE ${tableName}
+        <trim prefix="set" suffixOverrides=",">
+            <foreach collection="updateMap" index="key"  item="value">
+              ${key} = #{value},
+            </foreach>
+        </trim>
+        WHERE ${idDbColumn} = #{idPoVal}
+    </update>
+
+    <select id="selectById">
+        SELECT
+        <foreach collection="dbColumnList" separator="," item="item">
+            ${item}
+        </foreach>
+        FROM
+        ${tableName}
+        WHERE
+        ${idDbColumn} = #{idPoVal}
+    </select>
+
+    <select id="selectByWhere">
+        SELECT
+        <foreach collection="dbColumnList" separator="," item="item">
+            ${item}
+        </foreach>
+        FROM
+          ${tableName}
+        <if test="whereMap!=null">
+            WHERE
+            <trim prefix="1=1" suffixOverrides=",">
+                <foreach collection="whereMap" index="key"  item="value">
+                    AND ${key} #{value}
+                </foreach>
+            </trim>
+        </if>
+    </select>
+</mapper>

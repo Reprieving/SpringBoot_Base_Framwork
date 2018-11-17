@@ -6,7 +6,7 @@ import com.balance.entity.applet.Mission;
 import com.balance.entity.applet.MissionComplete;
 import com.balance.entity.applet.SignInfo;
 import com.balance.mapper.mission.MissionMapper;
-import com.balance.utils.MapUtils;
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +26,11 @@ public class MissionService extends BaseService{
      * @return
      */
     public List<Mission> getMissionList(String userId, Integer type) {
-//        Map<String,Object> paramMap = MapUtils.buildMap().
-        List<Mission> missions = missionMapper.selectMissionList(type);
+        List<Mission> missions = selectListByWhereString("type=",type,Mission.class,null);
         for (Mission mission : missions) {
 
-            MissionComplete missionComplete = missionMapper.selectCompletion(mission.getId(), userId);
+            Map<String,Object> paramMap = ImmutableMap.of("mission_id=",mission.getId(),"user_id=",userId);
+            MissionComplete missionComplete = selectOneByWhereMap(paramMap,MissionComplete.class);
 
             Boolean missionCompleteNull = missionComplete == null;
 

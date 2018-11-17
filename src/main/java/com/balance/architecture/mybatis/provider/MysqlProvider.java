@@ -2,7 +2,7 @@ package com.balance.architecture.mybatis.provider;
 
 
 import com.balance.architecture.exception.BusinessException;
-import com.balance.architecture.mybatis.TableUtil;
+import com.balance.architecture.mybatis.MybatisBuildUtil;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.utils.UUIDUtils;
@@ -42,7 +42,7 @@ public class MysqlProvider {
     public String insert(Map<String, Object> map) throws Exception {
         Class<?> clazz = (Class<?>) map.get(CLAZZ);
         Object object = map.get(ENTITY);
-        String tableName = TableUtil.getTableName(clazz);
+        String tableName = MybatisBuildUtil.getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
         List<Object> voAttrList = new ArrayList<>(20);
         Field[] fields = object.getClass().getDeclaredFields();
@@ -69,7 +69,7 @@ public class MysqlProvider {
     public String insertIfNotNull(Map<String, Object> map) throws Exception {
         Class<?> clazz = (Class<?>) map.get(CLAZZ);
         Object object = map.get(ENTITY);
-        String tableName = TableUtil.getTableName(clazz);
+        String tableName = MybatisBuildUtil.getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
         List<Object> voAttrList = new ArrayList<>(20);
         Field[] fields = object.getClass()
@@ -99,7 +99,7 @@ public class MysqlProvider {
     public String delete(Map<String, Object> map) throws Exception {
         Class<?> clazz = (Class<?>) map.get(CLAZZ);
         Object object = map.get(ENTITY);
-        String tableName = TableUtil.getTableName(clazz);
+        String tableName = MybatisBuildUtil.getTableName(clazz);
         Field[] fields = object.getClass()
                 .getDeclaredFields();
         Object idPoVal = null;
@@ -128,7 +128,7 @@ public class MysqlProvider {
     public String update(Map<String, Object> map) throws Exception {
         Class<?> clazz = (Class<?>) map.get(CLAZZ);
         Object object = map.get(ENTITY);
-        String tableName = TableUtil.getTableName(clazz);
+        String tableName = MybatisBuildUtil.getTableName(clazz);
         List<String> setList = new ArrayList<>(20);
         String idDbColumn = "";
         Object idPoVal = null;
@@ -165,7 +165,7 @@ public class MysqlProvider {
     public String selectById(Map<String, Object> objects) throws Exception {
         Class<?> clazz = (Class<?>) objects.get(CLAZZ);
         Object object = clazz.newInstance();
-        String tableName = TableUtil.getTableName(clazz);
+        String tableName = MybatisBuildUtil.getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
         String idDbColumn = "";
         Field[] fields = object.getClass()
@@ -205,7 +205,7 @@ public class MysqlProvider {
         String whereStr = (String) objects.get(WHERE_STR);
         Object whereValue = objects.get(WHERE_VALUE);
         Object object = clazz.newInstance();
-        String tableName = TableUtil.getTableName(clazz);
+        String tableName = MybatisBuildUtil.getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
         Field[] fields = object.getClass()
                 .getDeclaredFields();
@@ -232,7 +232,7 @@ public class MysqlProvider {
         Class<?> clazz = (Class<?>) objects.get(CLAZZ);
         Map<String, Object> map = (Map<String, Object>) objects.get(PARAM_MAP);
         Object object = clazz.newInstance();
-        String tableName = TableUtil.getTableName(clazz);
+        String tableName = MybatisBuildUtil.getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
         Field[] fields = object.getClass()
                 .getDeclaredFields();
@@ -261,7 +261,7 @@ public class MysqlProvider {
     public String selectAll(Map<String, Object> objects) throws Exception {
         Class<?> clazz = (Class<?>) objects.get(CLAZZ);
 
-        String tableName = TableUtil.getTableName(clazz);
+        String tableName = MybatisBuildUtil.getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
         Field[] fields = clazz.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
@@ -285,7 +285,7 @@ public class MysqlProvider {
         Class<?> clazz = (Class<?>) objects.get(CLAZZ);
         String whereStr = (String) objects.get(WHERE_STR);
         Object whereValue = objects.get(WHERE_VALUE);
-        String tableName = TableUtil.getTableName(clazz);
+        String tableName = MybatisBuildUtil.getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
         Field[] fields = clazz.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
@@ -309,7 +309,7 @@ public class MysqlProvider {
     public String selectListByWhereMap(Map<String, Object> objects) throws Exception {
         Class<?> clazz = (Class<?>) objects.get(CLAZZ);
         Map<String, Object> map = (Map<String, Object>) objects.get(PARAM_MAP);
-        String tableName = TableUtil.getTableName(clazz);
+        String tableName = MybatisBuildUtil.getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
         Field[] fields = clazz.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {

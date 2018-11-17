@@ -21,7 +21,14 @@ spring:
     testOnReturn: false
     poolPreparedStatements: true
     maxOpenPreparedStatements: 20
-
+#  jpa:
+#      database: MYSQL
+#      show-sql: true
+#      hibernate:
+#        ddl-auto: update
+#      properties:
+#        hibernate:
+#          dialect: org.hibernate.dialect.MySQL5Dialect
 jetcache:
   statIntervalMinutes: 15
   areaInCacheName: false

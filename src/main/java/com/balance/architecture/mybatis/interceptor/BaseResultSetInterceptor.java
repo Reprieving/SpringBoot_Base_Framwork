@@ -1,9 +1,8 @@
 package com.balance.architecture.mybatis.interceptor;
 
+import com.balance.architecture.mybatis.MybatisMapperParam;
 import com.balance.architecture.mybatis.mapper.BaseMapper;
-import com.balance.architecture.mybatis.provider.MysqlProvider;
 import com.balance.architecture.utils.JDBCResultSetUtils;
-import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.executor.resultset.DefaultResultSetHandler;
 import org.apache.ibatis.executor.resultset.ResultSetHandler;
@@ -20,8 +19,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Intercepts({
-        @Signature(method="handleResultSets", type=ResultSetHandler.class, args={Statement.class}),
-//        @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class })
+        @Signature(method="handleResultSets", type=ResultSetHandler.class, args={Statement.class})
 })
 public class BaseResultSetInterceptor implements Interceptor {
     private Logger logger = LoggerFactory.getLogger(BaseResultSetInterceptor.class);
@@ -29,12 +27,13 @@ public class BaseResultSetInterceptor implements Interceptor {
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         List<Object> returnList = new ArrayList<>();
+
         // 获取代理目标对象
         Object target = invocation.getTarget();
         DefaultResultSetHandler resultSetHandler = (DefaultResultSetHandler) target;
         // 利用反射获取参数对象
         ParameterHandler parameterHandler = reflectParameterHandler(resultSetHandler);
-        Map<String, Object> parameterObj = (Map<String, Object>) parameterHandler.getParameterObject();
+        MybatisMapperParam parameterObj = (MybatisMapperParam) parameterHandler.getParameterObject();
 
         Field field = ReflectionUtils.findField(DefaultResultSetHandler.class, "parameterHandler");
         field.setAccessible(true);
@@ -47,17 +46,18 @@ public class BaseResultSetInterceptor implements Interceptor {
         for(String s:strings){
             if(s.equals(BaseMapper.class.getSimpleName())){
                 isBaseMapper = true;
+
             }
         }
 
-        if(!isBaseMapper){
+        if(isBaseMapper){
             return invocation.proceed();
         }
 
         Statement statement = (Statement) invocation.getArgs()[0];
         ResultSet resultSet = statement.getResultSet();
 
-        Class t = (Class) parameterObj.get(MysqlProvider.CLAZZ);
+        Class t = parameterObj.getClazz();
 
         Class entityClass;
         if (t instanceof Class) {

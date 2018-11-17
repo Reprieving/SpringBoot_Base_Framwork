@@ -1,112 +1,260 @@
 package com.balance.architecture.mybatis.mapper;
 
 import com.balance.architecture.dto.Pagination;
+import com.balance.architecture.exception.EntityLackTableAnnotationException;
+import com.balance.architecture.mybatis.MybatisMapperParam;
+import com.balance.architecture.mybatis.MybatisBuildUtil;
+import com.balance.architecture.mybatis.annotation.Column;
+import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.provider.MysqlProvider;
-import org.apache.ibatis.annotations.*;
+import com.balance.architecture.utils.UUIDUtils;
+import com.balance.architecture.utils.ValueCheckUtils;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Repository
-public interface BaseMapper {
-    /**
-     * insert one record
-     * @param clazz
-     * @param entity
-     */
-    @InsertProvider(type = MysqlProvider.class, method = "insert")
-    Integer insert(@Param(MysqlProvider.CLAZZ) Object clazz, @Param(MysqlProvider.ENTITY) Object entity);
+public class BaseMapper {
 
-    /**
-     * insert one record's not null property
-     * @param clazz
-     * @param entity
-     */
-    @InsertProvider(type = MysqlProvider.class, method = "insertIfNotNull")
-    Integer insertIfNotNull(@Param(MysqlProvider.CLAZZ) Object clazz, @Param(MysqlProvider.ENTITY) Object entity);
+    @Autowired
+    private SqlSessionFactory sqlSessionFactory;
 
-    /**
-     * delete one record
-     * @param clazz
-     * @param entity
-     */
-    @DeleteProvider(type = MysqlProvider.class, method = "delete")
-    Integer delete(@Param(MysqlProvider.CLAZZ) Object clazz, @Param(MysqlProvider.ENTITY) Object entity);
 
-    /**
-     * update one record
-     * @param clazz
-     * @param entity
-     */
-    @UpdateProvider(type = MysqlProvider.class, method = "update")
-    Integer update(@Param(MysqlProvider.CLAZZ) Object clazz, @Param(MysqlProvider.ENTITY) Object entity);
+    public Integer insert(Class clazz, Object object) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        try {
+            String tableName = MybatisBuildUtil.getTableName(clazz);
+            List<String> dbColumnList = new ArrayList<>(20);
+            List<Object> voAttrList = new ArrayList<>(20);
+            Field[] fields = object.getClass().getDeclaredFields();
+            for (int i = 0; i < fields.length; i++) {
+                Field f = fields[i];
+                Column column = f.getAnnotation(Column.class);
+                Id id = f.getAnnotation(Id.class);
+                if (id != null) {
+                    f.setAccessible(true);
+                    f.set(object, UUIDUtils.createUUID());
+                }
+                if (column != null) {
+                    dbColumnList.add(column.name());
+                    f.setAccessible(true);
+                    voAttrList.add(f.get(object));
+                }
+            }
 
-    /**
-     * select one by id
-     * @param id
-     * @param tClass
-     * @param <T>
-     * @return
-     */
-    @SelectProvider(type = MysqlProvider.class, method = "selectById")
-    <T> T selectById(@Param(MysqlProvider.ID_VALUE) Serializable id, @Param(MysqlProvider.CLAZZ) Class<T> tClass);
+            MybatisMapperParam mybatisMapperParam = new MybatisMapperParam();
+            mybatisMapperParam.setTableName(tableName);
+            mybatisMapperParam.setDbColumnList(dbColumnList);
+            mybatisMapperParam.setVoAttrList(voAttrList);
 
-    /**
-     * select one by where string
-     * @param whereStr
-     * @param value
-     * @param tClass
-     * @param <T>
-     * @return
-     */
-    @SelectProvider(type = MysqlProvider.class, method = "selectOneByWhere")
-    <T> T selectOneByWhere(@Param(MysqlProvider.WHERE_STR) String whereStr, @Param(MysqlProvider.WHERE_VALUE) Object value, @Param(MysqlProvider.CLAZZ) Class<T> tClass);
+            return sqlSession.insert("baseMapper.insertOne", mybatisMapperParam);
+        } catch (EntityLackTableAnnotationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } finally {
+            sqlSession.close();
+        }
+        return 0;
+    }
 
-    /**
-     * select one by where map
-     * @param paramMap
-     * @param tClass
-     * @param <T>
-     * @return
-     */
-    @SelectProvider(type = MysqlProvider.class, method = "selectOneByWhereMap")
-    <T> T selectOneByWhereMap(@Param(MysqlProvider.PARAM_MAP) Map<String, Object> paramMap, @Param(MysqlProvider.CLAZZ) Class<T> tClass);
+    public Integer insertIfNotNull(Class clazz, Object object) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        try {
+            String tableName = MybatisBuildUtil.getTableName(clazz);
+            List<String> dbColumnList = new ArrayList<>(20);
+            List<Object> voAttrList = new ArrayList<>(20);
+            Field[] fields = object.getClass().getDeclaredFields();
+            for (int i = 0; i < fields.length; i++) {
+                Field f = fields[i];
+                Column column = f.getAnnotation(Column.class);
+                Id id = f.getAnnotation(Id.class);
+                if (id != null) {
+                    f.setAccessible(true);
+                    f.set(object, UUIDUtils.createUUID());
+                }
+                if (column != null) {
+                    f.setAccessible(true);
+                    Object attrVal = fields[i].get(object);
+                    if (attrVal != null) {
+                        dbColumnList.add(column.name());
+                        voAttrList.add(f.get(object));
+                    }
+                }
+            }
 
-    /**
-     * select all
-     * @param clazz
-     * @param pagination
-     * @param <T>
-     * @return
-     */
-    @SelectProvider(type = MysqlProvider.class, method = "selectAll")
-    <T> List<T> selectAll(@Param(MysqlProvider.CLAZZ) Class<T> clazz, @Param(MysqlProvider.PAGINATION) Pagination pagination);
+            MybatisMapperParam mybatisMapperParam = new MybatisMapperParam();
+            mybatisMapperParam.setTableName(tableName);
+            mybatisMapperParam.setDbColumnList(dbColumnList);
+            mybatisMapperParam.setVoAttrList(voAttrList);
 
-    /**
-     * select list by where string
-     * @param whereStr
-     * @param value
-     * @param clazz
-     * @param pagination
-     * @param <T>
-     * @return
-     */
-    @SelectProvider(type = MysqlProvider.class, method = "selectListByWhere")
-    <T> List<T> selectListByWhere(@Param(MysqlProvider.WHERE_STR) String whereStr, @Param(MysqlProvider.WHERE_VALUE) Object value, @Param(MysqlProvider.CLAZZ) Class<T> clazz, @Param(MysqlProvider.PAGINATION) Pagination pagination);
 
-    /**
-     * select list by where map
-     * @param paramMap
-     * @param clazz
-     * @param pagination
-     * @param <T>
-     * @return
-     */
-    @SelectProvider(type = MysqlProvider.class, method = "selectListByWhereMap")
-    <T> List<T> selectListByWhereMap(@Param(MysqlProvider.PARAM_MAP) Map<String, Object> paramMap, @Param(MysqlProvider.CLAZZ) Class<T> clazz, @Param(MysqlProvider.PAGINATION) Pagination pagination);
+            return sqlSession.insert("baseMapper.insertOne", mybatisMapperParam);
+        } catch (EntityLackTableAnnotationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } finally {
+            sqlSession.close();
+        }
+        return 0;
+    }
 
+    public Integer delete(Class clazz, Object object) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        try {
+            String tableName = MybatisBuildUtil.getTableName(clazz);
+            Field[] fields = object.getClass().getDeclaredFields();
+            Object idPoVal = null;
+            String idDbColumn = "";
+            for (int i = 0; i < fields.length; i++) {
+                Field f = fields[i];
+                Id id_annotation = f.getAnnotation(Id.class);
+                if (id_annotation != null) {
+                    f.setAccessible(true);
+                    Column column_annotation = f.getAnnotation(Column.class);
+                    idDbColumn = column_annotation.name();
+                    idPoVal = f.get(object);
+                }
+            }
+
+            ValueCheckUtils.notEmpty(idPoVal, "Entity value can't be null");
+
+            MybatisMapperParam mybatisMapperParam = new MybatisMapperParam();
+            mybatisMapperParam.setTableName(tableName);
+            mybatisMapperParam.setIdDbColumn(idDbColumn);
+            mybatisMapperParam.setIdPoVal(idPoVal);
+
+            return sqlSession.insert("baseMapper.delete", mybatisMapperParam);
+        } catch (EntityLackTableAnnotationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } finally {
+            sqlSession.close();
+        }
+        return 0;
+
+    }
+
+    public Integer update(Class clazz, Object object) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        try {
+            String tableName = MybatisBuildUtil.getTableName(clazz);
+            Map<String, Object> setMap = new HashMap<>();
+            String idDbColumn = "";
+            Object idPoVal = null;
+            Field[] fields = object.getClass().getDeclaredFields();
+            for (int i = 0; i < fields.length; i++) {
+                Field f = fields[i];
+                f.setAccessible(true);
+                Column column = f.getAnnotation(Column.class);
+                Id id_annotation = f.getAnnotation(Id.class);
+                if (id_annotation != null) {
+                    idDbColumn = column.name();
+                    idPoVal = f.get(object);
+                }
+                if (column != null && id_annotation == null) {
+                    setMap.put(column.name(), f.get(object));
+                }
+            }
+
+            ValueCheckUtils.notEmpty(idPoVal, "Entity value can't be null");
+
+            MybatisMapperParam mybatisMapperParam = new MybatisMapperParam();
+            mybatisMapperParam.setTableName(tableName);
+            mybatisMapperParam.setUpdateMap(setMap);
+            mybatisMapperParam.setIdDbColumn(idDbColumn);
+            mybatisMapperParam.setIdPoVal(idPoVal);
+
+            return sqlSession.insert("baseMapper.update", mybatisMapperParam);
+
+        } catch (EntityLackTableAnnotationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } finally {
+            sqlSession.close();
+        }
+        return 0;
+    }
+
+    public <T> T selectById(Serializable id, Class<T> clazz) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        try {
+            MybatisMapperParam mybatisMapperParam = MybatisBuildUtil.buildMapperParam4Select(id, clazz);
+            return sqlSession.selectOne("baseMapper.selectById", mybatisMapperParam);
+        } catch (EntityLackTableAnnotationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } finally {
+            sqlSession.close();
+        }
+        return null;
+    }
+
+    public <T> T selectOneByWhereMap(Map<String, Object> whereMap, Class<T> clazz) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        try {
+            MybatisMapperParam mybatisMapperParam = MybatisBuildUtil.buildMapperParam4Select(whereMap, clazz);
+            return sqlSession.selectOne("baseMapper.selectByWhere", mybatisMapperParam);
+        } catch (EntityLackTableAnnotationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } finally {
+            sqlSession.close();
+        }
+        return null;
+    }
+
+    public <T> List<T> selectAll(Class<T> clazz, Pagination pagination) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        try {
+            MybatisMapperParam mybatisMapperParam = MybatisBuildUtil.buildMapperParam4Select(pagination, clazz);
+            return sqlSession.selectList("baseMapper.selectByWhere", mybatisMapperParam);
+        } catch (EntityLackTableAnnotationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } finally {
+            sqlSession.close();
+        }
+        return null;
+    }
+
+    public <T> List<T> selectListByWhere(Map<String, Object> whereMap, Class<T> clazz, Pagination pagination) {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        try {
+            MybatisMapperParam mybatisMapperParam = MybatisBuildUtil.buildMapperParam4Select(whereMap, pagination, clazz);
+            return sqlSession.selectList("baseMapper.selectByWhere", mybatisMapperParam);
+        } catch (EntityLackTableAnnotationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } finally {
+            sqlSession.close();
+        }
+        return null;
+
+    }
 
 }

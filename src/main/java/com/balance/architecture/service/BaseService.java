@@ -3,7 +3,7 @@ package com.balance.architecture.service;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.mybatis.mapper.BaseMapper;
 import com.balance.architecture.utils.ValueCheckUtils;
-import com.balance.client.NettyClient;
+import com.google.common.collect.ImmutableMap;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,22 +25,17 @@ public class BaseService {
     @Autowired
     protected BaseMapper baseMapper;
 
-
     @Autowired
     private SqlSessionTemplate sqlSessionTemplate;
 
-    @Transactional
     public <T> Integer insert(T entity) {
         return baseMapper.insert(entity.getClass(), entity);
     }
 
-    @Transactional
     public <T> Integer insertIfNotNull(T entity) {
         return baseMapper.insertIfNotNull(entity.getClass(), entity);
-
     }
 
-    @Transactional
     public <T> Integer insertBatch(List<T> entityList,Boolean insertNull) {
         Integer flag;
         ValueCheckUtils.notEmpty(entityList, "entityList can't be null");
@@ -89,9 +83,10 @@ public class BaseService {
         }
     }
 
-    public <T> T selectOneByWhereString(String whereStr,Object objectValue, Class<T> clazz) {
+    public <T> T selectOneByWhereString(String whereStr,Object whereValue, Class<T> clazz) {
         try {
-            return baseMapper.selectOneByWhere(whereStr,objectValue, clazz);
+            Map<String,Object> whereMap = ImmutableMap.of(whereStr,whereValue);
+            return baseMapper.selectOneByWhereMap(whereMap, clazz);
         } catch (NullPointerException e) {
             return null;
         }
@@ -113,9 +108,10 @@ public class BaseService {
         }
     }
 
-    public <T> List<T> selectListByWhereString(String whereStr, Object objectValue, Class<T> clazz, Pagination pagination) {
+    public <T> List<T> selectListByWhereString(String whereStr, Object whereValue, Class<T> clazz, Pagination pagination) {
         try {
-            T o = baseMapper.selectListByWhere(whereStr,objectValue,clazz, pagination).get(0);
+            Map<String,Object> whereMap = ImmutableMap.of(whereStr,whereValue);
+            T o = baseMapper.selectListByWhere(whereMap,clazz, pagination).get(0);
             if(!(o instanceof List)){
                 return Arrays.asList(o);
             }
@@ -125,15 +121,4 @@ public class BaseService {
         }
     }
 
-    public <T> List<T> selectListByWhereMap(Map<String,Object> paramMap, Class<T> clazz, Pagination pagination) {
-        try {
-            T o = baseMapper.selectListByWhereMap(paramMap,clazz, pagination).get(0);
-            if(!(o instanceof List)){
-                return Arrays.asList(o);
-            }
-            return (List<T>) o;
-        } catch (NullPointerException e) {
-            return new ArrayList<>();
-        }
-    }
 }
