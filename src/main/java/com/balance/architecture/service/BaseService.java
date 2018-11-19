@@ -37,7 +37,7 @@ public class BaseService<T> {
         return baseMapper.insertIfNotNull(entity.getClass(), entity);
     }
 
-    public <T> Integer insertBatch(List<T> entityList,Boolean insertNull) {
+    public <T> Integer insertBatch(List<T> entityList,Boolean insertIfNull) {
         Integer flag;
         ValueCheckUtils.notEmpty(entityList, "entityList can't be null");
 
@@ -47,7 +47,7 @@ public class BaseService<T> {
         int j = 0;
         try {
             for (int i = 0; i < entityList.size(); i++) {
-                if(insertNull){
+                if(insertIfNull){
                     baseMapper.insert(clazz, entityList.get(i));
                 }else {
                     baseMapper.insertIfNotNull(clazz, entityList.get(i));
@@ -85,9 +85,26 @@ public class BaseService<T> {
         }
     }
 
+    public <T> T selectOneById(Serializable id,Class<T> tClass) {
+        try {
+            return baseMapper.selectById(id, tClass);
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
+
     public <T> T selectOneByWhereString(String whereStr,Object whereValue) {
         try {
             Class<T> tClass = (Class<T>) getEntityClass();
+            Map<String,Object> whereMap = ImmutableMap.of(whereStr,whereValue);
+            return baseMapper.selectOneByWhereMap(whereMap, tClass);
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
+
+    public <T> T selectOneByWhereString(String whereStr,Object whereValue, Class<T> tClass) {
+        try {
             Map<String,Object> whereMap = ImmutableMap.of(whereStr,whereValue);
             return baseMapper.selectOneByWhereMap(whereMap, tClass);
         } catch (NullPointerException e) {
@@ -104,6 +121,14 @@ public class BaseService<T> {
         }
     }
 
+    public <T> T selectOneByWhereMap(Map<String,Object> paramMap,Class<T> tClass) {
+        try {
+            return baseMapper.selectOneByWhereMap(paramMap, tClass);
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
+
     public <T> List<T> selectAll(Pagination pagination) {
         try {
             Class<T> tClass = (Class<T>) getEntityClass();
@@ -113,9 +138,30 @@ public class BaseService<T> {
         }
     }
 
+    public <T> List<T> selectAll(Pagination pagination,Class<T> tClass) {
+        try {
+            return (List<T>) baseMapper.selectAll(tClass, pagination).get(0);
+        } catch (NullPointerException e) {
+            return new ArrayList<>();
+        }
+    }
+
     public <T> List<T> selectListByWhereString(String whereStr, Object whereValue, Pagination pagination) {
         try {
             Class<T> tClass = (Class<T>) getEntityClass();
+            Map<String,Object> whereMap = ImmutableMap.of(whereStr,whereValue);
+            T o = baseMapper.selectListByWhere(whereMap,tClass, pagination).get(0);
+            if(!(o instanceof List)){
+                return Arrays.asList(o);
+            }
+            return (List<T>) o;
+        } catch (NullPointerException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public <T> List<T> selectListByWhereString(String whereStr, Object whereValue, Pagination pagination, Class<T> tClass) {
+        try {
             Map<String,Object> whereMap = ImmutableMap.of(whereStr,whereValue);
             T o = baseMapper.selectListByWhere(whereMap,tClass, pagination).get(0);
             if(!(o instanceof List)){

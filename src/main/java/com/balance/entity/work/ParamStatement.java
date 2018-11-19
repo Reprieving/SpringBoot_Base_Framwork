@@ -14,7 +14,6 @@ import java.io.Serializable;
 @Getter
 @Alias("ParamStatement")
 @Table(name = "work_param_statement")
-@Component
 public class ParamStatement implements Serializable {
     private static final long serialVersionUID = -2170145517447409836L;
 

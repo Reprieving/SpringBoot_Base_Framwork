@@ -15,7 +15,6 @@ import java.sql.Timestamp;
 @Getter
 @Alias("Project")
 @Table(name = "work_project")
-@Component
 public class Project implements Serializable{
     private static final long serialVersionUID = -6618894313915973579L;
 
