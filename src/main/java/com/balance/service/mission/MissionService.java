@@ -14,7 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class MissionService extends BaseService{
+public class MissionService extends BaseService<Mission>{
+
+    @Autowired
+    private MissionCompleteService missionCompleteService;
 
     @Autowired
     private MissionMapper missionMapper;
@@ -26,11 +29,11 @@ public class MissionService extends BaseService{
      * @return
      */
     public List<Mission> getMissionList(String userId, Integer type) {
-        List<Mission> missions = selectListByWhereString("type=",type,Mission.class,null);
+        List<Mission> missions = selectListByWhereString("type=",type,null);
         for (Mission mission : missions) {
 
             Map<String,Object> paramMap = ImmutableMap.of("mission_id=",mission.getId(),"user_id=",userId);
-            MissionComplete missionComplete = selectOneByWhereMap(paramMap,MissionComplete.class);
+            MissionComplete missionComplete = missionCompleteService.selectOneByWhereMap(paramMap);
 
             Boolean missionCompleteNull = missionComplete == null;
 

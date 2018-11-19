@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class UserService extends BaseService{
+public class UserService extends BaseService<User>{
     @Autowired
     private UserMapper userMapper;
 
@@ -22,7 +22,7 @@ public class UserService extends BaseService{
      * @throws BusinessException
      */
     public void createUser(User user) throws BusinessException {
-        User user1 = selectOneByWhereString("user_name=",user.getUserName(),User.class);
+        User user1 = selectOneByWhereString("user_name=",user.getUserName());
         if(user1!=null){
             throw new BusinessException("用户已存在");
         }
@@ -40,7 +40,7 @@ public class UserService extends BaseService{
         paramMap.put("user_name=",user.getUserName());
         paramMap.put("password=",user.getPassword());
 
-        User user1 = selectOneByWhereMap(paramMap,User.class);
+        User user1 = selectOneByWhereMap(paramMap);
 
         return JwtUtils.createToken(user1);
     }

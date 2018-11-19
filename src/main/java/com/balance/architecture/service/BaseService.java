@@ -2,6 +2,7 @@ package com.balance.architecture.service;
 
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.mybatis.mapper.BaseMapper;
+import com.balance.architecture.utils.MineClassUtils;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.ibatis.session.ExecutorType;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class BaseService {
+public class BaseService<T> {
     private static final Logger logger = LoggerFactory.getLogger(BaseService.class);
 
     @Autowired
@@ -75,43 +76,48 @@ public class BaseService {
         return baseMapper.update(entity.getClass(), entity);
     }
 
-    public <T> T selectOneById(Serializable id, Class<T> clazz) {
+    public <T> T selectOneById(Serializable id) {
         try {
-            return baseMapper.selectById(id, clazz);
+            Class<T> tClass = (Class<T>) getEntityClass();
+            return baseMapper.selectById(id, tClass);
         } catch (NullPointerException e) {
             return null;
         }
     }
 
-    public <T> T selectOneByWhereString(String whereStr,Object whereValue, Class<T> clazz) {
+    public <T> T selectOneByWhereString(String whereStr,Object whereValue) {
         try {
+            Class<T> tClass = (Class<T>) getEntityClass();
             Map<String,Object> whereMap = ImmutableMap.of(whereStr,whereValue);
-            return baseMapper.selectOneByWhereMap(whereMap, clazz);
+            return baseMapper.selectOneByWhereMap(whereMap, tClass);
         } catch (NullPointerException e) {
             return null;
         }
     }
 
-    public <T> T selectOneByWhereMap(Map<String,Object> paramMap, Class<T> clazz) {
+    public <T> T selectOneByWhereMap(Map<String,Object> paramMap) {
         try {
-            return baseMapper.selectOneByWhereMap(paramMap, clazz);
+            Class<T> tClass = (Class<T>) getEntityClass();
+            return baseMapper.selectOneByWhereMap(paramMap, tClass);
         } catch (NullPointerException e) {
             return null;
         }
     }
 
-    public <T> List<T> selectAll(Class<T> clazz, Pagination pagination) {
+    public <T> List<T> selectAll(Pagination pagination) {
         try {
-            return (List<T>) baseMapper.selectAll(clazz, pagination).get(0);
+            Class<T> tClass = (Class<T>) getEntityClass();
+            return (List<T>) baseMapper.selectAll(tClass, pagination).get(0);
         } catch (NullPointerException e) {
             return new ArrayList<>();
         }
     }
 
-    public <T> List<T> selectListByWhereString(String whereStr, Object whereValue, Class<T> clazz, Pagination pagination) {
+    public <T> List<T> selectListByWhereString(String whereStr, Object whereValue, Pagination pagination) {
         try {
+            Class<T> tClass = (Class<T>) getEntityClass();
             Map<String,Object> whereMap = ImmutableMap.of(whereStr,whereValue);
-            T o = baseMapper.selectListByWhere(whereMap,clazz, pagination).get(0);
+            T o = baseMapper.selectListByWhere(whereMap,tClass, pagination).get(0);
             if(!(o instanceof List)){
                 return Arrays.asList(o);
             }
@@ -121,4 +127,8 @@ public class BaseService {
         }
     }
 
+
+    public Class<?> getEntityClass() {
+        return MineClassUtils.getActualTypeArgument(this.getClass());
+    }
 }
