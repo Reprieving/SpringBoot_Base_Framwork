@@ -33,14 +33,23 @@ public class GoodsSpecService {
 
     /**
      * 查询商品规格名字
-     * @param name
+     * @param name 规格名字
      * @return
      */
-    public List<GoodsSpecName> queryGoodsSpecBy(String name){
+    public List<GoodsSpecName> listGoodsSpecName(String name){
         if(StringUtils.isNoneBlank(name)){
             return baseService.selectAll(null,GoodsSpecName.class);
         }else{
-            return baseService.selectListByWhereString("spec_name=",name,null,GoodsSpecName.class);
+            return baseService.selectListByWhereString("spec_name = ",name,null,GoodsSpecName.class);
         }
+    }
+
+    /**
+     * 查询商品规则值
+     * @param specId 规格id
+     * @return
+     */
+    public List<GoodsSpecValue> listGoodsSpecValue(String specId){
+        return baseService.selectListByWhereString("spec_id = ",specId,null,GoodsSpecValue.class);
     }
 }

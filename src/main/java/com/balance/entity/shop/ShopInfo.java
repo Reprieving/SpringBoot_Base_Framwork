@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @Alias("GoodsSpu")
-@Table(name = "goods_spu")//商品spu表
+@Table(name = "goods_spu")//店铺信息表
 public class ShopInfo implements Serializable{
 
     private static final long serialVersionUID = -3666361733455390654L;
@@ -24,7 +24,7 @@ public class ShopInfo implements Serializable{
     private String id;
 
     @Column(name = "shop_name")
-    private String shopName;
+    private String shopName;//店铺名称
 
     @Column(name = "create_time")
     private Timestamp createTime;
