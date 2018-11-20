@@ -3,6 +3,7 @@ package com.balance.entity.shop;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.ibatis.type.Alias;
@@ -11,8 +12,7 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-@Getter
-@Setter
+@Data
 @Alias("GoodsSpecValue")
 @Table(name = "goods_spec_value")//规格值表
 public class GoodsSpecValue implements Serializable {

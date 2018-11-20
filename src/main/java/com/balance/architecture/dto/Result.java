@@ -8,6 +8,6 @@ import lombok.Setter;
 public class Result<T> {
     private int stateCode;//状态码
     private String message;//信息
-    private T object;//数据
+    private T data;//数据
 
 }

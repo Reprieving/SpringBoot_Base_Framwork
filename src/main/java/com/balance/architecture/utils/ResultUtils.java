@@ -12,7 +12,7 @@ public class ResultUtils {
         Result result = new Result();
         result.setStateCode(RSP_SUCCESS);
         result.setMessage(msg);
-        result.setObject(data);
+        result.setData(data);
         return result;
     }
 

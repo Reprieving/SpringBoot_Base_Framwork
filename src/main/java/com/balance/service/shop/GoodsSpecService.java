@@ -22,7 +22,6 @@ public class GoodsSpecService {
         baseService.insert(goodSpec);
     }
 
-
     /**
      * 新增商品规格值
      * @param goodsSpecValue

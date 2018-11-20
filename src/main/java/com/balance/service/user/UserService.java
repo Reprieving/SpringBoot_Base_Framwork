@@ -42,6 +42,8 @@ public class UserService extends BaseService{
 
         User user1 = selectOneByWhereMap(paramMap,User.class);
 
+
+
         return JwtUtils.createToken(user1);
     }
 }

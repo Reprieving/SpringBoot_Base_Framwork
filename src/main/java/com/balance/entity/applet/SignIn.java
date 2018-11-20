@@ -1,12 +1,12 @@
 package com.balance.entity.applet;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
 
-@Setter
-@Getter
+@Data
 public class SignIn {
     private String id;
     private String signId;

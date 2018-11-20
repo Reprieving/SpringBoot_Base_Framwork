@@ -4,6 +4,7 @@ package com.balance.entity.user;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.ibatis.type.Alias;
@@ -11,8 +12,7 @@ import org.apache.ibatis.type.Alias;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-@Setter
-@Getter
+@Data
 @Alias("MiningRuler")
 @Table(name = "mining_ruler")
 public class MiningRuler implements Serializable{ //挖矿规则

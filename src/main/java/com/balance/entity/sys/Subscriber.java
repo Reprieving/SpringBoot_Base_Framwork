@@ -3,6 +3,7 @@ package com.balance.entity.sys;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.ibatis.type.Alias;
@@ -13,8 +14,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
 
-@Setter
-@Getter
+@Data
 @Alias("Subscriber")
 @Table(name = "sys_subscriber")
 public class Subscriber implements Serializable{

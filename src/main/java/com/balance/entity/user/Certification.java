@@ -3,6 +3,7 @@ package com.balance.entity.user;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.ibatis.type.Alias;
@@ -10,8 +11,7 @@ import org.apache.ibatis.type.Alias;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-@Setter
-@Getter
+@Data
 @Alias("Certification")
 @Table(name = "user_certification")
 public class Certification implements Serializable { //用户认证

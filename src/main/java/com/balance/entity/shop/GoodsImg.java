@@ -3,14 +3,14 @@ package com.balance.entity.shop;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.ibatis.type.Alias;
 
 import java.io.Serializable;
 
-@Setter
-@Getter
+@Data
 @Alias("GoodsImg")
 @Table(name = "goods_img")//商品图片表
 public class GoodsImg implements Serializable {

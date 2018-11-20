@@ -3,6 +3,7 @@ package com.balance.entity.user;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.ibatis.type.Alias;
@@ -11,8 +12,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-@Setter
-@Getter
+@Data
 @Alias("AssetsTurnover")
 @Table(name = "assets_turnover")
 public class AssetsTurnover implements Serializable { //资产流水

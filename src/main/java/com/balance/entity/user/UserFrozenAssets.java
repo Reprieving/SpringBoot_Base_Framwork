@@ -3,6 +3,7 @@ package com.balance.entity.user;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.ibatis.type.Alias;
@@ -10,8 +11,7 @@ import org.apache.ibatis.type.Alias;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-@Setter
-@Getter
+@Data
 @Alias("UserFrozenAssets")
 @Table(name = "user_frozen_assets")
 public class UserFrozenAssets implements Serializable { //用户冻结资产
