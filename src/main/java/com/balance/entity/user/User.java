@@ -21,6 +21,9 @@ public class User implements Serializable{ //用户信息
     @Column(name = "id")
     private String id;
 
+    @Column(name = "head_picture_url")
+    private String headPictureUrl; //用户名
+
     @Column(name = "user_name")
     private String userName; //用户名
 

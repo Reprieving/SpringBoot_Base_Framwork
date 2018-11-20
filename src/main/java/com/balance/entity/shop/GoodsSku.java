@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 @Alias("GoodsSku")
@@ -38,8 +39,8 @@ public class GoodsSku implements Serializable{
     @Column(name = "spu_id")
     private String spuId;//spuId（goods_spud表id）
 
-    @Column(name = "spec_value_id")
-    private String specValueId;//规格值id（goods_spec_value表id）
+    @Column(name = "spec_json")
+    private String specJson;//规格名称和值组合json 格式：["规格名":"规格值","规格名":"规格值"]
 
     @Column(name = "shop_id")
     private String shopId;//店铺id
@@ -56,5 +57,9 @@ public class GoodsSku implements Serializable{
 
     @Column(name = "is_valid")
     private Boolean isValid;//是否有效
+
+
+    /** 扩展属性 **/
+    private List<GoodsImg> goodsImgList;
 
 }
