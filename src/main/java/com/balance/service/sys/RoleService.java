@@ -5,5 +5,5 @@ import com.balance.entity.sys.Role;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RoleService extends BaseService<Role>{
+public class RoleService extends BaseService{
 }

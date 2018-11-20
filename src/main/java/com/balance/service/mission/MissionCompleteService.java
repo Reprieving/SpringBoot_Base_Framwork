@@ -5,5 +5,5 @@ import com.balance.entity.applet.MissionComplete;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MissionCompleteService extends BaseService<MissionComplete> {
+public class MissionCompleteService extends BaseService{
 }

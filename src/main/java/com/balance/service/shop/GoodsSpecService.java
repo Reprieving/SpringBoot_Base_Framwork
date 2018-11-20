@@ -36,11 +36,11 @@ public class GoodsSpecService {
      * @param name 规格名字
      * @return
      */
-    public List<GoodsSpecName> listGoodsSpecName(String name){
+    public List<GoodsSpecName> listGoodsSpecName(String name,Class<GoodsSpecName> tClazz){
         if(StringUtils.isNoneBlank(name)){
-            return baseService.selectAll(null,GoodsSpecName.class);
+            return baseService.selectAll(null,tClazz);
         }else{
-            return baseService.selectListByWhereString("spec_name = ",name,null,GoodsSpecName.class);
+            return baseService.selectListByWhereString("spec_name = ",name,null,tClazz);
         }
     }
 
@@ -49,7 +49,7 @@ public class GoodsSpecService {
      * @param specId 规格id
      * @return
      */
-    public List<GoodsSpecValue> listGoodsSpecValue(String specId){
-        return baseService.selectListByWhereString("spec_id = ",specId,null,GoodsSpecValue.class);
+    public List<GoodsSpecValue> listGoodsSpecValue(String specId,Class<GoodsSpecValue> tClazz){
+        return baseService.selectListByWhereString("spec_id = ",specId,null,tClazz);
     }
 }

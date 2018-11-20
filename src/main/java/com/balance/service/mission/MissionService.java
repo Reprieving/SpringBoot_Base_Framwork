@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class MissionService extends BaseService<Mission>{
+public class MissionService extends BaseService{
 
     @Autowired
     private MissionCompleteService missionCompleteService;

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class BaseService<T> {
+public class BaseService {
     private static final Logger logger = LoggerFactory.getLogger(BaseService.class);
 
     @Autowired
