@@ -76,28 +76,9 @@ public class BaseService<T> {
         return baseMapper.update(entity.getClass(), entity);
     }
 
-    public <T> T selectOneById(Serializable id) {
-        try {
-            Class<T> tClass = (Class<T>) getEntityClass();
-            return baseMapper.selectById(id, tClass);
-        } catch (NullPointerException e) {
-            return null;
-        }
-    }
-
     public <T> T selectOneById(Serializable id,Class<T> tClass) {
         try {
             return baseMapper.selectById(id, tClass);
-        } catch (NullPointerException e) {
-            return null;
-        }
-    }
-
-    public <T> T selectOneByWhereString(String whereStr,Object whereValue) {
-        try {
-            Class<T> tClass = (Class<T>) getEntityClass();
-            Map<String,Object> whereMap = ImmutableMap.of(whereStr,whereValue);
-            return baseMapper.selectOneByWhereMap(whereMap, tClass);
         } catch (NullPointerException e) {
             return null;
         }
@@ -112,15 +93,6 @@ public class BaseService<T> {
         }
     }
 
-    public <T> T selectOneByWhereMap(Map<String,Object> paramMap) {
-        try {
-            Class<T> tClass = (Class<T>) getEntityClass();
-            return baseMapper.selectOneByWhereMap(paramMap, tClass);
-        } catch (NullPointerException e) {
-            return null;
-        }
-    }
-
     public <T> T selectOneByWhereMap(Map<String,Object> paramMap,Class<T> tClass) {
         try {
             return baseMapper.selectOneByWhereMap(paramMap, tClass);
@@ -129,32 +101,9 @@ public class BaseService<T> {
         }
     }
 
-    public <T> List<T> selectAll(Pagination pagination) {
-        try {
-            Class<T> tClass = (Class<T>) getEntityClass();
-            return (List<T>) baseMapper.selectAll(tClass, pagination).get(0);
-        } catch (NullPointerException e) {
-            return new ArrayList<>();
-        }
-    }
-
     public <T> List<T> selectAll(Pagination pagination,Class<T> tClass) {
         try {
             return (List<T>) baseMapper.selectAll(tClass, pagination).get(0);
-        } catch (NullPointerException e) {
-            return new ArrayList<>();
-        }
-    }
-
-    public <T> List<T> selectListByWhereString(String whereStr, Object whereValue, Pagination pagination) {
-        try {
-            Class<T> tClass = (Class<T>) getEntityClass();
-            Map<String,Object> whereMap = ImmutableMap.of(whereStr,whereValue);
-            T o = baseMapper.selectListByWhere(whereMap,tClass, pagination).get(0);
-            if(!(o instanceof List)){
-                return Arrays.asList(o);
-            }
-            return (List<T>) o;
         } catch (NullPointerException e) {
             return new ArrayList<>();
         }
@@ -173,8 +122,16 @@ public class BaseService<T> {
         }
     }
 
-
-    public Class<?> getEntityClass() {
-        return MineClassUtils.getActualTypeArgument(this.getClass());
+    public <T> List<T> selectListByWhereMap(Map<String,Object> paramMap, Class<T> clazz, Pagination pagination) {
+        try {
+            T o = baseMapper.selectListByWhere(paramMap,clazz, pagination).get(0);
+            if(!(o instanceof List)){
+                return Arrays.asList(o);
+            }
+            return (List<T>) o;
+        } catch (NullPointerException e) {
+            return new ArrayList<>();
+        }
     }
+
 }

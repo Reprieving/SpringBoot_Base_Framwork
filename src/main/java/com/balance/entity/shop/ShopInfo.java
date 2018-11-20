@@ -13,8 +13,8 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-@Alias("GoodsSpu")
-@Table(name = "goods_spu")//店铺信息表
+@Alias("ShopInfo")
+@Table(name = "shop_info")//店铺信息表
 public class ShopInfo implements Serializable{
 
     private static final long serialVersionUID = -3666361733455390654L;
