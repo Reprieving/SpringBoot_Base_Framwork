@@ -24,7 +24,7 @@ public class GoodsSpecValue implements Serializable {
     private String id;
 
     @Column(name = "spec_id")
-    private String specId; //规格表id
+    private String specId; //规格表id（goods_spec_name表id）
 
     @Column(name = "spec_value")
     private String specValue;//规格值

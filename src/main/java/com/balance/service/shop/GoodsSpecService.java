@@ -52,4 +52,6 @@ public class GoodsSpecService {
     public List<GoodsSpecValue> listGoodsSpecValue(String specId,Class<GoodsSpecValue> tClazz){
         return baseService.selectListByWhereString("spec_id = ",specId,null,tClazz);
     }
+
+
 }

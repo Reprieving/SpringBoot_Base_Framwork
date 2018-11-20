@@ -34,14 +34,21 @@ public class GoodsSpu implements Serializable{
     private BigDecimal lowPrice;//最低价格
 
     @Column(name = "category_id")
-    private String categoryId;//分类id
+    private String categoryId;//分类id（goods_category表id）
 
     @Column(name = "brand_id")
-    private String brandId;//品牌id
+    private String brandId;//品牌id（goods_brand表id）
 
     @Column(name = "create_time")
     private Timestamp createTime;
 
     @Column(name = "update_time")
     private Timestamp updateTime;
+
+    //ShopConst.GOODS_STATUS_*
+    @Column(name = "status")
+    private Integer status;//sku状态
+
+    @Column(name = "is_valid")
+    private Boolean isValid;//是否有效
 }

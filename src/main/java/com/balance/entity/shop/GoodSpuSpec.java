@@ -23,10 +23,10 @@ public class GoodSpuSpec implements Serializable{
     private String id;
 
     @Column(name = "spu_id")
-    private String spuId;//spu id
+    private String spuId;//spu id（goods_spu表id）
 
     @Column(name = "spec_id")
-    private String specId;//规格表id
+    private String specId;//规格表id（goods_spec_name表id）
 
     @Column(name = "create_time")
     private Timestamp createTime;//创建时间

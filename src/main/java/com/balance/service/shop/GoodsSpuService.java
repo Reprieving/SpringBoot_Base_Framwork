@@ -24,6 +24,7 @@ public class GoodsSpuService {
         if(goodsSkuList !=null){
             baseService.insertBatch(goodsSkuList,true);
         }
+        
     }
 
 

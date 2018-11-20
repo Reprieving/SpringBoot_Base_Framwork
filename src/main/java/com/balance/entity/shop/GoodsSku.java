@@ -27,7 +27,7 @@ public class GoodsSku implements Serializable{
     private String skuNo; //sku编号
 
     @Column(name = "sku_name")
-    private String skuName;//spu名称(冗余)
+    private String skuName;//spu名称(冗余spu_name)
 
     @Column(name = "price")
     private BigDecimal price;//单价
@@ -36,7 +36,10 @@ public class GoodsSku implements Serializable{
     private Integer stock;//库存
 
     @Column(name = "spu_id")
-    private String spuId;//spuId
+    private String spuId;//spuId（goods_spud表id）
+
+    @Column(name = "spec_value_id")
+    private String specValueId;//规格值id（goods_spec_value表id）
 
     @Column(name = "shop_id")
     private String shopId;//店铺id
@@ -46,5 +49,12 @@ public class GoodsSku implements Serializable{
 
     @Column(name = "update_time")
     private Timestamp updateTime;
+
+    //ShopConst.GOODS_STATUS_*
+    @Column(name = "status")
+    private Integer status;//sku状态
+
+    @Column(name = "is_valid")
+    private Boolean isValid;//是否有效
 
 }
