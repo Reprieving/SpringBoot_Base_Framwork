@@ -27,7 +27,7 @@ public class AdminRoleController {
 
     @RequestMapping("list")
     public Result<?> roleList(Role role, Pagination pagination){
-        List<Role> roleList = roleService.selectAll(pagination);
+        List<Role> roleList = roleService.selectAll(pagination,Role.class);
         return ResultUtils.success(roleList,"success");
     }
 

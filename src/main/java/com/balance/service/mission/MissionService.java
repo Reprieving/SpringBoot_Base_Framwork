@@ -29,11 +29,11 @@ public class MissionService extends BaseService<Mission>{
      * @return
      */
     public List<Mission> getMissionList(String userId, Integer type) {
-        List<Mission> missions = selectListByWhereString("type=",type,null);
+        List<Mission> missions = selectListByWhereString("type=",type,null,Mission.class);
         for (Mission mission : missions) {
 
             Map<String,Object> paramMap = ImmutableMap.of("mission_id=",mission.getId(),"user_id=",userId);
-            MissionComplete missionComplete = missionCompleteService.selectOneByWhereMap(paramMap);
+            MissionComplete missionComplete = missionCompleteService.selectOneByWhereMap(paramMap,MissionComplete.class);
 
             Boolean missionCompleteNull = missionComplete == null;
 

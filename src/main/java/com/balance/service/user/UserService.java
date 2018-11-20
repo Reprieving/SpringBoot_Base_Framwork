@@ -22,7 +22,7 @@ public class UserService extends BaseService<User>{
      * @throws BusinessException
      */
     public void createUser(User user) throws BusinessException {
-        User user1 = selectOneByWhereString("user_name=",user.getUserName());
+        User user1 = selectOneByWhereString("user_name=",user.getUserName(),User.class);
         if(user1!=null){
             throw new BusinessException("用户已存在");
         }
@@ -40,7 +40,7 @@ public class UserService extends BaseService<User>{
         paramMap.put("user_name=",user.getUserName());
         paramMap.put("password=",user.getPassword());
 
-        User user1 = selectOneByWhereMap(paramMap);
+        User user1 = selectOneByWhereMap(paramMap,User.class);
 
         return JwtUtils.createToken(user1);
     }
