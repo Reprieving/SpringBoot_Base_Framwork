@@ -16,7 +16,6 @@ import java.sql.SQLException;
 
 @RestController
 @RequestMapping("admin/appInterface")
-@CrossOrigin
 public class AdminAppInterfaceController {
 
     @Autowired

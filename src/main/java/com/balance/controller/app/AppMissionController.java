@@ -1,21 +1,21 @@
 package com.balance.controller.app;
 
 import com.balance.architecture.dto.Result;
+import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
 import com.balance.entity.applet.Mission;
-import com.balance.entity.applet.MissionComplete;
 import com.balance.entity.applet.SignInfo;
+import com.balance.entity.user.User;
 import com.balance.service.mission.MissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @RequestMapping(value = "/app/mission")
 @Controller
-@CrossOrigin
 public class AppMissionController {
 
     @Autowired
@@ -23,10 +23,10 @@ public class AppMissionController {
 
     @ResponseBody
     @RequestMapping(value = "/list" ,method = RequestMethod.POST)
-    public Result<?> getMissionList(HttpServletRequest request, @RequestBody Mission mission){
+    public Result<?> getMissionList(HttpServletRequest request, @RequestBody Mission mission) throws UnsupportedEncodingException {
 
-        String userId = "";
-        List<Mission> missions = missionService.getMissionList(userId,mission.getType());
+        User user = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME));
+        List<Mission> missions = missionService.getMissionList(user.getId(),mission.getType());
 
         return ResultUtils.success("");
     }

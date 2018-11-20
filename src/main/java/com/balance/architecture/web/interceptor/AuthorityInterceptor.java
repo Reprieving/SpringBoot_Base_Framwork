@@ -25,7 +25,7 @@ public class AuthorityInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        String token = httpServletRequest.getHeader(JwtUtils.REQ_HEADER_TOKEN_NAME);
+        String token = httpServletRequest.getHeader(JwtUtils.ACCESS_TOKEN_NAME);
         if (null != token) {
             Boolean verifyJwtResult = JwtUtils.verifyJwt(token);
             if (verifyJwtResult) {

@@ -14,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("admin/project")
-@CrossOrigin
 public class AdminProjectController {
 
     @Autowired

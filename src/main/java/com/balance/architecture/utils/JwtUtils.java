@@ -26,12 +26,7 @@ public class JwtUtils {
     /**
      * tokenName
      */
-    public static final String TOKEN_NAME = "accessToken";
-
-    /**
-     * request header tokenName
-     */
-    public static final String REQ_HEADER_TOKEN_NAME = "Login-Token";
+    public static final String ACCESS_TOKEN_NAME = "accessToken";
 
     /**
      * token claim userName
@@ -101,14 +96,17 @@ public class JwtUtils {
     }
 
     /**
-     * 获取token
-     * @param token
-     * @return
+     * 获取app端 token信息
      */
-    public static DecodedJWT getJwt(String token) throws UnsupportedEncodingException {
+    public static User getUserByToken(String token) throws UnsupportedEncodingException {
         Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
         JWTVerifier jwtVerifier = JWT.require(algorithm).build();
-        return jwtVerifier.verify(token);
+        DecodedJWT decodedJWT= jwtVerifier.verify(token);
+
+        User user = new User();
+        user.setId(decodedJWT.getClaim(TOKEN_CLAIM_USERID).asString());
+        user.setUserName(decodedJWT.getClaim(TOKEN_CLAIM_USERNAME).asString());
+        return user;
     }
 
 }
