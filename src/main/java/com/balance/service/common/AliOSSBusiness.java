@@ -22,10 +22,7 @@ import java.util.Date;
 
 
 /**
- * 连接阿里OSS服务
- *
- * @author hebo2
- *
+ * 阿里OSS服务
  */
 @Service
 public class AliOSSBusiness {

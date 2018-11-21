@@ -35,7 +35,7 @@ public class GlobalConfigService extends BaseService{
             Iterator<GlobalConfig> it = cfgList.iterator();
             while (it.hasNext()) {
                 GlobalConfig globalConfig = it.next();
-                gCfgCache.put(globalConfig.getKey(), globalConfig.getValue());
+                gCfgCache.put(globalConfig.getConfigKey(), globalConfig.getConfigValue());
             }
         }
     }

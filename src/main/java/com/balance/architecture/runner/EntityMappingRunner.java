@@ -81,7 +81,5 @@ public class EntityMappingRunner implements ApplicationRunner {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-
     }
 }
