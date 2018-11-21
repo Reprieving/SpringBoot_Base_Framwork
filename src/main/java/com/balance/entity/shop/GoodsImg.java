@@ -32,9 +32,14 @@ public class GoodsImg implements Serializable {
 
     //ShopConst.GOODS_IMG_TYPE_*
     @Column(name = "img_type")
-    private String imgType;//商品图片类型
+    private Integer imgType;//商品图片类型
 
     @Column(name = "create_time")
     private String createTime;//创建时间
 
+    public GoodsImg(String spuId, String imgUrl, int imgType) {
+        this.spuId = spuId;
+        this.imgUrl = imgUrl;
+        this.imgType = imgType;
+    }
 }

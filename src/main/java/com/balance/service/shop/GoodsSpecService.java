@@ -1,6 +1,7 @@
 package com.balance.service.shop;
 
 import com.balance.architecture.service.BaseService;
+import com.balance.entity.shop.GoodsSpec;
 import com.balance.entity.shop.GoodsSpecName;
 import com.balance.entity.shop.GoodsSpecValue;
 import org.apache.commons.lang3.StringUtils;
@@ -52,5 +53,20 @@ public class GoodsSpecService {
         return baseService.selectListByWhereString("spec_id = ",specId,null,tClazz);
     }
 
+    /**
+     * 查询商品规格名字
+     * @param specNameId
+     * @return
+     */
+    public GoodsSpecName getGoodSpecNameById(String specNameId){
+        return  baseService.selectOneById(specNameId,GoodsSpecName.class);
+    }
+
+    /**
+     * 查询商品规格值
+     */
+    public GoodsSpecValue getGoodsSpecValueById(String specValueId){
+        return  baseService.selectOneById(specValueId,GoodsSpecValue.class);
+    }
 
 }

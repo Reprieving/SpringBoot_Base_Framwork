@@ -35,13 +35,18 @@ public class UserService extends BaseService{
      * @return
      * @throws UnsupportedEncodingException
      */
-    public String login(User user) throws UnsupportedEncodingException {
+    public User login(User user) throws UnsupportedEncodingException {
         Map<String,Object> paramMap = new HashMap<>();
-        paramMap.put("user_name=",user.getUserName());
+        paramMap.put("phone_number=",user.getPhoneNumber());
         paramMap.put("password=",user.getPassword());
 
         User user1 = selectOneByWhereMap(paramMap,User.class);
 
-        return JwtUtils.createToken(user1);
+        User user2 = new User();
+        user2.setUserName(user1.getUserName());
+        user2.setHeadPictureUrl(user1.getHeadPictureUrl());
+        user2.setAccessToken(JwtUtils.createToken(user1));
+
+        return user2;
     }
 }

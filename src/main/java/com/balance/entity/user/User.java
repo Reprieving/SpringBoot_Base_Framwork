@@ -48,4 +48,6 @@ public class User implements Serializable{ //用户信息
     //UserConst.USER_STATUS_*
     @Column(name = "status")
     private Integer status;//状态
+
+    private String accessToken;
 }

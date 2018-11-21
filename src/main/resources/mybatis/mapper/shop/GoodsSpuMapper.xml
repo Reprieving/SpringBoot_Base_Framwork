@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.balance.mapper.shop.GoodsSpuMapper">
+    <resultMap id="goodsSpuSimpleMap" type="GoodsSpu">
+        <id property="id" column="id"></id>
+        <result property="goodsName" column="goods_name"></result>
+        <result property="lowPrice" column="low_price"></result>
+        <result property="categoryName" column="category_name"></result>
+        <result property="brandName" column="brand_name"></result>
+        <result property="defaultImgUrl" column="default_img_url"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="status" column="status"></result>
+    </resultMap>
+
+    <select id="listGoodsSpu" resultMap="goodsSpuSimpleMap">
+        SELECT a.id,a.goods_name,a.low_price,c.category_name,d.brand_name,b.img_url,a.create_time,a.status
+        FROM goods_spu a
+        LEFT JOIN goods_img b ON a.id = b.spu_id
+        LEFT JOIN goods_category c on a.category_id = c.id
+        LEFT JOIN goods_brand d on a.brand_id = d.id
+        WHERE
+        status = #{status}
+        <if test="goodsName!=null">
+            AND a.goods_name LIKE CONCAT('%',#{goodsName},'%')
+        </if>
+        <if test="categoryId!=null">
+            AND c.id = #{categoryId}
+        </if>
+        <if test="brandId!=null">
+            AND d.id = #{brandId}
+        </if>
+    </select>
+
+
+</mapper>

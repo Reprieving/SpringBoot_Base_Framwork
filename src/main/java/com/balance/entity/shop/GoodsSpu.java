@@ -51,4 +51,9 @@ public class GoodsSpu implements Serializable{
 
     @Column(name = "is_valid")
     private Boolean isValid;//是否有效
+
+    //扩展属性
+    private String defaultImgUrl;//默认图片
+    private String categoryName;//类目名
+    private String brandName;//品牌名
 }

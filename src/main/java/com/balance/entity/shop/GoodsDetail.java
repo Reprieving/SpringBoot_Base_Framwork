@@ -29,6 +29,12 @@ public class GoodsDetail {//商品详情实体
     //sku Id
     private String skuId;
 
+    //商品名称
+    private String goodsName;
+
+    //商品描述
+    private String goodsDesc;
+
     //库存
     private Integer stock;
 
@@ -38,9 +44,12 @@ public class GoodsDetail {//商品详情实体
     //sku创建时间
     private Timestamp createTime;
 
-    //图片url
-    private List<GoodsImg> goodsImgList;
+    //介绍图片url
+    private List<String> introduceImgList;
 
-    //sku列表
-    private List<Map<String,List<GoodsSkuSelectValue>>> skuList;
+    //详情图片url
+    private List<String> detailImgList;
+
+    //skuList
+    private List<GoodsSpec> goodsSpecList;
 }

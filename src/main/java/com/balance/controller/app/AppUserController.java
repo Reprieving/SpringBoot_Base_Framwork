@@ -33,8 +33,8 @@ public class AppUserController {
 
     @RequestMapping("login")
     public Result<?> login(User user) throws BusinessException, UnsupportedEncodingException {
-        String loginToken = userService.login(user);
-        return ResultUtils.success(loginToken,"登录成功");
+        User userInfo = userService.login(user);
+        return ResultUtils.success(userInfo,"登录成功");
     }
 
     @RequestMapping("cert")
