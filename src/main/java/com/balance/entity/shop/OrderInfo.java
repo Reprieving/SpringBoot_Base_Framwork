@@ -6,6 +6,7 @@ import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
 import com.sun.xml.internal.bind.v2.model.core.ID;
 import lombok.Data;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.ibatis.type.Alias;
 
 import java.io.Serializable;
@@ -47,4 +48,12 @@ public class OrderInfo implements Serializable {
     @Column(name = "create_time")
     private Timestamp createTime;
 
+
+    public OrderInfo(String orderNumber, Integer settlementId, String userId, String addressId, BigDecimal orderTotalPrice) {
+        this.orderNumber = orderNumber;
+        this.settlementId = settlementId;
+        this.userId = userId;
+        this.addressId = addressId;
+        this.price = orderTotalPrice;
+    }
 }

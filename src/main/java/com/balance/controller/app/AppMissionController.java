@@ -15,7 +15,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @RequestMapping(value = "/app/mission")
-@Controller
+@RestController
 public class AppMissionController {
 
     @Autowired

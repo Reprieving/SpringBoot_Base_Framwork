@@ -38,11 +38,10 @@ public class GoodsSpuService extends BaseService{
     public void createGoodsSpu(GoodsSpu goodsSpu, MultipartFile goodsDefaultFile,MultipartFile[] goodsDetailFiles) {
         String fileDirectory = DateFormatUtils.format(new Date(),"yyyy-MM-dd|HH");
 
-        insert(goodsSpu);
         //上传文件
         String defaultImgUrl = aliOSSBusiness.uploadCommonPic(goodsDefaultFile,fileDirectory);
-        GoodsImg goodsDefaultImg = new GoodsImg(goodsSpu.getId(),defaultImgUrl,ShopConst.GOODS_IMG_TYPE_DEFAULT);
-        insert(goodsDefaultImg);
+        goodsSpu.setDefaultImgUrl(defaultImgUrl);
+        insert(goodsSpu);
 
         List<GoodsImg> goodsDetailImgList = new ArrayList<>();
         for(MultipartFile goodsDetailFile:goodsDetailFiles){

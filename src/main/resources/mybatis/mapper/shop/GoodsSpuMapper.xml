@@ -14,9 +14,8 @@
     </resultMap>
 
     <select id="listGoodsSpu" resultMap="goodsSpuSimpleMap">
-        SELECT a.id,a.goods_name,a.low_price,c.category_name,d.brand_name,b.img_url,a.create_time,a.status
+        SELECT a.id,a.goods_name,a.low_price,c.category_name,d.brand_name,a.default_img_url,a.create_time,a.status
         FROM goods_spu a
-        LEFT JOIN goods_img b ON a.id = b.spu_id
         LEFT JOIN goods_category c on a.category_id = c.id
         LEFT JOIN goods_brand d on a.brand_id = d.id
         WHERE

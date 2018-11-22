@@ -93,9 +93,9 @@ public class BaseService {
         }
     }
 
-    public <T> T selectOneByWhereMap(Map<String,Object> paramMap,Class<T> tClass) {
+    public <T> T selectOneByWhereMap(Map<String,Object> whereMap,Class<T> tClass) {
         try {
-            return baseMapper.selectOneByWhereMap(paramMap, tClass);
+            return baseMapper.selectOneByWhereMap(whereMap, tClass);
         } catch (NullPointerException e) {
             return null;
         }
@@ -122,9 +122,9 @@ public class BaseService {
         }
     }
 
-    public <T> List<T> selectListByWhereMap(Map<String,Object> paramMap, Class<T> clazz, Pagination pagination) {
+    public <T> List<T> selectListByWhereMap(Map<String,Object> whereMap, Class<T> clazz, Pagination pagination) {
         try {
-            T o = baseMapper.selectListByWhere(paramMap,clazz, pagination).get(0);
+            T o = baseMapper.selectListByWhere(whereMap,clazz, pagination).get(0);
             if(!(o instanceof List)){
                 return Arrays.asList(o);
             }

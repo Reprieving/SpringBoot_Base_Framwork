@@ -132,7 +132,7 @@ public class BaseMapper {
             mybatisMapperParam.setIdDbColumn(idDbColumn);
             mybatisMapperParam.setIdPoVal(idPoVal);
 
-            return sqlSession.insert("baseMapper.delete", mybatisMapperParam);
+            return sqlSession.delete("baseMapper.delete", mybatisMapperParam);
         } catch (EntityLackTableAnnotationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -164,6 +164,7 @@ public class BaseMapper {
                 if (column != null && id_annotation == null) {
                     setMap.put(column.name(), f.get(object));
                 }
+
             }
 
             ValueCheckUtils.notEmpty(idPoVal, "Entity value can't be null");
@@ -174,7 +175,7 @@ public class BaseMapper {
             mybatisMapperParam.setIdDbColumn(idDbColumn);
             mybatisMapperParam.setIdPoVal(idPoVal);
 
-            return sqlSession.insert("baseMapper.update", mybatisMapperParam);
+            return sqlSession.update("baseMapper.update", mybatisMapperParam);
 
         } catch (EntityLackTableAnnotationException e) {
             e.printStackTrace();

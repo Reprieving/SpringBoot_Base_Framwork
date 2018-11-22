@@ -39,6 +39,9 @@ public class GoodsSku implements Serializable{
     @Column(name = "spu_id")
     private String spuId;//spuId（goods_spud表id）
 
+    @Column(name = "settlement_id")
+    private Integer settlementId;//支付方式id
+
     @Column(name = "spec_json")
     private String specJson;//规格名称和值组合json 格式：{"规格名":"规格值","规格名":"规格值"}
 

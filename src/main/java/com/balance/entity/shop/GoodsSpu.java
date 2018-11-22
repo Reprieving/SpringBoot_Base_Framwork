@@ -39,6 +39,9 @@ public class GoodsSpu implements Serializable{
     @Column(name = "brand_id")
     private String brandId;//品牌id（goods_brand表id）
 
+    @Column(name = "default_img_url")
+    private String defaultImgUrl;//spu 默认图片
+
     @Column(name = "create_time")
     private Timestamp createTime;
 
@@ -53,7 +56,6 @@ public class GoodsSpu implements Serializable{
     private Boolean isValid;//是否有效
 
     //扩展属性
-    private String defaultImgUrl;//默认图片
     private String categoryName;//类目名
     private String brandName;//品牌名
 }
