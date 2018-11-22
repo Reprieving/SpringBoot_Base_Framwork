@@ -17,10 +17,10 @@ public class GoodsSkuSelectValue { //app商品详情页sku规格值实体
     //规格值
     private String specValue;
 
-    public GoodsSkuSelectValue(String specNameId, String specValueId, String specValue) {
+    public GoodsSkuSelectValue(String specNameId, String specValueId,String specValue) {
         this.specNameId = specNameId;
         this.specValueId = specValueId;
         this.specValue = specValue;
-        this.specNameValueStr = specNameId + ":" + specValueId;
+        this.specNameValueStr = specNameId+":"+specValueId;
     }
 }

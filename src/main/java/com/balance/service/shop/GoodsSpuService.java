@@ -21,7 +21,6 @@ public class GoodsSpuService extends BaseService{
     @Autowired
     private AliOSSBusiness aliOSSBusiness;
 
-
     @Autowired
     private GoodsSpecService goodsSpecService;
 
@@ -37,6 +36,7 @@ public class GoodsSpuService extends BaseService{
      */
     public void createGoodsSpu(GoodsSpu goodsSpu, MultipartFile goodsDefaultFile,MultipartFile[] goodsDetailFiles) {
         String fileDirectory = DateFormatUtils.format(new Date(),"yyyy-MM-dd|HH");
+
 
         //上传文件
         String defaultImgUrl = aliOSSBusiness.uploadCommonPic(goodsDefaultFile,fileDirectory);

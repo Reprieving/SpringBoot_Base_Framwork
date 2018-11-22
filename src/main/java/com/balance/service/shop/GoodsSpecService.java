@@ -1,5 +1,6 @@
 package com.balance.service.shop;
 
+import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.service.BaseService;
 import com.balance.entity.shop.GoodsSpec;
 import com.balance.entity.shop.GoodsSpecName;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class GoodsSpecService {
@@ -69,4 +71,22 @@ public class GoodsSpecService {
         return  baseService.selectOneById(specValueId,GoodsSpecValue.class);
     }
 
+    /**
+     * 把orderItem 规格id json 转换成 规格值json
+     * @param specJson
+     */
+    public String buildOrderItemSpecStr(String specJson){
+        String specStr = "";
+        Map<String, String> specMap = JSONObject.parseObject(specJson, Map.class);
+        String specName = null;
+        String specValue = null;
+        for (Map.Entry<String, String> entry : specMap.entrySet()) {//商品属性map
+            specName = getGoodSpecNameById(entry.getKey()).getSpecName();
+            specValue = getGoodsSpecValueById(entry.getValue()).getSpecValue();
+        }
+        if (specName != null && specValue != null) {
+            specStr += " " + specName + ":" + specValue;
+        }
+        return specStr;
+    }
 }

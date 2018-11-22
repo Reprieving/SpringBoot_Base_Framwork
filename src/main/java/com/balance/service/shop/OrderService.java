@@ -14,7 +14,6 @@ import com.balance.utils.BigDecimallUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -81,13 +80,17 @@ public class OrderService extends BaseService {
                     Map<String, Object> skuWhereMap = ImmutableMap.of("spu_id = ", spuId, "spec_json = ", JSONObject.toJSONString(skuSpecMap));
                     GoodsSku goodsSku = selectOneByWhereMap(skuWhereMap, GoodsSku.class);
                     if (goodsSku == null) {
-                        throw new BusinessException("未找到该属性商品");
+                        throw new BusinessException("未找到商品");
                     }
+
+                    if(orderSkuReq.getNumber()>goodsSku.getStock()){
+                        throw new BusinessException("商品编号"+goodsSku.getSkuNo()+"库存不足");
+                    }
+
                     BigDecimal spuTotalPrice = BigDecimallUtils.multiply(goodsSku.getPrice(), skuNumber);
                     orderTotalPrice = BigDecimallUtils.add(orderTotalPrice, spuTotalPrice);
 
                     orderItems.add(new OrderItem(spuId, goodsSku.getId(), orderSkuReq.getNumber(), goodsSku.getPrice(), spuTotalPrice));
-
                 }
 
                 //3.增加订单记录
@@ -124,7 +127,9 @@ public class OrderService extends BaseService {
         List<OrderGoodsInfo> orderGoodsInfoList = orderMapper.listOrderGoodsInfo(userId, orderStatus);
 
         for (OrderGoodsInfo orderGoodsInfo : orderGoodsInfoList) {//订单列表
-            buildOrderItemSpecStr(orderGoodsInfo);
+            for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
+                orderItem.setSpecStr(goodsSpecService.buildOrderItemSpecStr(orderItem.getSpecJson()));
+            }
         }
         return orderGoodsInfoList;
     }
@@ -136,28 +141,10 @@ public class OrderService extends BaseService {
      */
     public OrderGoodsInfo getOrderGoodsInfo(String orderId){
         OrderGoodsInfo orderGoodsInfo = orderMapper.getOrderGoodsInfo(orderId);
-        buildOrderItemSpecStr(orderGoodsInfo);
+        for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
+            orderItem.setSpecStr(goodsSpecService.buildOrderItemSpecStr(orderItem.getSpecJson()));
+        }
         return orderGoodsInfo;
     }
 
-    /**
-     * 把orderItem 规格id json 转换成 规格值json
-     * @param orderGoodsInfo
-     */
-    public void buildOrderItemSpecStr(OrderGoodsInfo orderGoodsInfo){
-        for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
-            String specStr = "";
-            Map<String, String> specMap = JSONObject.parseObject(orderItem.getSpecJson(), Map.class);
-            String specName = null;
-            String specValue = null;
-            for (Map.Entry<String, String> entry : specMap.entrySet()) {//商品属性map
-                specName = goodsSpecService.getGoodSpecNameById(entry.getKey()).getSpecName();
-                specValue = goodsSpecService.getGoodsSpecValueById(entry.getValue()).getSpecValue();
-            }
-            if (specName != null && specValue != null) {
-                specStr += " " + specName + ":" + specValue;
-            }
-            orderItem.setSpecStr(specStr);
-        }
-    }
 }
