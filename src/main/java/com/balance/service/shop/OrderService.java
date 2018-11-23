@@ -68,16 +68,8 @@ public class OrderService extends BaseService {
                         throw new BusinessException("商品不支持该支付方式");
                     }
 
-                    //sku字符串转换
-                    List<String> specNameValueStrList = orderSkuReq.getSpecNameValueStrList();
-                    Map<String, String> skuSpecMap = new HashMap<>(); //key:规格名id， value:规格值id
-                    for (String specNameValueStr : specNameValueStrList) { //specNameValueStr格式 = "规格名id:规格值id"
-                        String[] specArr = specNameValueStr.split(":");
-                        skuSpecMap.put(specArr[0], specArr[1]);
-                    }
-
                     //2.计算订单总价格
-                    Map<String, Object> skuWhereMap = ImmutableMap.of("spu_id = ", spuId, "spec_json = ", JSONObject.toJSONString(skuSpecMap));
+                    Map<String, Object> skuWhereMap = ImmutableMap.of("spu_id = ", spuId, "spec_json = ", JSONObject.toJSONString(orderSkuReq.getSpecIdStrList()));
                     GoodsSku goodsSku = selectOneByWhereMap(skuWhereMap, GoodsSku.class);
                     if (goodsSku == null) {
                         throw new BusinessException("未找到商品");
@@ -128,7 +120,7 @@ public class OrderService extends BaseService {
 
         for (OrderGoodsInfo orderGoodsInfo : orderGoodsInfoList) {//订单列表
             for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
-                orderItem.setSpecStr(goodsSpecService.buildOrderItemSpecStr(orderItem.getSpecJson()));
+                orderItem.setSpecStr(goodsSpecService.strSpecIdToSpecValue(orderItem.getSpecJson()));
             }
         }
         return orderGoodsInfoList;
@@ -142,7 +134,7 @@ public class OrderService extends BaseService {
     public OrderGoodsInfo getOrderGoodsInfo(String orderId){
         OrderGoodsInfo orderGoodsInfo = orderMapper.getOrderGoodsInfo(orderId);
         for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
-            orderItem.setSpecStr(goodsSpecService.buildOrderItemSpecStr(orderItem.getSpecJson()));
+            orderItem.setSpecStr(goodsSpecService.strSpecIdToSpecValue(orderItem.getSpecJson()));
         }
         return orderGoodsInfo;
     }

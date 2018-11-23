@@ -19,73 +19,91 @@ public class GoodsSpecService {
 
     /**
      * 新增商品规格名字
+     *
      * @param goodSpec
      */
-    public void createGoodsSpec(GoodsSpecName goodSpec){
+    public void createGoodsSpec(GoodsSpecName goodSpec) {
         baseService.insert(goodSpec);
     }
 
     /**
      * 新增商品规格值
+     *
      * @param goodsSpecValue
      */
-    public void createGoodsSpecValue(GoodsSpecValue goodsSpecValue){
+    public void createGoodsSpecValue(GoodsSpecValue goodsSpecValue) {
         baseService.insert(goodsSpecValue);
     }
 
     /**
      * 查询商品规格名字
+     *
      * @param name 规格名字
      * @return
      */
-    public List<GoodsSpecName> listGoodsSpecName(String name,Class<GoodsSpecName> tClazz){
-        if(StringUtils.isNoneBlank(name)){
-            return baseService.selectAll(null,tClazz);
-        }else{
-            return baseService.selectListByWhereString("spec_name = ",name,null,tClazz);
+    public List<GoodsSpecName> listGoodsSpecName(String name, Class<GoodsSpecName> tClazz) {
+        if (StringUtils.isNoneBlank(name)) {
+            return baseService.selectAll(null, tClazz);
+        } else {
+            return baseService.selectListByWhereString("spec_name = ", name, null, tClazz);
         }
     }
 
     /**
      * 查询商品规则值
+     *
      * @param specId 规格id
      * @return
      */
-    public List<GoodsSpecValue> listGoodsSpecValue(String specId,Class<GoodsSpecValue> tClazz){
-        return baseService.selectListByWhereString("spec_id = ",specId,null,tClazz);
+    public List<GoodsSpecValue> listGoodsSpecValue(String specId, Class<GoodsSpecValue> tClazz) {
+        return baseService.selectListByWhereString("spec_id = ", specId, null, tClazz);
     }
 
     /**
-     * 查询商品规格名字
+     * 查询商品规格名字实体
+     *
      * @param specNameId
      * @return
      */
-    public GoodsSpecName getGoodSpecNameById(String specNameId){
-        return  baseService.selectOneById(specNameId,GoodsSpecName.class);
+    public GoodsSpecName getGoodSpecNameById(String specNameId) {
+        return baseService.selectOneById(specNameId, GoodsSpecName.class);
     }
 
     /**
-     * 查询商品规格值
+     * 查询商品规格值实体
      */
-    public GoodsSpecValue getGoodsSpecValueById(String specValueId){
-        return  baseService.selectOneById(specValueId,GoodsSpecValue.class);
+    public GoodsSpecValue getGoodsSpecValueById(String specValueId) {
+        return baseService.selectOneById(specValueId, GoodsSpecValue.class);
     }
 
     /**
-     * 把orderItem 规格id json 转换成 规格值json
+     * 规格id json 翻译成 规格值Str {"规格id":"规格值id"} => "规格名:规格值 规格名:规格值"
+     *
      * @param specJson
      */
-    public String buildOrderItemSpecStr(String specJson){
+    public String strSpecIdToSpecValue(String specJson) {
+        String specStr;
+        List<String> specIdStrList = JSONObject.parseArray(specJson, String.class);
+        specStr = strSpecIdToSpecValue(specIdStrList);
+        return specStr;
+    }
+
+    /**
+     * 规格id List 翻译成 规格值Str {"规格id":"规格值id"} => "规格名:规格值 规格名:规格值"
+     *
+     * @param specIdStrList
+     */
+    public String strSpecIdToSpecValue(List<String> specIdStrList) {
         String specStr = "";
-        Map<String, String> specMap = JSONObject.parseObject(specJson, Map.class);
-        String specName = null;
-        String specValue = null;
-        for (Map.Entry<String, String> entry : specMap.entrySet()) {//商品属性map
-            specName = getGoodSpecNameById(entry.getKey()).getSpecName();
-            specValue = getGoodsSpecValueById(entry.getValue()).getSpecValue();
-        }
-        if (specName != null && specValue != null) {
-            specStr += " " + specName + ":" + specValue;
+        String specName;
+        String specValue;
+        for (String specIdStr : specIdStrList) {
+            String[] specIdArr = specIdStr.split(":");
+            specName = getGoodSpecNameById(specIdArr[0]).getSpecName();
+            specValue = getGoodsSpecValueById(specIdArr[1]).getSpecValue();
+            if (specName != null && specValue != null) {
+                specStr += " " + specName + ":" + specValue;
+            }
         }
         return specStr;
     }

@@ -76,6 +76,10 @@ public class BaseService {
         return baseMapper.update(entity.getClass(), entity);
     }
 
+    public Integer updateIfNotNull(Object entity) {
+        return baseMapper.updateIfNotNull(entity.getClass(), entity);
+    }
+
     public <T> T selectOneById(Serializable id,Class<T> tClass) {
         try {
             return baseMapper.selectById(id, tClass);

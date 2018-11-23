@@ -17,28 +17,32 @@ public class ShoppingCart {
     private String id;
 
     @Column(name = "user_id")
-    private String userId;
+    private String userId; //user id
 
     @Column(name = "spu_id")
-    private String spuId;
+    private String spuId; //spu id
 
     @Column(name = "sku_id")
-    private String skuId;
+    private String skuId; //sku id
 
-    @Column(name = "spec_json")
-    private String specJson;
+    @Column(name = "spec_id_json")
+    private String specIdJson; //规格Id字符串 格式 = [规格名id:规格值id, 规格名id:规格值id]
+
+    @Column(name = "spec_value_str")
+    private String specValueStr;//规格值字符串 格式 = " 颜色:蓝色 尺码:L "
 
     @Column(name = "number")
-    private Integer number;
+    private Integer number; //购买数量
 
     @Column(name = "price")
-    private BigDecimal price;
+    private BigDecimal price; //sku单价
 
-    public ShoppingCart(String userId, String spuId, String skuId, String specStr, Integer number, BigDecimal price) {
+    public ShoppingCart(String userId, String spuId, String skuId, String specIdJson, String specValueStr, Integer number, BigDecimal price) {
         this.userId = userId;
         this.spuId = spuId;
         this.skuId = skuId;
-        this.specJson = specStr;
+        this.specIdJson = specIdJson;
+        this.specValueStr = specValueStr;
         this.number = number;
         this.price = price;
     }

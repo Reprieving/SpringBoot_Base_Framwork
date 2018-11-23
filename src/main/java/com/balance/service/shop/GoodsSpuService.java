@@ -107,10 +107,11 @@ public class GoodsSpuService extends BaseService{
         //2.按商品skuJson key进行分类
         //3.构造默认选中sku信息,商品图片信息
         for (GoodsSku goodsSku : goodsSkuList) {
-            Map<String, String> skuJson = JSONObject.parseObject(goodsSku.getSpecJson(), Map.class);//商品sku的商品规格名字规格值json
-            for (Map.Entry<String, String> entry : skuJson.entrySet()) {
-                String specNameId = entry.getKey();//规格名id
-                String specValueId = entry.getValue();//规格值id
+            List<String> skuList = JSONObject.parseArray(goodsSku.getSpecJson(),String.class);
+            for (String skuArrayStr : skuList) {
+                String[] skuArray = skuArrayStr.split(":");
+                String specNameId = skuArray[0];//规格名id
+                String specValueId = skuArray[1];//规格值id
 
                 String specName = goodsSpecService.getGoodSpecNameById(specNameId).getSpecName();
                 String specValue = goodsSpecService.getGoodsSpecValueById(specValueId).getSpecValue();
