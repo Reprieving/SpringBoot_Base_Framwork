@@ -17,6 +17,15 @@ public class UserService extends BaseService{
     private UserMapper userMapper;
 
     /**
+     *
+     */
+    public void createMsgRecord(String phoneNumber,Integer msgType) throws BusinessException {
+
+//        insertIfNotNull(user);
+    }
+
+
+    /**
      * 注册用户
      * @param user
      * @throws BusinessException

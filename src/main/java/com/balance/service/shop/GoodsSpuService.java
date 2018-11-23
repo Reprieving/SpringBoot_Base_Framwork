@@ -53,26 +53,6 @@ public class GoodsSpuService extends BaseService{
 
     }
 
-
-    /**
-     * 新增商品sku
-     * @param goodsSku 商品sku
-     * @param goodsIntroduceFiles
-     */
-    public void createGoodsSku(GoodsSku goodsSku,MultipartFile[] goodsIntroduceFiles){
-        String fileDirectory = DateFormatUtils.format(new Date(),"yyyy-MM-dd|HH");
-        Map spceJsonMap = JSONObject.parseObject(goodsSku.getSpecJson(),Map.class);//用于校验前端传过来的spec组合值(格式{"规格名":"规格值"})
-        insert(goodsSku);
-        List<GoodsImg> goodsIntroduceImgList = new ArrayList<>();
-        for(MultipartFile goodsIntroduceFile:goodsIntroduceFiles){
-            String detailImgUrl = aliOSSBusiness.uploadCommonPic(goodsIntroduceFile,fileDirectory);
-            GoodsImg goodsIntroduceImg = new GoodsImg(goodsSku.getSpuId(),detailImgUrl,ShopConst.GOODS_IMG_TYPE_INTRODUCE);
-            goodsIntroduceImgList.add(goodsIntroduceImg);
-        }
-        insertBatch(goodsIntroduceImgList,false);
-    }
-
-
     /**
      * 商品基本信息列表
      *
@@ -93,11 +73,11 @@ public class GoodsSpuService extends BaseService{
      * @param spuId
      * @return
      */
-    public GoodsDetail getGoodsDetail(String spuId, Pagination pagination) {
+    public GoodsDetail getGoodsDetail(String spuId) {
         GoodsDetail goodsDetail = new GoodsDetail();
 
         //查询spu的sku列表
-        List<GoodsSku> goodsSkuList = selectListByWhereString("spu_id = ", spuId, pagination, GoodsSku.class);
+        List<GoodsSku> goodsSkuList = selectListByWhereString("spu_id = ", spuId, null, GoodsSku.class);
 
         //key:specName
         Map<String, List<GoodsSkuSelectValue>> skuListMap = new HashMap<>();
@@ -139,7 +119,7 @@ public class GoodsSpuService extends BaseService{
 
         //查询spu的sku对应图片
         Map<String,Object> whereMap = ImmutableMap.of("spu = ",spuId,"sku_id = ",goodsSkuList.get(0).getId());
-        List<GoodsImg> goodsImgList = selectListByWhereMap(whereMap,GoodsImg.class,pagination);
+        List<GoodsImg> goodsImgList = selectListByWhereMap(whereMap,GoodsImg.class,null);
         List<String> introduceImgList = new ArrayList<>(5);
         List<String> detailImgList = new ArrayList<>(5);
         for(GoodsImg goodsImg:goodsImgList){
@@ -154,5 +134,8 @@ public class GoodsSpuService extends BaseService{
 
         return goodsDetail;
     }
+
+
+
 
 }
