@@ -10,7 +10,7 @@ import com.balance.entity.user.UserAssets;
 import com.balance.mapper.shop.OrderMapper;
 import com.balance.service.user.AssetsTurnoverService;
 import com.balance.service.user.UserAssetsService;
-import com.balance.utils.BigDecimallUtils;
+import com.balance.utils.BigDecimalUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -56,11 +55,11 @@ public class OrderService extends BaseService {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                BigDecimal orderTotalPrice = BigDecimallUtils.newObject(0d);
+                BigDecimal orderTotalPrice = BigDecimalUtils.newObject(0d);
                 List<OrderItem> orderItems = new ArrayList<>();
                 for (OrderSkuReq orderSkuReq : orderSkuReqList) {
                     //1.检查商品是否支持用户选择的支付方式
-                    BigDecimal skuNumber = BigDecimallUtils.newObject(orderSkuReq.getNumber());
+                    BigDecimal skuNumber = BigDecimalUtils.newObject(orderSkuReq.getNumber());
                     String spuId = orderSkuReq.getSpuId();
                     Map<String, Object> spuWhereMap = ImmutableMap.of("spu_id = ", spuId, "settlement_id = ", settlementId);
                     GoodsSpu goodsSpu = selectOneByWhereMap(spuWhereMap, GoodsSpu.class);
@@ -79,8 +78,8 @@ public class OrderService extends BaseService {
                         throw new BusinessException("商品编号"+goodsSku.getSkuNo()+"库存不足");
                     }
 
-                    BigDecimal spuTotalPrice = BigDecimallUtils.multiply(goodsSku.getPrice(), skuNumber);
-                    orderTotalPrice = BigDecimallUtils.add(orderTotalPrice, spuTotalPrice);
+                    BigDecimal spuTotalPrice = BigDecimalUtils.multiply(goodsSku.getPrice(), skuNumber);
+                    orderTotalPrice = BigDecimalUtils.add(orderTotalPrice, spuTotalPrice);
 
                     orderItems.add(new OrderItem(spuId, goodsSku.getId(), orderSkuReq.getNumber(), goodsSku.getPrice(), spuTotalPrice));
                 }

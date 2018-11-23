@@ -72,8 +72,6 @@ public class UserService extends BaseService {
                         break;
                     }
                 }
-
-
                 insert(user);
 
                 String userId =user.getId();

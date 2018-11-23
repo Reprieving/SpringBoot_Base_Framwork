@@ -4,7 +4,7 @@ import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.entity.user.AssetsTurnover;
 import com.balance.entity.user.UserAssets;
-import com.balance.utils.BigDecimallUtils;
+import com.balance.utils.BigDecimalUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +40,7 @@ public class AssetsTurnoverService extends BaseService {
 
         BigDecimal targetAssetsAmount = userAssetsService.getAssetsBySettlementId(userAssets, settlementId);
         assetsTurnover.setBeforeAmount(targetAssetsAmount);
-        assetsTurnover.setAfterAmount(BigDecimallUtils.add(targetAssetsAmount,turnoverAmount));
+        assetsTurnover.setAfterAmount(BigDecimalUtils.add(targetAssetsAmount,turnoverAmount));
 
         insertIfNotNull(assetsTurnover);
     }

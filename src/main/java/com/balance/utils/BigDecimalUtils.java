@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 /**
  * Created by bint on 2018/8/25.
  */
-public class BigDecimallUtils {
+public class BigDecimalUtils {
 
     /**
      * 相乘

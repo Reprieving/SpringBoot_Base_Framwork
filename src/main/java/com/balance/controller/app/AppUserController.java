@@ -89,6 +89,7 @@ public class AppUserController {
      */
     @RequestMapping("cert")
     public Result<?> cert(HttpServletRequest request, User user, @RequestParam("file") MultipartFile file) throws BusinessException, UnsupportedEncodingException {
+
         return ResultUtils.success("");
     }
 

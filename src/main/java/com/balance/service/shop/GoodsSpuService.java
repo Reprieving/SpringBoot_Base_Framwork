@@ -119,7 +119,7 @@ public class GoodsSpuService extends BaseService{
 
         //查询spu的sku对应图片
         Map<String,Object> whereMap = ImmutableMap.of("spu = ",spuId,"sku_id = ",goodsSkuList.get(0).getId());
-        List<GoodsImg> goodsImgList = selectListByWhereMap(whereMap,GoodsImg.class,null);
+        List<GoodsImg> goodsImgList = selectListByWhereMap(whereMap,null,GoodsImg.class);
         List<String> introduceImgList = new ArrayList<>(5);
         List<String> detailImgList = new ArrayList<>(5);
         for(GoodsImg goodsImg:goodsImgList){

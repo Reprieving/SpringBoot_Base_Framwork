@@ -126,7 +126,7 @@ public class BaseService {
         }
     }
 
-    public <T> List<T> selectListByWhereMap(Map<String,Object> whereMap, Class<T> clazz, Pagination pagination) {
+    public <T> List<T> selectListByWhereMap(Map<String,Object> whereMap, Pagination pagination,Class<T> clazz) {
         try {
             T o = baseMapper.selectListByWhere(whereMap,clazz, pagination).get(0);
             if(!(o instanceof List)){

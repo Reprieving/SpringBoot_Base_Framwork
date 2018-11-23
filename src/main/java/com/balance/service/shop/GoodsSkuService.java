@@ -6,6 +6,7 @@ import com.balance.constance.ShopConst;
 import com.balance.entity.shop.GoodsImg;
 import com.balance.entity.shop.GoodsSku;
 import com.balance.service.common.AliOSSBusiness;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,5 +40,26 @@ public class GoodsSkuService extends BaseService{
         insertBatch(goodsIntroduceImgList,false);
     }
 
+    /**
+     * 选择sku
+     * @param spuId
+     * @param specJson
+     * @return
+     */
+    public GoodsSku chooseGoodsSku(String spuId, String specJson){
+
+        Map<String,Object> skuWhereMap = ImmutableMap.of("spu_id = ",spuId,"spec_json = ",specJson);
+        GoodsSku goodsSku = selectOneByWhereMap(skuWhereMap,GoodsSku.class);
+
+        if(goodsSku == null){
+            throw new RuntimeException("未找到改商品信息");
+        }
+
+        Map<String,Object> imgWhereMap = ImmutableMap.of("spu_id = ",spuId,"sku_id = ",goodsSku.getId());
+        List<GoodsImg> goodsImgList = selectListByWhereMap(imgWhereMap,null,GoodsImg.class);
+
+
+        return goodsSku;
+    }
 
 }
