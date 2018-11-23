@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class MissionService extends BaseService{
+public class MissionService extends BaseService {
 
     @Autowired
     private MissionCompleteService missionCompleteService;
@@ -24,16 +24,17 @@ public class MissionService extends BaseService{
 
     /**
      * 查询任务列表信息
+     *
      * @param userId
      * @param type
      * @return
      */
     public List<Mission> getMissionList(String userId, Integer type) {
-        List<Mission> missions = selectListByWhereString("type=",type,null,Mission.class);
+        List<Mission> missions = selectListByWhereString("type=", type, null, Mission.class);
         for (Mission mission : missions) {
 
-            Map<String,Object> paramMap = ImmutableMap.of("mission_id=",mission.getId(),"user_id=",userId);
-            MissionComplete missionComplete = missionCompleteService.selectOneByWhereMap(paramMap,MissionComplete.class);
+            Map<String, Object> paramMap = ImmutableMap.of("mission_id=", mission.getId(), "user_id=", userId);
+            MissionComplete missionComplete = missionCompleteService.selectOneByWhereMap(paramMap, MissionComplete.class);
 
             Boolean missionCompleteNull = missionComplete == null;
 
@@ -43,7 +44,7 @@ public class MissionService extends BaseService{
                 mission.setState(missionComplete.getStatus());
             }
 
-            if(missionComplete!=null){
+            if (missionComplete != null) {
                 mission.setMissionCompleteId(missionComplete.getId());
             }
         }
@@ -52,6 +53,7 @@ public class MissionService extends BaseService{
 
     /**
      * 领取任务奖励
+     *
      * @param missionCompleteId
      * @param userId
      */
@@ -61,6 +63,7 @@ public class MissionService extends BaseService{
 
     /**
      * 签到
+     *
      * @param userId
      */
     public void signIn(String userId) {
@@ -69,6 +72,7 @@ public class MissionService extends BaseService{
 
     /**
      * 获取签到列表信息
+     *
      * @param userId
      * @return
      */
