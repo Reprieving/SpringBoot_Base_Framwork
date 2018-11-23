@@ -37,7 +37,7 @@ public class MissionService extends BaseService{
 
             Boolean missionCompleteNull = missionComplete == null;
 
-            if (missionCompleteNull) {
+            if (missionCompleteNull) {//任务完成记录为空即未完成
                 mission.setState(MissionConst.MISSION_COMPLETE_STATE_NONE);
             } else {
                 mission.setState(missionComplete.getStatus());

@@ -36,6 +36,9 @@ public class User implements Serializable{ //用户信息
     @Column(name = "phone_number")
     private String phoneNumber;//手机号
 
+    @Column(name = "auto_increase_id")
+    private String autoIncreaseId;//自增id
+
     @Column(name = "invite_id")
     private String inviteId;//邀请人id
 
@@ -50,4 +53,8 @@ public class User implements Serializable{ //用户信息
     private Integer status;//状态
 
     private String accessToken;
+
+    private String msgCode; //短信验证码
+
+
 }

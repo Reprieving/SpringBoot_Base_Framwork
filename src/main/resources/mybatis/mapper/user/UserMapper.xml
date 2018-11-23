@@ -13,4 +13,11 @@
         <result property="createTime" column="create_time"></result>
         <result property="status" column="status"></result>
     </resultMap>
+
+    <update id="updateUserSendCount">
+      UPDATE user_send_count
+        SET send_msg_count = send_msg_count +1
+        WHERE user_id = #{userId}
+        AND send_msg_count &lt; 3
+    </update>
 </mapper>

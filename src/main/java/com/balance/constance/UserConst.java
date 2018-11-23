@@ -9,4 +9,10 @@ public class UserConst {
     public static final int USER_CERT_STATUS_NONE = 0;//未认证
     public static final int USER_CERT_STATUS_PASS = 1;//认证通过
     public static final int USER_CERT_STATUS_UNPASS = 1;//认证不通过
+
+    //短信验证码类型
+    public static final int MSG_CODE_TYPE_REGISTER = 0;//注册
+    public static final int MSG_CODE_TYPE_BACK_LOGINPWD = 1;//找回登录密码
+    public static final int MSG_CODE_TYPE_BACK_PAYPWD = 2;//找回支付密码
+
 }
