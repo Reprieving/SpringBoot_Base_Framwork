@@ -1,9 +1,11 @@
 package com.balance.mapper.user;
 
+import com.balance.entity.user.UserAssets;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Repository
 public interface UserAssetsMapper {
@@ -16,4 +18,9 @@ public interface UserAssetsMapper {
      */
     Integer updateUserAssets(@Param("userId") String userId, @Param("amount") BigDecimal amount, @Param("assetColumn") String assetColumn,@Param("version") Long version);
 
+    /**
+     * 查询所有用户的算力
+     * @return
+     */
+    List<UserAssets> listComputePower();
 }

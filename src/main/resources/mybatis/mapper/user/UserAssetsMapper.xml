@@ -3,6 +3,17 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.balance.mapper.user.UserAssetsMapper">
 
+    <resultMap id="userAssetsMap" type="UserAssets">
+        <id property="id" column="id"></id>
+        <result property="userId" column="user_id"></result>
+        <result property="computePower" column="compute_power"></result>
+        <result property="ih" column="ih"></result>
+        <result property="eth" column="eth"></result>
+        <result property="eth" column="eth"></result>
+        <result property="ore" column="ore"></result>
+        <result property="version" column="version"></result>
+    </resultMap>
+
     <update id="updateUserAssets">
         UPDATE user_assets SET
             ${assetColumn} = ${assetColumn} + #{amount},
@@ -10,5 +21,11 @@
         WHERE user_id = #{userId}
           AND version = #{version}
     </update>
+
+    <select id="listComputePower" resultMap="userAssetsMap">
+        SELECT a.id,a.user_id,a.compute_power
+        FROM user_assets a LEFT JOIN user b on a.user_id = b.id
+        where b.status != -1
+    </select>
 
 </mapper>

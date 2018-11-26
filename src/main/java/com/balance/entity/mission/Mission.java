@@ -1,12 +1,10 @@
-package com.balance.entity.applet;
+package com.balance.entity.mission;
 
 
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.ibatis.type.Alias;
 
 import java.io.Serializable;

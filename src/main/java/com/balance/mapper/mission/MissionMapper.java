@@ -1,7 +1,7 @@
 package com.balance.mapper.mission;
 
-import com.balance.entity.applet.Mission;
-import com.balance.entity.applet.MissionComplete;
+import com.balance.entity.mission.Mission;
+import com.balance.entity.mission.MissionComplete;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 

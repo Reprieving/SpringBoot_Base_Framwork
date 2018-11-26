@@ -1,9 +1,9 @@
-package com.balance.service.mission;
+package com.balance.service.application;
 
 import com.balance.architecture.service.BaseService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MissionCompleteService extends BaseService{
+public class LockRepository extends BaseService {
 
 }

@@ -24,6 +24,9 @@ public class UserFrozenAssets implements Serializable { //用户冻结资产
     @Column(name = "user_id")
     private String userId; //用户名
 
+    @Column(name = "diamond")
+    private BigDecimal diamond; //美钻
+
     @Column(name = "ih")
     private BigDecimal ih; //IH
 

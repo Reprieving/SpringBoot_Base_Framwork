@@ -28,7 +28,7 @@ public class UserAssets implements Serializable{ //用户资产
     private BigDecimal computePower; //算力
 
     @Column(name = "ih")
-    private BigDecimal ih; //IH
+    private BigDecimal ih; //IH(美钻)
 
     @Column(name = "eth")
     private BigDecimal eth; //ETH

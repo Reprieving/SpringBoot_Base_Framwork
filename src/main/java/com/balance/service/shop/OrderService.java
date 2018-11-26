@@ -96,14 +96,20 @@ public class OrderService extends BaseService {
                 //4.扣除用户资产
                 UserAssets userAssets = selectOneByWhereString("user_id = ", userId, UserAssets.class);
 
+                BigDecimal assets = userAssetsService.getAssetsBySettlementId(userAssets,settlementId);
+                int a = assets.compareTo(orderTotalPrice);
+                if (a == -1) {
+                    throw new BusinessException("用户资产不足");
+                }
+
                 Integer i = userAssetsService.changeUserAssets(userId, orderTotalPrice, settlementId, userAssets);
                 if (i == 0) {
-                    throw new BusinessException("用户资产不足");
+                    throw new BusinessException("支付失败");
                 }
 
                 //5.增加流水记录
                 String detailStr = "商城购物支付,订单号为:" + orderNumber;
-                assetsTurnoverService.createAssetsTurnover(userId, AssetTurnoverConst.TURNOVER_TYPE_SHOPPING_ORDER_PAY, orderTotalPrice, userId, "0", userAssets, settlementId, detailStr);
+                assetsTurnoverService.createAssetsTurnover(userId, AssetTurnoverConst.TURNOVER_TYPE_SHOPPING_ORDER_PAY, orderTotalPrice, userId, AssetTurnoverConst.COMPANY_ID, userAssets, settlementId, detailStr);
             }
         });
     }

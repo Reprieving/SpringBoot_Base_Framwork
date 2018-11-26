@@ -1,8 +1,6 @@
-package com.balance.entity.applet;
+package com.balance.entity.mission;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 
