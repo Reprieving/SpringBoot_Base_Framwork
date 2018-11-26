@@ -9,6 +9,7 @@ public class BigDecimalUtils {
 
     /**
      * 相乘
+     *
      * @param bigDecimal1
      * @param bigDecimal2
      * @return
@@ -18,7 +19,18 @@ public class BigDecimalUtils {
     }
 
     /**
+     * 转为负数
+     *
+     * @param bigDecimal1
+     * @return
+     */
+    public static BigDecimal transfer2Negative(BigDecimal bigDecimal1) {
+        return bigDecimal1.multiply(new BigDecimal(-1));
+    }
+
+    /**
      * 相加
+     *
      * @param bigDecimal1
      * @param bigDecimal2
      * @return
@@ -30,6 +42,7 @@ public class BigDecimalUtils {
 
     /**
      * 相除
+     *
      * @param bigDecimal1
      * @param bigDecimal2
      * @return
@@ -39,7 +52,7 @@ public class BigDecimalUtils {
     }
 
     /**
-     * 相除
+     * 相减
      *
      * @param bigDecimal1
      * @param bigDecimal2
