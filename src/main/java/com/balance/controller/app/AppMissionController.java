@@ -3,12 +3,12 @@ package com.balance.controller.app;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
-import com.balance.entity.applet.Mission;
-import com.balance.entity.applet.SignInfo;
+import com.balance.entity.mission.Mission;
+import com.balance.entity.mission.SignInfo;
 import com.balance.entity.user.User;
 import com.balance.service.mission.MissionService;
+import com.balance.service.mission.SignInService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -20,6 +20,9 @@ public class AppMissionController {
 
     @Autowired
     private MissionService missionService;
+
+    @Autowired
+    private SignInService signInService;
 
     @ResponseBody
     @RequestMapping(value = "/list" ,method = RequestMethod.POST)
@@ -46,9 +49,9 @@ public class AppMissionController {
     public Result<?> receiveReward(HttpServletRequest request){
 
         String userId = "";
-        SignInfo signList = missionService.getSignList(userId);
+        SignInfo signList = signInService.getSignList(userId);
 
-        return ResultUtils.success("");
+        return ResultUtils.success(signList,"");
     }
 
     @ResponseBody
@@ -56,7 +59,7 @@ public class AppMissionController {
     public Result<?> signIn(HttpServletRequest request){
 
         String userId = "";
-        missionService.signIn(userId);
+        signInService.signIn(userId);
 
         return ResultUtils.success("");
     }
