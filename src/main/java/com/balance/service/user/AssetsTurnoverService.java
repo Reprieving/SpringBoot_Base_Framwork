@@ -20,10 +20,10 @@ public class AssetsTurnoverService extends BaseService {
      * 创建流水记录
      *
      * @param userId         用户id
-     * @param turnoverType   流水类型
+     * @param turnoverType   流水类型 AssetTurnoverConst.TURNOVER_TYPE_*
      * @param turnoverAmount 流水数目
-     * @param sourceId       流水源id(userId)
-     * @param targetId       流水目标id(userId)
+     * @param sourceId       流水源id   (userId) 系统则为 0
+     * @param targetId       流水目标id (userId) 系统则为 0
      * @param userAssets     用户资产
      * @param settlementId   支付方式
      * @param detailStr      详细信息

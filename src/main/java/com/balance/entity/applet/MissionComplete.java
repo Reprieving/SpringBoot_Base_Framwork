@@ -35,4 +35,21 @@ public class MissionComplete implements Serializable{
     @Column(name = "status")
     private Integer status; //领取状态
 
+    public MissionComplete(String missionId, String userId, BigDecimal rewardValue, int status) {
+        this.missionId = missionId;
+        this.userId = userId;
+        this.reward =rewardValue;
+        this.status = status;
+    }
+
+    public MissionComplete(String missionId, String userId, int status) {
+        this.missionId = missionId;
+        this.userId = userId;
+        this.status = status;
+    }
+
+    public MissionComplete(String id, int status) {
+        this.id = id;
+        this.status = status;
+    }
 }

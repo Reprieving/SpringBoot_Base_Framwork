@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.balance.mapper.common.AutoIncreaseIdMapper">
+    <insert id="insertUserInviteCode" useGeneratedKeys="true" keyColumn="id" keyProperty="id" parameterType="userInviteCodeId">
+        INSERT INTO user_invite_code_id (id) VALUES (0)
+    </insert>
+</mapper>

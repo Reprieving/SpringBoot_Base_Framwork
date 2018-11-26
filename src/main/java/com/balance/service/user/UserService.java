@@ -3,23 +3,19 @@ package com.balance.service.user;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
-import com.balance.entity.common.UserSendCount;
-import com.balance.entity.user.MsgRecord;
+import com.balance.entity.common.UserFreeCount;
+import com.balance.entity.common.UserInviteCodeId;
 import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
 import com.balance.entity.user.UserFrozenAssets;
-import com.balance.mapper.user.UserMapper;
+import com.balance.mapper.common.AutoIncreaseIdMapper;
 import com.balance.utils.RandomUtil;
-import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.xml.crypto.Data;
 import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
 import java.util.*;
@@ -29,6 +25,9 @@ public class UserService extends BaseService {
 
     @Autowired
     private TransactionTemplate transactionTemplate;
+
+    @Autowired
+    private AutoIncreaseIdMapper autoIncreaseIdMapper;
 
     /**
      * 注册用户
@@ -62,16 +61,12 @@ public class UserService extends BaseService {
                 user.setUserName("");
                 user.setCreateTime(new Timestamp(System.currentTimeMillis()));
 
-                while (true) {
-                    Long timeId = Long.valueOf(DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSS"));
-                    String newInviteCode = RandomUtil.randomInviteCode(timeId);
+                //生成邀请码
+                UserInviteCodeId userInviteCodeId = new UserInviteCodeId();
+                autoIncreaseIdMapper.insertUserInviteCode(userInviteCodeId);
+                String newInviteCode = RandomUtil.randomInviteCode(userInviteCodeId.getId());
 
-                    User user3 = selectOneByWhereString("invite_code =", newInviteCode, User.class);
-                    if (user3 == null) {
-                        user.setInviteCode(newInviteCode);
-                        break;
-                    }
-                }
+                user.setInviteCode(newInviteCode);
                 insert(user);
 
                 String userId =user.getId();
@@ -87,10 +82,10 @@ public class UserService extends BaseService {
                 insertIfNotNull(userFrozenAssets);
 
 
-                //增加用户发送服务使用次数记录
-                UserSendCount userSendCount = new UserSendCount();
-                userSendCount.setUser_id(userId);
-                insertIfNotNull(userSendCount);
+                //增加用户每天免费次数记录
+                UserFreeCount userFreeCount = new UserFreeCount();
+                userFreeCount.setUser_id(userId);
+                insertIfNotNull(userFreeCount);
 
 
 

@@ -64,9 +64,9 @@ public class UserAssetsService extends BaseService {
 
     /**
      * 更改用户资产
-     * @param userId
-     * @param amount
-     * @param settlementId
+     * @param userId 用户id
+     * @param amount 数目（正数为加，负数为减）
+     * @param settlementId 支付方式
      * @return
      */
     public Integer changeUserAssets(String userId, BigDecimal amount, Integer settlementId) {
@@ -76,10 +76,10 @@ public class UserAssetsService extends BaseService {
 
     /**
      * 更改用户资产
-     * @param userId
-     * @param amount
-     * @param settlementId
-     * @param userAssets
+     * @param userId 用户id
+     * @param amount 数目（正数为加，负数为减）
+     * @param settlementId 支付方式
+     * @param userAssets 用户资产实体
      * @return
      */
     public Integer changeUserAssets(String userId, BigDecimal amount, Integer settlementId,UserAssets userAssets) {

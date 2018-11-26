@@ -9,9 +9,9 @@ import org.apache.ibatis.type.Alias;
 import java.io.Serializable;
 
 @Data
-@Alias("UserSendCount")
-@Table(name = "user_send_count")
-public class UserSendCount implements Serializable{
+@Alias("UserFreeCount")
+@Table(name = "user_free_count")
+public class UserFreeCount implements Serializable{
     private static final long serialVersionUID = -2870565182875390423L;
 
     @Id
@@ -22,5 +22,8 @@ public class UserSendCount implements Serializable{
     private String user_id;
 
     @Column(name = "send_msg_count")
-    private String sendMsgCount; //用户当天发送短信次数
+    private Integer sendMsgCount; //用户当天发送短信次数
+
+    @Column(name = "luck_in_count")
+    private Integer luckInCount; //用户免费抽奖次数
 }
