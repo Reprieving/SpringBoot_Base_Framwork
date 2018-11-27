@@ -36,6 +36,9 @@ public class AppUserController {
     @Autowired
     private WjSmsService wjSmsService;
 
+    @Autowired
+    private CertificationService certificationService;
+
     /**
      * 发送短信
      * @param user
@@ -101,15 +104,18 @@ public class AppUserController {
      * 申请实名认证
      * @param request
      * @param user
-     * @param file
+     * @param files
      * @return
      * @throws BusinessException
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("cert")
-    public Result<?> cert(HttpServletRequest request, User user, @RequestParam("file") MultipartFile file) throws BusinessException, UnsupportedEncodingException {
+    public Result<?> cert(HttpServletRequest request, User user, @RequestParam("file") MultipartFile[] files) throws BusinessException, UnsupportedEncodingException {
+        String userId =  JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
 
-        return ResultUtils.success("");
+        certificationService.createCert(userId,files);
+
+        return ResultUtils.success("申请实名认证成功");
     }
 
     /**

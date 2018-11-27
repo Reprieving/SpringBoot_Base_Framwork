@@ -20,4 +20,9 @@ public class UserConst {
     public static final int MSG_CODE_TYPE_BACK_LOGINPWD = 1;//找回登录密码
     public static final int MSG_CODE_TYPE_SETTLE_PAYPWD = 3;//设置支付密码
     public static final int MSG_CODE_TYPE_BACK_PAYPWD = 4;//找回支付密码
+
+    //提交实名认证图片类型
+    public static final String APPLY_CERT_PIC_TYPE_FRONT = "front";//注册
+    public static final String APPLY_CERT_PIC_TYPE_BACK = "back";//注册
+    public static final String APPLY_CERT_PIC_TYPE_HANDLER = "handler";//注册
 }

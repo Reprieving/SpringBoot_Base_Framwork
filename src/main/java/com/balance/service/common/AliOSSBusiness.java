@@ -125,7 +125,7 @@ public class AliOSSBusiness {
 		String picUrl = null;
 		try {
 			InputStream inputStream = file.getInputStream();
-			picUrl = this.putObjectByStream(SENSITIVE_BUCKET_NAME, inputStream,file.getSize(),file.getContentType(),directory,fileName);
+			picUrl = this.putObjectByStream(SENSITIVE_BUCKET_NAME, inputStream,file.getSize(),file.getContentType(),"sensitive/"+directory,fileName);
 		} catch (IOException e) {
 //			Log.e(e);
 		}

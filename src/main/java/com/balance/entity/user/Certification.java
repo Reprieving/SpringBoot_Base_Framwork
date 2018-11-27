@@ -22,7 +22,7 @@ public class Certification implements Serializable { //用户认证
     private String id;
 
     @Column(name = "user_id")
-    private String userId; //用户名
+    private String userId; //用户id
 
     @Column(name = "license_type")
     private String licenseType; //证件类型
