@@ -11,9 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-public class InterceptorConfigurer extends WebMvcConfigurationSupport {
-
-
+public class InterceptorConfig extends WebMvcConfigurationSupport {
 
     @Autowired
     private AuthorityInterceptor authorityInterceptor;

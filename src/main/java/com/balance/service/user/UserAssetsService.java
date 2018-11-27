@@ -7,6 +7,7 @@ import com.balance.constance.AssetTurnoverConst;
 import com.balance.constance.SettlementConst;
 import com.balance.entity.user.MiningReward;
 import com.balance.entity.user.UserAssets;
+import com.balance.entity.user.UserFrozenAssets;
 import com.balance.mapper.user.UserAssetsMapper;
 import com.balance.utils.BigDecimalUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,4 +118,51 @@ public class UserAssetsService extends BaseService {
 
         return userAssetsMapper.updateUserAssets(userId, amount, assetColumnName, userAssets.getVersion());
     }
+
+
+    /**
+     * 更改用户冻结资产
+     *
+     * @param userId       用户id
+     * @param amount       数目（正数为加，负数为减）
+     * @param settlementId 支付方式
+     * @return
+     */
+    public Integer changeUserFrozenAssets(String userId, BigDecimal amount, Integer settlementId) {
+        UserFrozenAssets userFrozenAssets = selectOneByWhereString("user_id = ", userId, UserFrozenAssets.class);
+        return changeUserFrozenAssets(userId, amount, settlementId, userFrozenAssets);
+    }
+
+    /**
+     * 更改用户资产
+     *
+     * @param userId       用户id
+     * @param amount       数目（正数为加，负数为减）
+     * @param settlementId 支付方式
+     * @param userFrozenAssets   用户冻结资产实体
+     * @return
+     */
+    public Integer changeUserFrozenAssets(String userId, BigDecimal amount, Integer settlementId, UserFrozenAssets userFrozenAssets) {
+        String assetColumnName = null;
+        switch (settlementId) {
+            case SettlementConst.SETTLEMENT_IH:
+                assetColumnName = "ih";
+                break;
+
+            case SettlementConst.SETTLEMENT_ETH:
+                assetColumnName = "eth";
+                break;
+
+            case SettlementConst.SETTLEMENT_ORE:
+                assetColumnName = "ore";
+                break;
+
+            case SettlementConst.SETTLEMENT_COMPUTING_POWER:
+                assetColumnName = "compute_power";
+                break;
+        }
+
+        return userAssetsMapper.updateUserFrozenAssets(userId, amount, assetColumnName, userFrozenAssets.getVersion());
+    }
+
 }

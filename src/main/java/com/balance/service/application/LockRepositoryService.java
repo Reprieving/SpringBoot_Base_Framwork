@@ -10,10 +10,13 @@ import com.balance.constance.SettlementConst;
 import com.balance.entity.application.LockRepository;
 import com.balance.entity.application.LockRepositoryOrder;
 import com.balance.entity.user.UserAssets;
+import com.balance.mapper.application.LockRepositoryMapper;
+import com.balance.mapper.application.LockRepositoryOrderMapper;
 import com.balance.service.user.AssetsTurnoverService;
 import com.balance.service.user.UserAssetsService;
 import com.balance.utils.BigDecimalUtils;
 import com.balance.utils.MineDateUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -22,10 +25,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class LockRepositoryService extends BaseService {
@@ -38,6 +38,12 @@ public class LockRepositoryService extends BaseService {
 
     @Autowired
     private TransactionTemplate transactionTemplate;
+
+    @Autowired
+    private LockRepositoryMapper lockRepositoryMapper;
+
+    @Autowired
+    private LockRepositoryOrderMapper lockRepositoryOrderMapper;
 
     /**
      * 查询锁仓产品列表
@@ -86,14 +92,19 @@ public class LockRepositoryService extends BaseService {
                     throw new BusinessException("购买额度不能大于剩余额度");
                 }
 
-                //1.扣除用户资产
+                //1.扣除用户资产,增加冻结资产
                 UserAssets userAssets = selectOneByWhereString("user_id = ", userId, UserAssets.class);
                 BigDecimal userIh = userAssetsService.getAssetsBySettlementId(userAssets, SettlementConst.SETTLEMENT_IH);
                 int b = userIh.compareTo(buyAmount);
                 if (b == -1) {
                     throw new BusinessException("用户美钻不足");
                 }
-                userAssetsService.changeUserAssets(userId, BigDecimalUtils.transfer2Negative(buyAmount), SettlementConst.SETTLEMENT_IH, userAssets);
+                Integer i = userAssetsService.changeUserAssets(userId, BigDecimalUtils.transfer2Negative(buyAmount), SettlementConst.SETTLEMENT_IH, userAssets);
+                Integer j = userAssetsService.changeUserFrozenAssets(userId, buyAmount, SettlementConst.SETTLEMENT_IH);
+
+                if (i == 0 || j == 0) {
+                    throw new BusinessException("支付失败,请稍后再试");
+                }
 
                 //2.计算总收益,增加锁仓产品订单记录
                 Integer days = getDayFromLockType(lockRepository.getLockType());
@@ -126,7 +137,9 @@ public class LockRepositoryService extends BaseService {
     /**
      * 开放锁仓产品
      */
-    public void updateLockRepToOpening() {
+    public void updateLockRepToOpen() {
+        String startTime = DateFormatUtils.format(new Date(), "yyyy-MM-dd");
+        lockRepositoryMapper.updateLockRepToOpen(startTime, ApplicationConst.LOCKREPOSITORY_STATUS_NONE, ApplicationConst.LOCKREPOSITORY_STATUS_START);
 
     }
 
@@ -134,14 +147,41 @@ public class LockRepositoryService extends BaseService {
      * 关闭锁仓产品
      */
     public void updateLockRepToClose() {
-
+        String endTime = DateFormatUtils.format(new Date(), "yyyy-MM-dd");
+        lockRepositoryMapper.updateLockRepToClose(endTime, ApplicationConst.LOCKREPOSITORY_STATUS_START, ApplicationConst.LOCKREPOSITORY_STATUS_END);
     }
 
     /**
      * 计算锁仓订单收益
      */
-    public void updateLockRepOrderToReward(){
+    public void updateLockRepOrderToReward() {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                String expireTime = DateFormatUtils.format(new Date(), "yyyy-MM-dd");
 
+                List<String> updateOrderIds = new ArrayList<>(100);
+                List<LockRepositoryOrder> lockRepositoryOrders = lockRepositoryOrderMapper.listLockRepOrderToReward(expireTime);
+
+                for (LockRepositoryOrder order : lockRepositoryOrders) {
+                    String userId = order.getUserId();
+                    BigDecimal buyAmount = order.getOrderAmount();
+                    BigDecimal totalIncome = order.getTotalIncome();
+                    //1.增加用户资产（释放冻结资产，释放锁仓订单收益）
+                    Integer i = userAssetsService.changeUserAssets(userId, BigDecimalUtils.add(buyAmount, totalIncome), SettlementConst.SETTLEMENT_IH);
+                    Integer j = userAssetsService.changeUserFrozenAssets(userId, BigDecimalUtils.transfer2Negative(buyAmount), SettlementConst.SETTLEMENT_IH);
+
+                    //资产和冻结资产都扣款才修改订单状态
+                    if (i == 1 && j == 1) {
+                        updateOrderIds.add(order.getId());
+                    }
+                }
+
+                //把成功扣款的订单改为已收益状态
+                lockRepositoryOrderMapper.updateLockRepositoryToReceive(updateOrderIds, ApplicationConst.LOCKREPOSITORY_ORDER_STATUS_RECEIVE);
+
+            }
+        });
     }
 
 

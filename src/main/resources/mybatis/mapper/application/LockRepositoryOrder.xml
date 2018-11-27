@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.balance.mapper.application.LockRepositoryOrderMapper">
+
+    <resultMap id="LockRepositoryOrderMap" type="LockRepositoryOrder">
+        <id property="id" column="id"></id>
+        <result property="lockRepositoryId" column="lock_repository_id"></result>
+        <result property="userId" column="user_id"></result>
+        <result property="orderAmount" column="order_amount"></result>
+        <result property="totalIncome" column="total_income"></result>
+        <result property="status" column="status"></result>
+        <result property="expireTime" column="expire_time"></result>
+        <result property="createTime" column="create_time"></result>
+    </resultMap>
+
+    <update id="updateLockRepositoryToReceive">
+      UPDATE applet_lock_repository_order SET status = ${receiveStatus} WHERE id IN
+      <foreach collection="updateOrderIds" open="(" close=")" separator="," item="item">
+          ${item}
+      </foreach>
+    </update>
+
+    <select id="listLockRepOrderToReward" resultMap="LockRepositoryOrderMap">
+      SELECT * FROM applet_lock_repository_order WHERE expire_time = DATE_FORMAT( ${expireTime}, '%Y-%m-%d' )
+    </select>
+</mapper>

@@ -22,6 +22,14 @@
           AND version = #{version}
     </update>
 
+    <update id="updateUserFrozenAssets">
+        UPDATE user_frozen_assets SET
+            ${assetColumn} = ${assetColumn} + #{amount},
+            version = version + 1
+        WHERE user_id = #{userId}
+          AND version = #{version}
+    </update>
+
     <select id="listComputePower" resultMap="userAssetsMap">
         SELECT a.id,a.user_id,a.compute_power
         FROM user_assets a LEFT JOIN user b on a.user_id = b.id

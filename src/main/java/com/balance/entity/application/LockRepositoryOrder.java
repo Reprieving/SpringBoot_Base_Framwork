@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Data
-@Alias("LockRepository")
+@Alias("LockRepositoryOrder")
 @Table(name = "applet_lock_repository_order")
 public class LockRepositoryOrder implements Serializable{
     private static final long serialVersionUID = -216274760454139982L;

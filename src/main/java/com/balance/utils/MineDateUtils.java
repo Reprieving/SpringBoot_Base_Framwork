@@ -15,7 +15,7 @@ public class MineDateUtils {
      */
     public static Timestamp plusDay(int num, Date currentDate){
         Calendar ca = Calendar.getInstance();
-        ca.add(Calendar.DATE, num);// num为增加的天数，可以改变的
+        ca.add(Calendar.DATE, num);
         currentDate = ca.getTime();
         return new Timestamp(currentDate.getTime());
     }
