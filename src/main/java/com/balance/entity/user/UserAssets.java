@@ -38,4 +38,6 @@ public class UserAssets implements Serializable{ //用户资产
 
     @Column(name = "version")
     private Long version; //版本
+
+
 }

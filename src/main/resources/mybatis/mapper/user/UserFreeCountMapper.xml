@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.balance.mapper.user.UserFreeCountMapper">
+
+    <update id="updateUserSendMsgCount">
+        UPDATE user_free_count
+        SET send_msg_count = send_msg_count +1
+        WHERE user_id = #{userId}
+        AND send_msg_count &lt; 3
+    </update>
+    <update id="updateUserFreeLuckDrawCount">
+      UPDATE user_free_count
+        SET luck_draw_count = luck_draw_count +1
+        WHERE user_id = #{userId}
+        AND luck_draw_count &lt; 3
+    </update>
+</mapper>

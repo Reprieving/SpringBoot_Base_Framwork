@@ -165,4 +165,7 @@ public class UserAssetsService extends BaseService {
         return userAssetsMapper.updateUserFrozenAssets(userId, amount, assetColumnName, userFrozenAssets.getVersion());
     }
 
+
+
+
 }

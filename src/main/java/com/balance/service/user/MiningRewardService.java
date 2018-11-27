@@ -85,7 +85,7 @@ public class MiningRewardService extends BaseService {
                 }
 
                 UserAssets userAssets = selectOneByWhereString("user_id = ", userId, UserAssets.class);
-                BigDecimal rewardValue = miningReward.getRewardValue();
+                BigDecimal rewardValue = miningReward.getRewardAmount();
                 Integer rewardType = miningReward.getRewardType();
 
 
@@ -98,4 +98,5 @@ public class MiningRewardService extends BaseService {
             }
         });
     }
+
 }

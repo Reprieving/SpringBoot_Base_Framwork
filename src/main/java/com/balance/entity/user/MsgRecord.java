@@ -29,7 +29,7 @@ public class MsgRecord implements Serializable{
     private String msgCode; //短信验证码
 
     @Column(name = "msg_type")
-    private Integer msgType; //短信验证码类型
+    private Integer msgType; //短信验证码类型 UserConst.MSG_CODE_TYPE_*
 
     @Column(name = "create_time")
     private Timestamp createTime; //

@@ -44,4 +44,7 @@ public class AssetsTurnoverService extends BaseService {
 
         insertIfNotNull(assetsTurnover);
     }
+
+
+
 }

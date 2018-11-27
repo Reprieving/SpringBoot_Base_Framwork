@@ -3,12 +3,16 @@ package com.balance.service.user;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
+import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.constance.UserConst;
 import com.balance.entity.common.UserFreeCount;
 import com.balance.entity.common.UserInviteCodeId;
 import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
 import com.balance.entity.user.UserFrozenAssets;
 import com.balance.mapper.common.AutoIncreaseIdMapper;
+import com.balance.mapper.user.UserMapper;
+import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +33,9 @@ public class UserService extends BaseService {
     @Autowired
     private AutoIncreaseIdMapper autoIncreaseIdMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
     /**
      * 注册用户
      *
@@ -39,13 +46,8 @@ public class UserService extends BaseService {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                if(null == user.getPassword()){
-                    throw new BusinessException("密码不能为空");
-                }
-
-                if(null == user.getPhoneNumber()){
-                    throw new BusinessException("手机号码不能为空");
-                }
+                ValueCheckUtils.notEmpty(user.getPassword(), "密码不能为空");
+                ValueCheckUtils.notEmpty(user.getPhoneNumber(), "手机号码不能为空");
 
                 User user1 = selectOneByWhereString("phone_number=", user.getPhoneNumber(), User.class);
                 if (user1 != null) {
@@ -53,9 +55,7 @@ public class UserService extends BaseService {
                 }
 
                 User inviteUser = selectOneByWhereString("invite_code=", user.getInviteCode(), User.class);
-                if (inviteUser == null) {
-                    throw new BusinessException("邀请码对应的用户不存在");
-                }
+                ValueCheckUtils.notEmpty(inviteUser, "邀请码对应的用户不存在");
 
                 user.setInviteId(inviteUser.getId());
                 user.setUserName("");
@@ -67,9 +67,11 @@ public class UserService extends BaseService {
                 String newInviteCode = RandomUtil.randomInviteCode(userInviteCodeId.getId());
 
                 user.setInviteCode(newInviteCode);
+                user.setPassword(EncryptUtils.md5Password(user.getPassword()));
+
                 insert(user);
 
-                String userId =user.getId();
+                String userId = user.getId();
 
                 //增加用户冻结资产记录
                 UserAssets userAssets = new UserAssets();
@@ -81,14 +83,10 @@ public class UserService extends BaseService {
                 userFrozenAssets.setUserId(userId);
                 insertIfNotNull(userFrozenAssets);
 
-
                 //增加用户每天免费次数记录
                 UserFreeCount userFreeCount = new UserFreeCount();
                 userFreeCount.setUser_id(userId);
                 insertIfNotNull(userFreeCount);
-
-
-
             }
         });
 
@@ -115,5 +113,65 @@ public class UserService extends BaseService {
         user2.setAccessToken(JwtUtils.createToken(user1));
 
         return user2;
+    }
+
+
+    /**
+     * 查询用户邀请记录
+     *
+     * @param userId 用户id
+     * @return
+     */
+    public User listInviteUser(String userId) {
+        List<User> allUser = userMapper.listUser4InviteRecord();
+
+        //直接邀请用户列表
+        List<User> directUserList = new ArrayList<>();
+        for (Iterator it = allUser.iterator(); it.hasNext(); ) {
+            User user = (User) it.next();
+            if (user.getInviteId().equals(userId)) {
+                directUserList.add(user);
+                it.remove();
+            }
+        }
+
+        //间接邀请用户列表
+        List<User> inDirectUserList = new ArrayList<>();
+        for (User user1 : allUser) {
+            for (User user2 : directUserList) {
+                if (user1.getInviteId().equals(user2.getId())) {
+                    inDirectUserList.add(user1);
+                }
+            }
+        }
+
+        return new User(directUserList, inDirectUserList);
+    }
+
+
+    /**
+     * 根据短信类型重置密码
+     * @param userId 用户id
+     * @param newPassword 新密码
+     * @param msgType 短信类型
+     */
+    public void updatePassword(String userId, String newPassword, Integer msgType) {
+        String updatePWDColumn;
+        if(UserConst.MSG_CODE_TYPE_BACK_LOGINPWD == msgType){
+            updatePWDColumn = "password";
+        }else if(UserConst.MSG_CODE_TYPE_BACK_PAYPWD == msgType){
+            updatePWDColumn = "pay_password";
+        }else{
+            throw new BusinessException("短信类型有误");
+        }
+
+        newPassword = EncryptUtils.md5Password(newPassword);
+        ValueCheckUtils.notEmpty(newPassword,"新密码字符串异常");
+
+        Integer i = userMapper.updatePassword(userId,newPassword,updatePWDColumn);
+        if(i==0) {
+            throw new BusinessException("设置密码失败");
+        }
+
     }
 }

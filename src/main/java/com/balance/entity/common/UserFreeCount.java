@@ -24,6 +24,6 @@ public class UserFreeCount implements Serializable{
     @Column(name = "send_msg_count")
     private Integer sendMsgCount; //用户当天发送短信次数
 
-    @Column(name = "luck_in_count")
-    private Integer luckInCount; //用户免费抽奖次数
+    @Column(name = "luck_draw_count")
+    private Integer luckDrawCount; //用户免费抽奖次数
 }

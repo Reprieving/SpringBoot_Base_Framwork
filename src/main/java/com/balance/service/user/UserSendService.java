@@ -2,7 +2,11 @@ package com.balance.service.user;
 
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.constance.UserConst;
+import com.balance.entity.common.UserFreeCount;
 import com.balance.entity.user.MsgRecord;
+import com.balance.mapper.user.UserFreeCountMapper;
 import com.balance.mapper.user.UserMapper;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateUtils;
@@ -17,7 +21,7 @@ import java.util.Map;
 @Service
 public class UserSendService extends BaseService{
     @Autowired
-    private UserMapper userMapper;
+    private UserFreeCountMapper userFreeCountMapper;
 
     /**
      * 新建短信发送记录
@@ -28,7 +32,7 @@ public class UserSendService extends BaseService{
      * @throws BusinessException
      */
     public void createMsgRecord(String userId, String phoneNumber, String msgCode, Integer msgType) throws BusinessException {
-        Integer result = userMapper.updateUserSendCount(userId);
+        Integer result = userFreeCountMapper.updateUserSendMsgCount(userId);
         if (result == 0) {
             throw new BusinessException("当天发送短信次数已到达上限3条");
         }
@@ -48,6 +52,8 @@ public class UserSendService extends BaseService{
     public void validateMsgCode(String userId, String phoneNumber, String msgCode, Integer msgType) {
         Map<String, Object> whereMap = ImmutableMap.of("user_id = ", userId, "phone_number = ", phoneNumber, "msg_code = ", msgCode, "msg_Type = ", msgType);
         MsgRecord msgRecord = selectOneByWhereMap(whereMap, MsgRecord.class);
+        ValueCheckUtils.notEmpty(msgRecord,"短信验证码有误");
+
         if (!msgRecord.getIsValid()) {
             throw new BusinessException("短信验证码已经失效");
         }
@@ -59,4 +65,6 @@ public class UserSendService extends BaseService{
         }
 
     }
+
+
 }

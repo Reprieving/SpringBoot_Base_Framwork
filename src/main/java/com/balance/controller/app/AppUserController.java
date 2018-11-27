@@ -2,7 +2,9 @@ package com.balance.controller.app;
 
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.exception.BusinessException;
+import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
+import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.UserConst;
 import com.balance.entity.user.User;
 import com.balance.service.common.WjSmsService;
@@ -11,6 +13,7 @@ import com.balance.service.user.UserSendService;
 import com.balance.service.user.UserService;
 import com.balance.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,7 +37,7 @@ public class AppUserController {
     private WjSmsService wjSmsService;
 
     /**
-     * 发送用户短信
+     * 发送短信
      * @param user
      * @return
      * @throws BusinessException
@@ -42,9 +45,25 @@ public class AppUserController {
     @RequestMapping("sendMsg4register")
     public Result<?> sendMsg4register(User user) throws BusinessException {
         String msgCode = RandomUtil.randomNumber(6);
-        userSendService.createMsgRecord(user.getId(), user.getPhoneNumber(),msgCode, UserConst.MSG_CODE_TYPE_REGISTER);
+        userSendService.createMsgRecord(user.getId(), user.getPhoneNumber(),msgCode, user.getMsgType());
 
-        String content = "美妆连注册验证码： " + msgCode +"，五分钟有效。【美妆连】";
+        String msgTypeStr = "";
+        switch (user.getMsgType()){
+            case UserConst.MSG_CODE_TYPE_REGISTER:
+                msgTypeStr = "[注册]";
+                break;
+            case UserConst.MSG_CODE_TYPE_BACK_LOGINPWD:
+                msgTypeStr = "[找回登录密码]";
+                break;
+            case UserConst.MSG_CODE_TYPE_SETTLE_PAYPWD:
+                msgTypeStr = "[设置支付密码]";
+                break;
+            case UserConst.MSG_CODE_TYPE_BACK_PAYPWD:
+                msgTypeStr = "[找回支付密码]";
+                break;
+        }
+
+        String content = "美妆连"+msgTypeStr+"验证码： " + msgCode +"，五分钟有效。【美妆连】";
         wjSmsService.sendSms(user.getPhoneNumber(),content);
 
         return ResultUtils.success("发送短信成功");
@@ -93,6 +112,48 @@ public class AppUserController {
         return ResultUtils.success("");
     }
 
+    /**
+     * 重置密码
+     * @param request
+     * @param userReq
+     */
+    public Result<?> resetPassword(HttpServletRequest request,@RequestBody User userReq) throws UnsupportedEncodingException {
+        String userId =  JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
 
+        ValueCheckUtils.notEmpty(userReq.getPhoneNumber(),"手机号不能为空");
+        ValueCheckUtils.notEmpty(userReq.getNewPassword(),"新密码不能为空");
+        ValueCheckUtils.notEmpty(userReq.getMsgCode(),"短信验证码不能为空");
+        ValueCheckUtils.notEmpty(userReq.getMsgType(),"短信类型不能为空");
+
+
+        userSendService.validateMsgCode(userId,userReq.getPhoneNumber(),userReq.getMsgCode(),userReq.getMsgType());
+
+        userService.updatePassword(userId,userReq.getNewPassword(),userReq.getMsgType());
+
+        return ResultUtils.success("重置密码成功");
+
+    }
+
+    /**
+     * 设置支付密码
+     * @param request
+     * @param userReq
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public Result<?> settlePayPassword(HttpServletRequest request,@RequestBody User userReq) throws UnsupportedEncodingException {
+        String userId =  JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        ValueCheckUtils.notEmpty(userReq.getPhoneNumber(),"手机号不能为空");
+        ValueCheckUtils.notEmpty(userReq.getPayPassword(),"支付密码不能为空");
+        ValueCheckUtils.notEmpty(userReq.getMsgCode(),"短信验证码不能为空");
+
+        Integer msgType = UserConst.MSG_CODE_TYPE_SETTLE_PAYPWD;
+
+        userSendService.validateMsgCode(userId,userReq.getPhoneNumber(),userReq.getMsgCode(),msgType);
+
+        userService.updatePassword(userId,userReq.getNewPassword(),msgType);
+
+        return ResultUtils.success("设置支付密码成功");
+    }
 
 }

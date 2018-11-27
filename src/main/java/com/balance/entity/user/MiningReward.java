@@ -26,8 +26,8 @@ public class MiningReward implements Serializable{
     @Column(name = "compute_power")
     private BigDecimal computePower; //算力
 
-    @Column(name = "reward_value")
-    private BigDecimal rewardValue; //挖矿奖励值
+    @Column(name = "reward_amount")
+    private BigDecimal rewardAmount; //挖矿奖励值
 
     @Column(name = "reward_type")
     private Integer rewardType; //挖矿奖励类型
@@ -41,7 +41,7 @@ public class MiningReward implements Serializable{
     public MiningReward(String userId, BigDecimal computePower, BigDecimal rewardValue, Integer rewardType) {
         this.userId = userId;
         this.computePower = computePower;
-        this.rewardValue = rewardValue;
+        this.rewardAmount = rewardValue;
         this.rewardType = rewardType;
     }
 }
