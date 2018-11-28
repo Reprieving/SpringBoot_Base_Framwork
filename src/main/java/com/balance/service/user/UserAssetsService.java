@@ -6,6 +6,7 @@ import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.AssetTurnoverConst;
 import com.balance.constance.SettlementConst;
 import com.balance.entity.user.MiningReward;
+import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
 import com.balance.entity.user.UserFrozenAssets;
 import com.balance.mapper.user.UserAssetsMapper;
@@ -24,7 +25,6 @@ import java.util.List;
 public class UserAssetsService extends BaseService {
     @Autowired
     private UserAssetsMapper userAssetsMapper;
-
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -175,5 +175,13 @@ public class UserAssetsService extends BaseService {
         return userAssetsMapper.updateUserFrozenAssets(userId, amount, assetColumnName, userFrozenAssets.getVersion());
     }
 
-
+    /**
+     * 算力(颜值排行榜)
+     * @param userId
+     * @return
+     */
+    public List<UserAssets> listComputePowerRank(String userId){
+//        List<UserAssets> userComputePowerList = userAssetsMapper.listComputePower();
+        return null;
+    }
 }

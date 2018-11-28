@@ -6,6 +6,7 @@
     <resultMap id="userAssetsMap" type="UserAssets">
         <id property="id" column="id"></id>
         <result property="userId" column="user_id"></result>
+        <result property="userName" column="user_name"></result>
         <result property="computePower" column="compute_power"></result>
         <result property="ih" column="ih"></result>
         <result property="eth" column="eth"></result>
@@ -31,8 +32,8 @@
     </update>
 
     <select id="listComputePower" resultMap="userAssetsMap">
-        SELECT a.id,a.user_id,a.compute_power
-        FROM user_assets a LEFT JOIN user b on a.user_id = b.id
+        SELECT a.id,a.user_id,a.compute_power,b.user_name
+        FROM user_assets a LEFT JOIN user_info b on a.user_id = b.id
         where b.status != -1
     </select>
 

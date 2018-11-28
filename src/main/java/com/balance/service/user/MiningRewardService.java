@@ -1,5 +1,6 @@
 package com.balance.service.user;
 
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
@@ -9,6 +10,7 @@ import com.balance.entity.user.MiningReward;
 import com.balance.entity.user.UserAssets;
 import com.balance.mapper.user.UserAssetsMapper;
 import com.balance.utils.BigDecimalUtils;
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -18,6 +20,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class MiningRewardService extends BaseService {
@@ -74,11 +77,12 @@ public class MiningRewardService extends BaseService {
      * @param miningRewardId 挖矿奖励Id
      * @param userId         用户id
      */
-    public void obtainMinging(String miningRewardId, String userId) {
+    public void obtainMiningReward(String miningRewardId, String userId) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                MiningReward miningReward = selectOneById(miningRewardId, MiningReward.class);
+                Map<String,Object> whereMap = ImmutableMap.of(MiningReward.Id+"=",miningRewardId,MiningReward.User_id+"=",userId);
+                MiningReward miningReward = selectOneByWhereMap(whereMap, MiningReward.class);
                 ValueCheckUtils.notEmpty(miningReward, "未找到收益记录");
                 if (!miningReward.getIsValid()) {
                     throw new BusinessException("收益已失效");
@@ -87,7 +91,6 @@ public class MiningRewardService extends BaseService {
                 UserAssets userAssets = userAssetsService.getAssetsByUserId(userId);
                 BigDecimal rewardValue = miningReward.getRewardAmount();
                 Integer rewardType = miningReward.getRewardType();
-
 
                 //更改用户资产
                 userAssetsService.changeUserAssets(userId, rewardValue, rewardType, userAssets);
@@ -99,4 +102,13 @@ public class MiningRewardService extends BaseService {
         });
     }
 
+    /**
+     * 查询用户挖矿奖励
+     * @param userId
+     * @return
+     */
+    public List<MiningReward> listMiningReward(String userId){
+        Pagination pagination = new Pagination();
+        return selectListByWhereString(MiningReward.User_id+"=",userId,pagination,MiningReward.class);
+    }
 }

@@ -39,6 +39,10 @@ public class UserAssets implements Serializable{ //用户资产
     @Column(name = Version)
     private Long version; //版本
 
+    //扩展
+    private String userName;//用户名
+    private Long rankNo;//颜值排名
+
     //DB Column name
     public static final String Id = "id";
     public static final String User_id = "user_id";

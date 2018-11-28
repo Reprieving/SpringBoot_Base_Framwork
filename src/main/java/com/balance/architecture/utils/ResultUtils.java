@@ -8,6 +8,13 @@ public class ResultUtils {
     public static final Integer RSP_LOGIN = 1;//re-login
 
     //request success
+    public static Result success(){
+        Result result = new Result();
+        result.setStateCode(RSP_SUCCESS);
+        return result;
+    }
+
+    //request success
     public static Result success(Object data, String msg){
         Result result = new Result();
         result.setStateCode(RSP_SUCCESS);
