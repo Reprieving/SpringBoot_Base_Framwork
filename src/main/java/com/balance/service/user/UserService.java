@@ -112,7 +112,7 @@ public class UserService extends BaseService {
         paramMap.put(User.Password, user.getPassword());
 
         User user1 = selectOneByWhereMap(paramMap, User.class);
-        if(user == null){
+        if (user == null) {
             throw new BusinessException("账号或密码有误");
         }
 
@@ -128,22 +128,41 @@ public class UserService extends BaseService {
 
     /**
      * 修改头像
+     *
      * @param userId 用户id
-     * @param file 头像图片
+     * @param file   头像图片
      */
-    public String  updateHeadPic(String userId, MultipartFile file){
+    public String updateHeadPic(String userId, MultipartFile file) {
         String fileDirectory = DateFormatUtils.format(new Date(), "yyyy-MM-dd|HH");
-        String imgUrl =aliOSSBusiness.uploadCommonPic(file,fileDirectory);
+        String imgUrl = aliOSSBusiness.uploadCommonPic(file, fileDirectory);
 
         User user = new User();
         user.setId(userId);
         user.setHeadPictureUrl(imgUrl);
 
         Integer i = updateIfNotNull(user);
-        if(i == 0){
+        if (i == 0) {
             throw new BusinessException("上传头像失败");
         }
         return imgUrl;
+    }
+
+    /**
+     * 修改用户名
+     */
+    public void updateUserName(String userId, String userName) {
+        ValueCheckUtils.notEmpty(userName,"用户昵称不能为空");
+        User userPo = selectOneByWhereString(User.User_name + "=", userName, User.class);
+        if (userPo != null) {
+            throw new BusinessException("用户昵称已存在");
+        }
+        User user = new User();
+        user.setId(userId);
+        user.setUserName(userName);
+        Integer i = updateIfNotNull(user);
+        if (i == 0) {
+            throw new BusinessException("修改用户昵称失败");
+        }
     }
 
     /**

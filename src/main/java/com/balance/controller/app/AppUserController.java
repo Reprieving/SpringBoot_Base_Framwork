@@ -16,6 +16,7 @@ import com.balance.service.user.UserSendService;
 import com.balance.service.user.UserService;
 import com.balance.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -104,6 +105,23 @@ public class AppUserController {
         User userInfo = userService.login(user);
         return ResultUtils.success(userInfo, "登录成功");
     }
+
+    /**
+     * 修改用户昵称
+     * @param request
+     * @param userName
+     * @return
+     * @throws BusinessException
+     * @throws UnsupportedEncodingException
+     */
+    @RequestMapping("info/update/{userName}")
+    public Result<?> updateInfo(HttpServletRequest request, @PathVariable String userName) throws BusinessException, UnsupportedEncodingException {
+
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        userService.updateUserName(userId,userName);
+        return ResultUtils.success("修改用户昵称成功");
+    }
+
 
     /**
      * 查询用户资产
