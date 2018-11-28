@@ -53,13 +53,13 @@ public class LuckDrawService extends BaseService {
 
 
         //每天剩余免费抽奖次数
-        Integer freeLuckDrawNumber = selectOneByWhereString("user_id = ", userId, UserFreeCount.class).getLuckDrawCount();
+        Integer freeLuckDrawNumber = selectOneByWhereString(UserFreeCount.User_id + " = ", userId, UserFreeCount.class).getLuckDrawCount();
 
         //中奖者列表
         List<LuckInDraw> luckIndrawUserList = getInLuckDraws();
 
         //用户资产
-        UserAssets userAssets = selectOneByWhereString("user_id = ", userId, UserAssets.class);
+        UserAssets userAssets = selectOneByWhereString(UserAssets.User_id + " = ", userId, UserAssets.class);
 
         for (LuckInDraw luckDraw : luckIndrawUserList) {
             StringBuilder stringBuilder = new StringBuilder(luckDraw.getPhoneNumber());
@@ -78,7 +78,7 @@ public class LuckDrawService extends BaseService {
         luckRewardSettlementList.add(luckRewardSettlement);
 
         //抽奖奖品列表
-        List<LuckDrawReward> luckDrawRewards = selectListByWhereString("reward_type = ", rewardType, null, LuckDrawReward.class);
+        List<LuckDrawReward> luckDrawRewards = selectListByWhereString(LuckDrawReward.Luck_type + " = ", rewardType, null, LuckDrawReward.class);
 
         LuckDrawRewardInfo rewardInfo = new LuckDrawRewardInfo(freeLuckDrawNumber, luckIndrawUserList, luckDrawRewards, luckRewardSettlementList, userAssets.getIh(), userAssets.getOre());
 
@@ -91,20 +91,20 @@ public class LuckDrawService extends BaseService {
      * 转盘抽奖
      *
      * @param userId       用户id
-     * @param rewardType   抽奖类型
+     * @param luckDrawType 抽奖类型
      * @param settlementId 支付方式
      * @return
      */
-    public Integer turntableLuckReward(String userId, Integer rewardType, Integer settlementId) {
+    public Integer turntableLuckReward(String userId, Integer luckDrawType, Integer settlementId) {
         final Integer[] inDrawIndex = {null};
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 //查询用户资产
-                UserAssets userAssets = selectOneByWhereString("user = ", userId, UserAssets.class);
+                UserAssets userAssets = userAssetsService.getAssetsByUserId(userId);
 
                 //抽奖列表
-                List<LuckDrawReward> luckDrawRewards = selectListByWhereString("reward_type = ", rewardType, null, LuckDrawReward.class);
+                List<LuckDrawReward> luckDrawRewards = selectListByWhereString(LuckDrawReward.Luck_type + " = ", luckDrawType, null, LuckDrawReward.class);
 
                 if (luckDrawRewards.size() == 0) {
                     throw new BusinessException("暂无抽奖奖品");
@@ -117,7 +117,7 @@ public class LuckDrawService extends BaseService {
                 BigDecimal consumeValue = null;
                 Boolean flag = true;
                 if (settlementId == 0) {//免费抽奖
-                    Integer freeLuckDrawNumber = selectOneByWhereString("user_id = ", userId, UserFreeCount.class).getLuckDrawCount();
+                    Integer freeLuckDrawNumber = selectOneByWhereString(UserFreeCount.User_id + " = ", userId, UserFreeCount.class).getLuckDrawCount();
                     if (freeLuckDrawNumber == 0) {
                         throw new BusinessException("免费抽奖次数已用完");
                     }
@@ -140,8 +140,8 @@ public class LuckDrawService extends BaseService {
 
                 userAssetsService.changeUserAssets(userId, consumeValue, settlementId, userAssets);
                 if (flag) {
-                    assetsTurnoverService.createAssetsTurnover(userId, AssetTurnoverConst.TURNOVER_TYPE_APPLET_REWARD, BigDecimalUtils.transfer2Negative(consumeValue),userId,
-                            AssetTurnoverConst.COMPANY_ID,userAssets,settlementId,"转盘抽奖支出");
+                    assetsTurnoverService.createAssetsTurnover(userId, AssetTurnoverConst.TURNOVER_TYPE_APPLET_REWARD, BigDecimalUtils.transfer2Negative(consumeValue), userId,
+                            AssetTurnoverConst.COMPANY_ID, userAssets, settlementId, "转盘抽奖支出");
                 }
 
                 final Integer[] sumWeight = {0};
@@ -171,18 +171,18 @@ public class LuckDrawService extends BaseService {
                 //判断是否中奖
                 LuckDrawReward luckDrawReward = luckDrawRewards.get(inDrawIndex[0]);
                 if (luckDrawReward.getIsPrice()) {
-                    User user = selectOneById(userId,User.class);
-                    UserAssets userAssets1 = selectOneByWhereString("user_id = ",user.getId(),UserAssets.class);
-                    ValueCheckUtils.notEmpty(user,"未找到用户");
+                    User user = selectOneById(userId, User.class);
+                    UserAssets userAssets1 = userAssetsService.getAssetsByUserId(user.getId());
+                    ValueCheckUtils.notEmpty(user, "未找到用户");
 
                     Integer rewardSettlementId = luckDrawReward.getSettlementId();
                     BigDecimal rewardAmount = luckDrawReward.getRewardAmount();
 
                     //新增中奖记录
-                    LuckInDraw luckInDraw = new LuckInDraw(user.getPhoneNumber(),rewardSettlementId,rewardAmount);
+                    LuckInDraw luckInDraw = new LuckInDraw(user.getPhoneNumber(), rewardSettlementId, rewardAmount);
                     insertIfNotNull(luckInDraw);
-                    assetsTurnoverService.createAssetsTurnover(userId,AssetTurnoverConst.TURNOVER_TYPE_APPLET_REWARD,rewardAmount,
-                            AssetTurnoverConst.COMPANY_ID,userId,userAssets1,rewardSettlementId,"幸运转盘中奖收入");
+                    assetsTurnoverService.createAssetsTurnover(userId, AssetTurnoverConst.TURNOVER_TYPE_APPLET_REWARD, rewardAmount,
+                            AssetTurnoverConst.COMPANY_ID, userId, userAssets1, rewardSettlementId, "幸运转盘中奖收入");
                 }
             }
         });
@@ -207,8 +207,8 @@ public class LuckDrawService extends BaseService {
     /**
      * 根据支付方式获取奖品权重
      */
-    public Integer getWeightBySettlementId(LuckDrawReward luckDrawReward,Integer settlementId){
-        switch (settlementId){
+    public Integer getWeightBySettlementId(LuckDrawReward luckDrawReward, Integer settlementId) {
+        switch (settlementId) {
             case SettlementConst.SETTLEMENT_IH:
                 return luckDrawReward.getIhWeight();
 

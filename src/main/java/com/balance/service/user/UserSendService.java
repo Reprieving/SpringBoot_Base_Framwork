@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.Map;
 
 @Service
-public class UserSendService extends BaseService{
+public class UserSendService extends BaseService {
     @Autowired
     private UserFreeCountMapper userFreeCountMapper;
 
@@ -50,9 +50,12 @@ public class UserSendService extends BaseService{
      * @return
      */
     public void validateMsgCode(String userId, String phoneNumber, String msgCode, Integer msgType) {
-        Map<String, Object> whereMap = ImmutableMap.of("user_id = ", userId, "phone_number = ", phoneNumber, "msg_code = ", msgCode, "msg_Type = ", msgType);
+        Map<String, Object> whereMap = ImmutableMap.of(
+                MsgRecord.User_id + " = ", userId, MsgRecord.Phone_number + " = ", phoneNumber,
+                MsgRecord.Msg_code + " = ", msgCode, MsgRecord.Msg_type + " = ", msgType
+        );
         MsgRecord msgRecord = selectOneByWhereMap(whereMap, MsgRecord.class);
-        ValueCheckUtils.notEmpty(msgRecord,"短信验证码有误");
+        ValueCheckUtils.notEmpty(msgRecord, "短信验证码有误");
 
         if (!msgRecord.getIsValid()) {
             throw new BusinessException("短信验证码已经失效");

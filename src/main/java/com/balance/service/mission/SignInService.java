@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-public class SignInService extends BaseService{
+public class SignInService extends BaseService {
 
     @Autowired
     private MissionService missionService;
@@ -59,7 +59,7 @@ public class SignInService extends BaseService{
 
                 insertIfNotNull(newSignIn);
 
-                List<SignIn> signList = selectListByWhereString("user_id = ", userId, new Pagination(), SignIn.class);
+                List<SignIn> signList = selectListByWhereString(SignIn.User_id + " = ", userId, new Pagination(), SignIn.class);
 
                 Integer seriesSignCount = 0;
 

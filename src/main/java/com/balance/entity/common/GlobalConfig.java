@@ -16,13 +16,17 @@ public class GlobalConfig implements Serializable{
     private static final long serialVersionUID = 7911955355142694036L;
 
     @Id
-    @Column(name = "config_key")
+    @Column(name = Config_key)
     private String configKey;
 
-    @Column(name = "config_value")
+    @Column(name = Config_value)
     private String configValue;
 
-    @Column(name = "remark")
+    @Column(name = Remark)
     private String remark;
 
+    //DB Column name
+    public static final String Config_key = "config_key";
+    public static final String Config_value = "config_value";
+    public static final String Remark = "remark";
 }

@@ -19,20 +19,26 @@ public class MiningRuler implements Serializable{ //挖矿规则
     private static final long serialVersionUID = 3915505668699553919L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "start_value")
+    @Column(name = Start_value)
     private BigDecimal startValue; //开始值
 
-    @Column(name = "end_value")
+    @Column(name = End_value)
     private BigDecimal endValue; //结束值
 
-    @Column(name = "reward_rate")
+    @Column(name = Reward_rate)
     private BigDecimal rewardRate; //奖励比例
 
     //SettlementConst.SETTLEMENT_*
-    @Column(name = "reward_type")
+    @Column(name = Reward_type)
     private Integer rewardType; //奖励类型
 
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Start_value = "start_value";
+    public static final String End_value = "end_value";
+    public static final String Reward_rate = "reward_rate";
+    public static final String Reward_type = "reward_type";
 }

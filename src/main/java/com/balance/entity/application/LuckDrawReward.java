@@ -15,33 +15,45 @@ import java.math.BigDecimal;
 public class LuckDrawReward {
 
     @Id
-    @Column(name="id")
+    @Column(name = Id)
     private Integer id;
 
-    @Column(name="reward_amount")
+    @Column(name = Reward_amount)
     private BigDecimal rewardAmount; //奖品数目
 
-    @Column(name="settlement_id")
+    @Column(name = Settlement_id)
     private Integer settlementId; //支付方式
 
-    @Column(name="reward_name")
+    @Column(name = Reward_name)
     private String rewardName; //奖励名称
 
-    @Column(name="ih_weight")
+    @Column(name = Ih_weight)
     private Integer ihWeight; //用ih抽奖时权重
 
-    @Column(name="ore_weight")
+    @Column(name = Ore_weight)
     private Integer oreWeight; //用户矿石抽奖时权重
 
-    @Column(name="is_price")
+    @Column(name = Is_price)
     private Boolean isPrice; //true属于奖品 false属于不中奖
 
-    @Column(name="luck_type")
+    @Column(name = Luck_type)
     private Integer luckType; //抽奖类型
 
-    @Column(name="index")
+    @Column(name = Index)
     private Integer index; // 奖品索引
 
-    @Column(name="is_valid")
+    @Column(name = Is_valid)
     private Boolean isValid; //有效性
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Reward_amount = "reward_amount";
+    public static final String Settlement_id = "settlement_id";
+    public static final String Reward_name = "reward_name";
+    public static final String Ih_weight = "ih_weight";
+    public static final String Ore_weight = "ore_weight";
+    public static final String Is_price = "is_price";
+    public static final String Luck_type = "luck_type";
+    public static final String Index = "index";
+    public static final String Is_valid = "is_valid";
 }

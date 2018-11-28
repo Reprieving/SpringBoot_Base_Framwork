@@ -43,10 +43,10 @@ public class MissionService extends BaseService {
      * @return
      */
     public List<Mission> getMissionList(String userId, Integer type) {
-        List<Mission> missions = selectListByWhereString("type=", type, null, Mission.class);
+        List<Mission> missions = selectListByWhereString(Mission.Task_type + " = ", type, null, Mission.class);
         for (Mission mission : missions) {
 
-            Map<String, Object> paramMap = ImmutableMap.of("mission_id=", mission.getId(), "user_id=", userId);
+            Map<String, Object> paramMap = ImmutableMap.of(MissionComplete.Mission_id + " = ", mission.getId(), MissionComplete.User_id + " = ", userId);
             MissionComplete missionComplete = missionCompleteService.selectOneByWhereMap(paramMap, MissionComplete.class);
 
             Boolean missionCompleteNull = missionComplete == null;
@@ -76,10 +76,10 @@ public class MissionService extends BaseService {
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                 MissionComplete missionComplete = selectOneById(missionCompleteId, MissionComplete.class);
 
-                ValueCheckUtils.notEmpty(missionComplete,"未找到个人任务");
+                ValueCheckUtils.notEmpty(missionComplete, "未找到个人任务");
 
                 Mission mission = filterTaskById(missionComplete.getMissionId(), selectAll(null, Mission.class));
-                ValueCheckUtils.notEmpty(mission,"未找到任务信息");
+                ValueCheckUtils.notEmpty(mission, "未找到任务信息");
 
                 if (missionComplete.getStatus() == MissionConst.MISSION_COMPLETE_STATE_NONE) {
                     throw new BusinessException("未完成任务");
@@ -99,20 +99,19 @@ public class MissionService extends BaseService {
                 }
 
                 //按任务奖励方式增加用户资产
-                BigDecimal rewardValue = missionComplete.getReward();
+                BigDecimal rewardValue = missionComplete.getRewardAmount();
                 Integer settlementId = mission.getType();
 
                 //更改资产数目
-                UserAssets userAssets = selectOneByWhereString("user_id = ", userId, UserAssets.class);
+                UserAssets userAssets = userAssetsService.getAssetsByUserId(userId);
                 userAssetsService.changeUserAssets(userId, rewardValue, settlementId, userAssets);
 
                 //增加流水记录
-                assetsTurnoverService.createAssetsTurnover(userId, AssetTurnoverConst.TURNOVER_TYPE_MISSION_REWARD, rewardValue, "0", userId, userAssets, settlementId, "领取" + mission.getTaskName() + "奖励");
+                assetsTurnoverService.createAssetsTurnover(userId, AssetTurnoverConst.TURNOVER_TYPE_MISSION_REWARD, rewardValue, AssetTurnoverConst.COMPANY_ID, userId, userAssets, settlementId, "领取" + mission.getTaskName() + "奖励");
 
             }
         });
     }
-
 
 
     /**

@@ -16,10 +16,19 @@ public interface UserMapper {
     List<User> listUser4InviteRecord();
 
     /**
-     *
-     * @param userId
-     * @param newPassword
-     * @param updatePWDColumn
+     * 根据更新字段重置密码
+     * @param userId 用户id
+     * @param newPassword 新密码
+     * @param updatePWDColumn 更新字段
      */
     Integer updatePassword(@Param("userId") String userId, @Param("newPassword") String newPassword, @Param("updatePWDColumn") String updatePWDColumn);
+
+    /**
+     * 根据更新字段查询用户
+     * @param phoneNumber
+     * @param updatePWDColumn
+     * @param oldPassword
+     * @return
+     */
+    User getUserToUpdatePwd(@Param("phoneNumber")String phoneNumber, @Param("updatePWDColumn")String updatePWDColumn, @Param("oldPassword") String oldPassword);
 }

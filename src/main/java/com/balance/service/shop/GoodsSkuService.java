@@ -18,45 +18,47 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class GoodsSkuService extends BaseService{
+public class GoodsSkuService extends BaseService {
     @Autowired
     private AliOSSBusiness aliOSSBusiness;
 
     /**
      * 新增商品sku
-     * @param goodsSku 商品sku
+     *
+     * @param goodsSku            商品sku
      * @param goodsIntroduceFiles
      */
-    public void createGoodsSku(GoodsSku goodsSku, MultipartFile[] goodsIntroduceFiles){
-        String fileDirectory = DateFormatUtils.format(new Date(),"yyyy-MM-dd|HH");
-        List<String> spceJsonList = JSONObject.parseArray(goodsSku.getSpecJson(),String.class);//用于校验前端传过来的spec组合值(格式=>["规格名:规格值,规格名:规格值"])
+    public void createGoodsSku(GoodsSku goodsSku, MultipartFile[] goodsIntroduceFiles) {
+        String fileDirectory = DateFormatUtils.format(new Date(), "yyyy-MM-dd|HH");
+        List<String> spceJsonList = JSONObject.parseArray(goodsSku.getSpecJson(), String.class);//用于校验前端传过来的spec组合值(格式=>["规格名:规格值,规格名:规格值"])
         insert(goodsSku);
         List<GoodsImg> goodsIntroduceImgList = new ArrayList<>();
-        for(MultipartFile goodsIntroduceFile:goodsIntroduceFiles){
-            String detailImgUrl = aliOSSBusiness.uploadCommonPic(goodsIntroduceFile,fileDirectory);
-            GoodsImg goodsIntroduceImg = new GoodsImg(goodsSku.getSpuId(),detailImgUrl, ShopConst.GOODS_IMG_TYPE_INTRODUCE);
+        for (MultipartFile goodsIntroduceFile : goodsIntroduceFiles) {
+            String detailImgUrl = aliOSSBusiness.uploadCommonPic(goodsIntroduceFile, fileDirectory);
+            GoodsImg goodsIntroduceImg = new GoodsImg(goodsSku.getSpuId(), detailImgUrl, ShopConst.GOODS_IMG_TYPE_INTRODUCE);
             goodsIntroduceImgList.add(goodsIntroduceImg);
         }
-        insertBatch(goodsIntroduceImgList,false);
+        insertBatch(goodsIntroduceImgList, false);
     }
 
     /**
      * 选择sku
+     *
      * @param spuId
      * @param specJson
      * @return
      */
-    public GoodsSku chooseGoodsSku(String spuId, String specJson){
+    public GoodsSku chooseGoodsSku(String spuId, String specJson) {
 
-        Map<String,Object> skuWhereMap = ImmutableMap.of("spu_id = ",spuId,"spec_json = ",specJson);
-        GoodsSku goodsSku = selectOneByWhereMap(skuWhereMap,GoodsSku.class);
+        Map<String, Object> skuWhereMap = ImmutableMap.of(GoodsSku.Spu_id + " = ", spuId, GoodsSku.Spec_json + " = ", specJson);
+        GoodsSku goodsSku = selectOneByWhereMap(skuWhereMap, GoodsSku.class);
 
-        if(goodsSku == null){
+        if (goodsSku == null) {
             throw new RuntimeException("未找到改商品信息");
         }
 
-        Map<String,Object> imgWhereMap = ImmutableMap.of("spu_id = ",spuId,"sku_id = ",goodsSku.getId());
-        List<GoodsImg> goodsImgList = selectListByWhereMap(imgWhereMap,null,GoodsImg.class);
+        Map<String, Object> imgWhereMap = ImmutableMap.of(GoodsImg.Spu_id + " = ", spuId, GoodsImg.Sku_id + " = ", goodsSku.getId());
+        List<GoodsImg> goodsImgList = selectListByWhereMap(imgWhereMap, null, GoodsImg.class);
 
 
         return goodsSku;

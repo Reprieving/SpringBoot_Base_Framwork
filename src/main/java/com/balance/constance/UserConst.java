@@ -25,4 +25,8 @@ public class UserConst {
     public static final String APPLY_CERT_PIC_TYPE_FRONT = "front";//注册
     public static final String APPLY_CERT_PIC_TYPE_BACK = "back";//注册
     public static final String APPLY_CERT_PIC_TYPE_HANDLER = "handler";//注册
+
+    //修改密码类型
+    public static final int UPDATE_PWD_TYPE_LOGIN = 1;//修改登录密码
+    public static final int UPDATE_PWD_TYPE_PAY = 2;//修改支付密码
 }

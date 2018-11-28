@@ -21,41 +21,59 @@ public class GoodsSpu implements Serializable{
     private static final long serialVersionUID = -4987682283871933822L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "spu_no")
+    @Column(name = Spu_no)
     private String spuNo;//spu编号
 
-    @Column(name = "goods_name")
+    @Column(name = Goods_name)
     private String goodsName;//商品名称
 
-    @Column(name = "low_price")
+    @Column(name = Low_price)
     private BigDecimal lowPrice;//最低价格
 
-    @Column(name = "category_id")
+    @Column(name = Settlement_id)
+    private Integer settlementId;//支付方式id
+
+    @Column(name = Category_id)
     private String categoryId;//分类id（goods_category表id）
 
-    @Column(name = "brand_id")
+    @Column(name = Brand_id)
     private String brandId;//品牌id（goods_brand表id）
 
-    @Column(name = "default_img_url")
+    @Column(name = Default_img_url)
     private String defaultImgUrl;//spu 默认图片
 
-    @Column(name = "create_time")
+    @Column(name = Create_time)
     private Timestamp createTime;
 
-    @Column(name = "update_time")
+    @Column(name = Update_time)
     private Timestamp updateTime;
 
     //ShopConst.GOODS_STATUS_*
-    @Column(name = "status")
+    @Column(name = Status)
     private Integer status;//sku状态
 
-    @Column(name = "is_valid")
+    @Column(name = Is_valid)
     private Boolean isValid;//是否有效
 
     //扩展属性
     private String categoryName;//类目名
     private String brandName;//品牌名
+
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Spu_no = "spu_no";
+    public static final String Goods_name = "goods_name";
+    public static final String Low_price = "low_price";
+    public static final String Settlement_id = "settlement_id";
+    public static final String Category_id = "category_id";
+    public static final String Brand_id = "brand_id";
+    public static final String Default_img_url = "default_img_url";
+    public static final String Create_time = "create_time";
+    public static final String Update_time = "update_time";
+    public static final String Status = "status";
+    public static final String Is_valid = "is_valid";
 }

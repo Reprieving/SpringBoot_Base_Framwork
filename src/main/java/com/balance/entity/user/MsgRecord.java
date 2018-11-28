@@ -16,25 +16,25 @@ public class MsgRecord implements Serializable{
     private static final long serialVersionUID = -8770953734638830657L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "user_id")
+    @Column(name = User_id)
     private String userId; //用户id
 
-    @Column(name = "phone_number")
+    @Column(name = Phone_number)
     private String phoneNumber; //手机号码
 
-    @Column(name = "msg_code")
+    @Column(name = Msg_code)
     private String msgCode; //短信验证码
 
-    @Column(name = "msg_type")
+    @Column(name = Msg_type)
     private Integer msgType; //短信验证码类型 UserConst.MSG_CODE_TYPE_*
 
-    @Column(name = "create_time")
+    @Column(name = Create_time)
     private Timestamp createTime; //
 
-    @Column(name = "is_valid")
+    @Column(name = Is_valid)
     private Boolean isValid; //
 
     public MsgRecord(String userId, String phoneNumber, String msgCode, Integer msgType, Timestamp timestamp,Boolean isValid) {
@@ -45,4 +45,13 @@ public class MsgRecord implements Serializable{
         this.createTime = timestamp;
         this.isValid = isValid;
     }
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String User_id = "user_id";
+    public static final String Phone_number = "phone_number";
+    public static final String Msg_code = "msg_code";
+    public static final String Msg_type = "msg_type";
+    public static final String Create_time = "create_time";
+    public static final String Is_valid = "is_valid";
 }

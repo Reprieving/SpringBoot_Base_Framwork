@@ -12,13 +12,16 @@ import com.balance.entity.user.UserAssets;
 import com.balance.entity.user.UserFrozenAssets;
 import com.balance.mapper.common.AutoIncreaseIdMapper;
 import com.balance.mapper.user.UserMapper;
+import com.balance.service.common.AliOSSBusiness;
 import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
@@ -36,6 +39,9 @@ public class UserService extends BaseService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private AliOSSBusiness aliOSSBusiness;
+
     /**
      * 注册用户
      *
@@ -49,12 +55,12 @@ public class UserService extends BaseService {
                 ValueCheckUtils.notEmpty(user.getPassword(), "密码不能为空");
                 ValueCheckUtils.notEmpty(user.getPhoneNumber(), "手机号码不能为空");
 
-                User user1 = selectOneByWhereString("phone_number=", user.getPhoneNumber(), User.class);
+                User user1 = selectOneByWhereString(User.Phone_number + " = ", user.getPhoneNumber(), User.class);
                 if (user1 != null) {
                     throw new BusinessException("用户已存在");
                 }
 
-                User inviteUser = selectOneByWhereString("invite_code=", user.getInviteCode(), User.class);
+                User inviteUser = selectOneByWhereString(User.Invite_code + " = ", user.getInviteCode(), User.class);
                 ValueCheckUtils.notEmpty(inviteUser, "邀请码对应的用户不存在");
 
                 user.setInviteId(inviteUser.getId());
@@ -102,8 +108,8 @@ public class UserService extends BaseService {
      */
     public User login(User user) throws UnsupportedEncodingException {
         Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("phone_number=", user.getPhoneNumber());
-        paramMap.put("password=", user.getPassword());
+        paramMap.put(User.Phone_number, user.getPhoneNumber());
+        paramMap.put(User.Password, user.getPassword());
 
         User user1 = selectOneByWhereMap(paramMap, User.class);
 
@@ -115,6 +121,26 @@ public class UserService extends BaseService {
         return user2;
     }
 
+
+    /**
+     * 修改头像
+     * @param userId 用户id
+     * @param file 头像图片
+     */
+    public String  updateHeadPic(String userId, MultipartFile file){
+        String fileDirectory = DateFormatUtils.format(new Date(), "yyyy-MM-dd|HH");
+        String imgUrl =aliOSSBusiness.uploadCommonPic(file,fileDirectory);
+
+        User user = new User();
+        user.setId(userId);
+        user.setHeadPictureUrl(imgUrl);
+
+        Integer i = updateIfNotNull(user);
+        if(i == 0){
+            throw new BusinessException("上传头像失败");
+        }
+        return imgUrl;
+    }
 
     /**
      * 查询用户邀请记录
@@ -151,27 +177,57 @@ public class UserService extends BaseService {
 
     /**
      * 根据短信类型重置密码
-     * @param userId 用户id
+     *
+     * @param userId      用户id
      * @param newPassword 新密码
-     * @param msgType 短信类型
+     * @param msgType     短信类型
      */
     public void updatePassword(String userId, String newPassword, Integer msgType) {
         String updatePWDColumn;
-        if(UserConst.MSG_CODE_TYPE_BACK_LOGINPWD == msgType){
-            updatePWDColumn = "password";
-        }else if(UserConst.MSG_CODE_TYPE_BACK_PAYPWD == msgType){
-            updatePWDColumn = "pay_password";
-        }else{
+        if (UserConst.MSG_CODE_TYPE_BACK_LOGINPWD == msgType) {
+            updatePWDColumn = User.Password;
+        } else if (UserConst.MSG_CODE_TYPE_BACK_PAYPWD == msgType) {
+            updatePWDColumn = User.Pay_password;
+        } else {
             throw new BusinessException("短信类型有误");
         }
 
         newPassword = EncryptUtils.md5Password(newPassword);
-        ValueCheckUtils.notEmpty(newPassword,"新密码字符串异常");
+        ValueCheckUtils.notEmpty(newPassword, "新密码字符串异常");
 
-        Integer i = userMapper.updatePassword(userId,newPassword,updatePWDColumn);
-        if(i==0) {
+        Integer i = userMapper.updatePassword(userId, newPassword, updatePWDColumn);
+        if (i == 0) {
             throw new BusinessException("设置密码失败");
         }
 
     }
+
+    /**
+     * 修改密码
+     *
+     * @param userId        用户Id
+     * @param oldPassword   旧密码
+     * @param newPassword   新密码
+     * @param updatePwdType 修改类型
+     */
+    public void updatePassword(String userId, String phoneNumber, String oldPassword, String newPassword, Integer updatePwdType) {
+        String updatePWDColumn;
+        if (UserConst.UPDATE_PWD_TYPE_LOGIN == updatePwdType) {
+            updatePWDColumn = User.Password;
+        } else if (UserConst.UPDATE_PWD_TYPE_PAY == updatePwdType) {
+            updatePWDColumn = User.Pay_password;
+        } else {
+            throw new BusinessException("修改密码类型有误");
+        }
+
+        User user = userMapper.getUserToUpdatePwd(phoneNumber, updatePWDColumn, oldPassword);
+        ValueCheckUtils.notEmpty(user, "密码有误");
+
+        Integer i = userMapper.updatePassword(userId, newPassword, updatePWDColumn);
+        if (i == 0) {
+            throw new BusinessException("修改密码失败");
+        }
+    }
+
+
 }

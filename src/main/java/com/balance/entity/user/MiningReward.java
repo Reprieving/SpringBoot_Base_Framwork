@@ -17,25 +17,25 @@ public class MiningReward implements Serializable{
     private static final long serialVersionUID = -4349115527185451339L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "user_id")
+    @Column(name = User_id)
     private String userId; //用户id
 
-    @Column(name = "compute_power")
+    @Column(name = Compute_power)
     private BigDecimal computePower; //算力
 
-    @Column(name = "reward_amount")
+    @Column(name = Reward_amount)
     private BigDecimal rewardAmount; //挖矿奖励值
 
-    @Column(name = "reward_type")
+    @Column(name = Reward_type)
     private Integer rewardType; //挖矿奖励类型
 
-    @Column(name = "create_time")
+    @Column(name = Create_time)
     private Timestamp createTime; //创建时间
 
-    @Column(name = "is_valid")
+    @Column(name = Is_valid)
     private Boolean isValid; //是否有效
 
     public MiningReward(String userId, BigDecimal computePower, BigDecimal rewardValue, Integer rewardType) {
@@ -44,4 +44,13 @@ public class MiningReward implements Serializable{
         this.rewardAmount = rewardValue;
         this.rewardType = rewardType;
     }
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String User_id = "user_id";
+    public static final String Compute_power = "compute_power";
+    public static final String Reward_amount = "reward_amount";
+    public static final String Reward_type = "reward_type";
+    public static final String Create_time = "create_time";
+    public static final String Is_valid = "is_valid";
 }

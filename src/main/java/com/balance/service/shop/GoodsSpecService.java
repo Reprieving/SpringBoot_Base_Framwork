@@ -45,7 +45,7 @@ public class GoodsSpecService {
         if (StringUtils.isNoneBlank(name)) {
             return baseService.selectAll(null, tClazz);
         } else {
-            return baseService.selectListByWhereString("spec_name = ", name, null, tClazz);
+            return baseService.selectListByWhereString(GoodsSpecName.Spec_name + " = ", name, null, tClazz);
         }
     }
 
@@ -56,7 +56,7 @@ public class GoodsSpecService {
      * @return
      */
     public List<GoodsSpecValue> listGoodsSpecValue(String specId, Class<GoodsSpecValue> tClazz) {
-        return baseService.selectListByWhereString("spec_id = ", specId, null, tClazz);
+        return baseService.selectListByWhereString(GoodsSpecValue.Spec_id + " = ", specId, null, tClazz);
     }
 
     /**

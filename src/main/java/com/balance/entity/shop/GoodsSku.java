@@ -21,47 +21,63 @@ public class GoodsSku implements Serializable{
     private static final long serialVersionUID = 3047394843767093980L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "sku_no")
+    @Column(name = Sku_no)
     private String skuNo; //sku编号
 
-    @Column(name = "sku_name")
+    @Column(name = Sku_name)
     private String skuName;//spu名称(冗余spu_name)
 
-    @Column(name = "price")
+    @Column(name = Price)
     private BigDecimal price;//单价
 
-    @Column(name = "stock")
+    @Column(name = Stock)
     private Integer stock;//库存
 
-    @Column(name = "spu_id")
+    @Column(name = Spu_id)
     private String spuId;//spuId（goods_spud表id）
 
-    @Column(name = "settlement_id")
+    @Column(name = Settlement_id)
     private Integer settlementId;//支付方式id
 
-    @Column(name = "spec_json")
+    @Column(name = Spec_json)
     private String specJson;//规格名称和值组合json 格式：["规格名:规格值","规格名:规格值"]
 
-    @Column(name = "shop_id")
+    @Column(name = Shop_id)
     private String shopId;//店铺id
 
-    @Column(name = "create_time")
+    @Column(name = Create_time)
     private Timestamp createTime;
 
-    @Column(name = "update_time")
+    @Column(name = Update_time)
     private Timestamp updateTime;
 
     //ShopConst.GOODS_STATUS_*
-    @Column(name = "status")
+    @Column(name = Status)
     private Integer status;//sku状态
 
-    @Column(name = "is_valid")
+    @Column(name = Is_valid)
     private Boolean isValid;//是否有效
 
 
     //扩展属性
     private List<String> imgUrl; //介绍图
+
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Sku_no = "sku_no";
+    public static final String Sku_name = "sku_name";
+    public static final String Price = "price";
+    public static final String Stock = "stock";
+    public static final String Spu_id = "spu_id";
+    public static final String Settlement_id = "settlement_id";
+    public static final String Spec_json = "spec_json";
+    public static final String Shop_id = "shop_id";
+    public static final String Create_time = "create_time";
+    public static final String Update_time = "update_time";
+    public static final String Status = "status";
+    public static final String Is_valid = "is_valid";
 }

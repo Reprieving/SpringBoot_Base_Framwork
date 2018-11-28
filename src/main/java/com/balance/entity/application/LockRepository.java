@@ -13,47 +13,62 @@ import java.sql.Timestamp;
 @Data
 @Alias("LockRepository")
 @Table(name = "applet_lock_repository")
-public class LockRepository implements Serializable{
+public class LockRepository implements Serializable {
     private static final long serialVersionUID = 299985596120419844L;
 
     @Id
-    @Column(name="id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "period")
+    @Column(name = Period)
     private Long period; //期数
 
-    @Column(name = "start_amount")
+    @Column(name = Start_amount)
     private BigDecimal startAmount; //起投额度
 
-    @Column(name = "total_amount")
+    @Column(name = Total_amount)
     private BigDecimal totalAmount; //总额度
 
-    @Column(name = "purchased_amount")
+    @Column(name = Purchased_amount)
     private BigDecimal purchasedAmount; //已购额度
 
-    @Column(name = "surplus_amount")
+    @Column(name = Surplus_amount)
     private BigDecimal surplusAmount; //剩余额度
 
-    @Column(name = "daily_rate")
+    @Column(name =Daily_rate)
     private BigDecimal dailyRate; //日利率
 
-    @Column(name = "product_detail")
+    @Column(name = Product_detail)
     private String productDetail; //描述
 
-    @Column(name = "start_time")
+    @Column(name = Start_time)
     private Timestamp startTime;//开始时间
 
-    @Column(name = "end_time")
+    @Column(name = End_time)
     private Timestamp endTime;//结束时间
 
-    @Column(name = "lock_type")
+    @Column(name = Lock_type)
     private Integer lockType; //锁仓产品类型 ApplicaitonConst.LOCKREPOSITORY_TYPE_*
 
-    @Column(name = "status")
+    @Column(name = Status)
     private Integer status; //锁仓产品状态 ApplicaitonConst.LOCKREPOSITORY_STATUS_*
 
-    @Column(name = "create_time")
+    @Column(name = Create_time)
     private Timestamp createTime;//创建时间
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Period = "period";
+    public static final String Start_amount = "start_amount";
+    public static final String Total_amount = "total_amount";
+    public static final String Purchased_amount = "purchased_amount";
+    public static final String Surplus_amount = "surplus_amount";
+    public static final String Daily_rate = "daily_rate";
+    public static final String Product_detail = "product_detail";
+    public static final String Start_time = "start_time";
+    public static final String End_time = "end_time";
+    public static final String Lock_type = "lock_type";
+    public static final String Status = "status";
+    public static final String Create_time = "create_time";
 
 }

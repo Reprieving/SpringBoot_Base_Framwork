@@ -49,6 +49,16 @@ public class UserAssetsService extends BaseService {
         return null;
     }
 
+
+    /**
+     * 获取用户的资产
+     * @param userId
+     * @return
+     */
+    public UserAssets getAssetsByUserId(String userId){
+        return selectOneByWhereString(UserAssets.User_id+" = ", userId, UserAssets.class);
+    }
+
     /**
      * 通过支付方式获取用户的资产
      *
@@ -83,7 +93,7 @@ public class UserAssetsService extends BaseService {
      * @return
      */
     public Integer changeUserAssets(String userId, BigDecimal amount, Integer settlementId) {
-        UserAssets userAssets = selectOneByWhereString("user_id = ", userId, UserAssets.class);
+        UserAssets userAssets = selectOneByWhereString(UserAssets.User_id + " = ", userId, UserAssets.class);
         return changeUserAssets(userId, amount, settlementId, userAssets);
     }
 
@@ -129,17 +139,17 @@ public class UserAssetsService extends BaseService {
      * @return
      */
     public Integer changeUserFrozenAssets(String userId, BigDecimal amount, Integer settlementId) {
-        UserFrozenAssets userFrozenAssets = selectOneByWhereString("user_id = ", userId, UserFrozenAssets.class);
+        UserFrozenAssets userFrozenAssets = selectOneByWhereString(UserFrozenAssets.User_id + " = ", userId, UserFrozenAssets.class);
         return changeUserFrozenAssets(userId, amount, settlementId, userFrozenAssets);
     }
 
     /**
      * 更改用户资产
      *
-     * @param userId       用户id
-     * @param amount       数目（正数为加，负数为减）
-     * @param settlementId 支付方式
-     * @param userFrozenAssets   用户冻结资产实体
+     * @param userId           用户id
+     * @param amount           数目（正数为加，负数为减）
+     * @param settlementId     支付方式
+     * @param userFrozenAssets 用户冻结资产实体
      * @return
      */
     public Integer changeUserFrozenAssets(String userId, BigDecimal amount, Integer settlementId, UserFrozenAssets userFrozenAssets) {
@@ -164,8 +174,6 @@ public class UserAssetsService extends BaseService {
 
         return userAssetsMapper.updateUserFrozenAssets(userId, amount, assetColumnName, userFrozenAssets.getVersion());
     }
-
-
 
 
 }

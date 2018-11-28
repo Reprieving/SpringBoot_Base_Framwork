@@ -6,6 +6,7 @@ import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -19,22 +20,22 @@ public class LuckInDraw implements Serializable {
     private static final long serialVersionUID = -3511658923353214853L;
 
     @Id
-    @Column(name="id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name="phone_number")
+    @Column(name = Phone_number)
     private String phoneNumber; //手机号
 
-    @Column(name="settlement_id")
+    @Column(name = Settlement_id)
     private Integer settlementId; //支付方式
 
-    @Column(name="reward_amount")
+    @Column(name = Reward_amount)
     private BigDecimal rewardAmount; //奖品数目
 
-    @Column(name="reward_str")
+    @Column(name = Reward_str)
     private String rewardStr; //详情字符串
 
-    @Column(name="create_time")
+    @Column(name = Create_time)
     private Timestamp createTime;
 
     public LuckInDraw(String phoneNumber, Integer rewardSettlementId, BigDecimal rewardNumber) {
@@ -42,4 +43,12 @@ public class LuckInDraw implements Serializable {
         this.settlementId = rewardSettlementId;
         this.rewardAmount = rewardNumber;
     }
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Phone_number = "phone_number";
+    public static final String Settlement_id = "settlement_id";
+    public static final String Reward_amount = "reward_amount";
+    public static final String Reward_str = "reward_str";
+    public static final String Create_time = "create_time";
 }

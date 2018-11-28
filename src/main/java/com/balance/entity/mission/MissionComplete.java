@@ -17,26 +17,26 @@ public class MissionComplete implements Serializable{
     private static final long serialVersionUID = -6348587648041129654L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "mission_id")
+    @Column(name = Mission_id)
     private String missionId; //任务id
 
-    @Column(name = "user_id")
+    @Column(name = User_id)
     private String userId; //用户id
 
-    @Column(name = "reward")
-    private BigDecimal reward; //奖励值
+    @Column(name = Reward_amount)
+    private BigDecimal rewardAmount; //奖励值
 
     //MissionConst.MISSION_COMPLETE_STATE_*
-    @Column(name = "status")
+    @Column(name = Status)
     private Integer status; //领取状态
 
-    public MissionComplete(String missionId, String userId, BigDecimal rewardValue, int status) {
+    public MissionComplete(String missionId, String userId, BigDecimal rewardAmount, int status) {
         this.missionId = missionId;
         this.userId = userId;
-        this.reward =rewardValue;
+        this.rewardAmount =rewardAmount;
         this.status = status;
     }
 
@@ -50,4 +50,11 @@ public class MissionComplete implements Serializable{
         this.id = id;
         this.status = status;
     }
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Mission_id = "mission_id";
+    public static final String User_id = "user_id";
+    public static final String Reward_amount = "reward_amount";
+    public static final String Status = "status";
 }

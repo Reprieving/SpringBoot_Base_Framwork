@@ -15,15 +15,22 @@ public class UserFreeCount implements Serializable{
     private static final long serialVersionUID = -2870565182875390423L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "id")
+    @Column(name = User_id)
     private String user_id;
 
-    @Column(name = "send_msg_count")
+    @Column(name = Send_msg_count)
     private Integer sendMsgCount; //用户当天发送短信次数
 
-    @Column(name = "luck_draw_count")
+    @Column(name = Luck_draw_count)
     private Integer luckDrawCount; //用户免费抽奖次数
+
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String User_id = "user_id";
+    public static final String Send_msg_count = "send_msg_count";
+    public static final String Luck_draw_count = "luck_draw_count";
 }

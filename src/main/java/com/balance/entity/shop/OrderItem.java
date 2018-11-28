@@ -16,25 +16,25 @@ public class OrderItem implements Serializable{
     private static final long serialVersionUID = 7195245867662678593L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "order_id")
+    @Column(name = Order_id)
     private String orderId;//order id
 
-    @Column(name = "goods_spu_id")
+    @Column(name = Goods_spu_id)
     private String goodsSpuId;//spu id
 
-    @Column(name = "goods_sku_id")
+    @Column(name = Goods_sku_id)
     private String goodsSkuId;//sku id
 
-    @Column(name = "number")
+    @Column(name = Number)
     private Integer number;//数量
 
-    @Column(name = "price")
+    @Column(name = Price)
     private BigDecimal price;//单价
 
-    @Column(name = "total_price")
+    @Column(name = TotalPrice)
     private BigDecimal totalPrice;//总价
 
     public OrderItem(String goodsSpuId, String goodsSkuId, Integer number, BigDecimal price, BigDecimal totalPrice) {
@@ -45,7 +45,14 @@ public class OrderItem implements Serializable{
         this.totalPrice = totalPrice;
     }
 
-
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Order_id = "order_id";
+    public static final String Goods_spu_id = "goods_spu_id";
+    public static final String Goods_sku_id = "goods_sku_id";
+    public static final String Number = "number";
+    public static final String Price = "price";
+    public static final String TotalPrice = "totalPrice";
 
     //----扩展属性
     //spu id

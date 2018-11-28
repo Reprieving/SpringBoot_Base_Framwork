@@ -20,16 +20,21 @@ public class ShopInfo implements Serializable{
     private static final long serialVersionUID = -3666361733455390654L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "shop_name")
+    @Column(name = Shop_name)
     private String shopName;//店铺名称
 
-    @Column(name = "create_time")
+    @Column(name = Create_time)
     private Timestamp createTime;
 
-    @Column(name = "update_time")
+    @Column(name = Update_time)
     private Timestamp updateTime;
 
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Shop_name = "shop_name";
+    public static final String Create_time = "create_time";
+    public static final String Update_time = "update_time";
 }

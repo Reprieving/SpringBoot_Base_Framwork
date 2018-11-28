@@ -54,20 +54,19 @@ public class LockRepositoryService extends BaseService {
     public List<LockRepository> listLockRepository(LockRepository lockRepository, Pagination pagination) {
         Map<String, Object> whereMap = new HashMap<>();
         if (lockRepository.getPeriod() != null) {
-            whereMap.put("period = ", lockRepository.getPeriod());
+            whereMap.put(LockRepository.Period + " = ", lockRepository.getPeriod());
         }
         if (lockRepository.getLockType() != null) {
-            whereMap.put("lock_type = ", lockRepository.getLockType());
+            whereMap.put(LockRepository.Lock_type + " = ", lockRepository.getLockType());
         }
         if (lockRepository.getStatus() != null) {
-            whereMap.put("status = ", lockRepository.getStatus());
+            whereMap.put(LockRepository.Status + " = ", lockRepository.getStatus());
         }
         if (lockRepository.getStartTime() != null) {
-            whereMap.put("create_time >= ", lockRepository.getCreateTime());
+            whereMap.put(LockRepository.Create_time + " >= ", lockRepository.getCreateTime());
         }
-
         if (lockRepository.getEndTime() != null) {
-            whereMap.put("end_time <= ", lockRepository.getEndTime());
+            whereMap.put(LockRepository.End_time + " <= ", lockRepository.getEndTime());
         }
 
         return selectListByWhereMap(whereMap, pagination, LockRepository.class);
@@ -93,7 +92,7 @@ public class LockRepositoryService extends BaseService {
                 }
 
                 //1.扣除用户资产,增加冻结资产
-                UserAssets userAssets = selectOneByWhereString("user_id = ", userId, UserAssets.class);
+                UserAssets userAssets = userAssetsService.getAssetsByUserId(userId);
                 BigDecimal userIh = userAssetsService.getAssetsBySettlementId(userAssets, SettlementConst.SETTLEMENT_IH);
                 int b = userIh.compareTo(buyAmount);
                 if (b == -1) {

@@ -18,23 +18,23 @@ public class GoodsImg implements Serializable {
     private static final long serialVersionUID = 5215064699572767869L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "spu_id")
+    @Column(name = Spu_id)
     private String spuId;//spu id（goods_spu表id）
 
-    @Column(name = "sku_id")
+    @Column(name = Sku_id)
     private String skuId;//spu id（goods_sku表id）
 
-    @Column(name = "img_url")
+    @Column(name = Img_url)
     private String imgUrl;//商品图片url
 
     //ShopConst.GOODS_IMG_TYPE_*
-    @Column(name = "img_type")
+    @Column(name = Img_type)
     private Integer imgType;//商品图片类型
 
-    @Column(name = "create_time")
+    @Column(name = Create_time)
     private String createTime;//创建时间
 
     public GoodsImg(String spuId, String imgUrl, int imgType) {
@@ -42,4 +42,12 @@ public class GoodsImg implements Serializable {
         this.imgUrl = imgUrl;
         this.imgType = imgType;
     }
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Spu_id = "spu_id";
+    public static final String Sku_id = "sku_id";
+    public static final String Img_url = "img_url";
+    public static final String Img_type = "img_type";
+    public static final String Create_time = "create_time";
 }

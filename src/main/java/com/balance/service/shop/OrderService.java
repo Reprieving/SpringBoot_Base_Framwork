@@ -61,21 +61,21 @@ public class OrderService extends BaseService {
                     //1.检查商品是否支持用户选择的支付方式
                     BigDecimal skuNumber = BigDecimalUtils.newObject(orderSkuReq.getNumber());
                     String spuId = orderSkuReq.getSpuId();
-                    Map<String, Object> spuWhereMap = ImmutableMap.of("spu_id = ", spuId, "settlement_id = ", settlementId);
+                    Map<String, Object> spuWhereMap = ImmutableMap.of(GoodsSpu.Id + " = ", spuId, GoodsSpu.Settlement_id + " = ", settlementId);
                     GoodsSpu goodsSpu = selectOneByWhereMap(spuWhereMap, GoodsSpu.class);
                     if (goodsSpu == null) {
                         throw new BusinessException("商品不支持该支付方式");
                     }
 
                     //2.计算订单总价格
-                    Map<String, Object> skuWhereMap = ImmutableMap.of("spu_id = ", spuId, "spec_json = ", JSONObject.toJSONString(orderSkuReq.getSpecIdStrList()));
+                    Map<String, Object> skuWhereMap = ImmutableMap.of(GoodsSku.Spu_id + " = ", spuId, GoodsSku.Spec_json + " = ", JSONObject.toJSONString(orderSkuReq.getSpecIdStrList()));
                     GoodsSku goodsSku = selectOneByWhereMap(skuWhereMap, GoodsSku.class);
                     if (goodsSku == null) {
                         throw new BusinessException("未找到商品");
                     }
 
-                    if(orderSkuReq.getNumber()>goodsSku.getStock()){
-                        throw new BusinessException("商品编号"+goodsSku.getSkuNo()+"库存不足");
+                    if (orderSkuReq.getNumber() > goodsSku.getStock()) {
+                        throw new BusinessException("商品编号" + goodsSku.getSkuNo() + "库存不足");
                     }
 
                     BigDecimal spuTotalPrice = BigDecimalUtils.multiply(goodsSku.getPrice(), skuNumber);
@@ -94,9 +94,9 @@ public class OrderService extends BaseService {
                 insertBatch(orderItems, false);
 
                 //4.扣除用户资产
-                UserAssets userAssets = selectOneByWhereString("user_id = ", userId, UserAssets.class);
+                UserAssets userAssets = selectOneByWhereString(UserAssets.User_id + " = ", userId, UserAssets.class);
 
-                BigDecimal assets = userAssetsService.getAssetsBySettlementId(userAssets,settlementId);
+                BigDecimal assets = userAssetsService.getAssetsBySettlementId(userAssets, settlementId);
                 int a = assets.compareTo(orderTotalPrice);
                 if (a == -1) {
                     throw new BusinessException("用户资产不足");
@@ -116,7 +116,8 @@ public class OrderService extends BaseService {
 
     /**
      * 用户的订单列表
-     * @param userId 用户id
+     *
+     * @param userId      用户id
      * @param orderStatus 订单状态
      * @return
      */
@@ -133,10 +134,11 @@ public class OrderService extends BaseService {
 
     /**
      * 用户订单详情
+     *
      * @param orderId
      * @return
      */
-    public OrderGoodsInfo getOrderGoodsInfo(String orderId){
+    public OrderGoodsInfo getOrderGoodsInfo(String orderId) {
         OrderGoodsInfo orderGoodsInfo = orderMapper.getOrderGoodsInfo(orderId);
         for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
             orderItem.setSpecStr(goodsSpecService.strSpecIdToSpecValue(orderItem.getSpecJson()));

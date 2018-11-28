@@ -17,6 +17,9 @@ public class UserInviteCodeId implements Serializable{
 
     //自增Id
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private Long id;
+
+    //DB Column name
+    public static final String Id = "id";
 }

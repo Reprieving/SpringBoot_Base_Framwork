@@ -17,28 +17,28 @@ public class Mission implements Serializable {
     private static final long serialVersionUID = 6479894383573534305L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "task_name")
+    @Column(name = Task_name)
     private String taskName; //任务名
 
-    @Column(name = "task_code")
+    @Column(name = Task_code)
     private Integer taskCode; //任务编码
 
-    @Column(name = "type")
+    @Column(name = Task_type)
     private Integer type; //任务类型
 
-    @Column(name = "reward_value")
+    @Column(name = Reward_value)
     private BigDecimal rewardValue; //奖励值
 
-    @Column(name = "disposable")
+    @Column(name = Disposable)
     private Integer disposable; //是否一次性任务
 
-    @Column(name = "description")
+    @Column(name = Description)
     private String description; //描述
 
-    @Column(name = "action_name")
+    @Column(name = Action_name)
     private String actionName; //跳转按钮名
 
     /**
@@ -57,14 +57,27 @@ public class Mission implements Serializable {
      * 13.每月签到
      * 14.新人矿石礼包
      */
-    @Column(name = "redirect_type")
+    @Column(name = Redirect_type)
     private Integer redirectType; //跳转类型
 
-    @Column(name = "is_valid")
+    @Column(name = Is_valid)
     private Integer isValid; //是否有效
 
 
     //---扩展
     private Integer state; //状态
     private String missionCompleteId;//任务完成表id
+
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Task_name = "task_name";
+    public static final String Task_code = "task_code";
+    public static final String Task_type = "task_type";
+    public static final String Reward_value = "reward_value";
+    public static final String Disposable = "disposable";
+    public static final String Description = "description";
+    public static final String Action_name = "action_name";
+    public static final String Redirect_type = "redirect_type";
+    public static final String Is_valid = "is_valid";
 }

@@ -22,5 +22,9 @@
       SELECT id,user_name,invite_id FROM user_info
     </select>
 
+    <select id="getUserToUpdatePwd" resultMap="userMap">
+      SELECT id FROM user_info WHERE ${updatePWDColumn} = #{oldPassword} AND phone_number = #{phoneNumber}
+    </select>
+
 
 </mapper>

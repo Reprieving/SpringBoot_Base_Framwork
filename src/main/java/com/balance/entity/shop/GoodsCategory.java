@@ -20,17 +20,22 @@ public class GoodsCategory implements Serializable{
     private static final long serialVersionUID = -3052331644957889414L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "category_name")
+    @Column(name = Category_name)
     private String categoryName;
 
-    @Column(name = "create_time")
+    @Column(name = Create_time)
     private Timestamp createTime;
 
-    @Column(name = "update_time")
+    @Column(name = Update_time)
     private Timestamp updateTime;
 
 
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Category_name = "category_name";
+    public static final String Create_time = "create_time";
+    public static final String Update_time = "update_time";
 }

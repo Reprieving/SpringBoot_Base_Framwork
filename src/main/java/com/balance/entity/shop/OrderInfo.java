@@ -21,31 +21,31 @@ public class OrderInfo implements Serializable {
     private static final long serialVersionUID = 5290596013449535746L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "order_number")
+    @Column(name = Order_number)
     private String orderNumber;
 
-    @Column(name = "settlement_id")
+    @Column(name = Settlement_id)
     private Integer settlementId;
 
-    @Column(name = "user_id")
+    @Column(name = User_id)
     private String userId;
 
-    @Column(name = "address_id")
+    @Column(name = Address_id)
     private String addressId;
 
-    @Column(name = "price")
+    @Column(name = Price)
     private BigDecimal price;
 
-    @Column(name = "status")
+    @Column(name = Status)
     private String status;
 
-    @Column(name = "logistic_number")
+    @Column(name = Logistic_number)
     private String logisticNumber;
 
-    @Column(name = "create_time")
+    @Column(name = Create_time)
     private Timestamp createTime;
 
 
@@ -56,4 +56,15 @@ public class OrderInfo implements Serializable {
         this.addressId = addressId;
         this.price = orderTotalPrice;
     }
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Order_number = "order_number";
+    public static final String Settlement_id = "settlement_id";
+    public static final String User_id = "user_id";
+    public static final String Address_id = "address_id";
+    public static final String Price = "price";
+    public static final String Status = "status";
+    public static final String Logistic_number = "logistic_number";
+    public static final String Create_time = "create_time";
 }

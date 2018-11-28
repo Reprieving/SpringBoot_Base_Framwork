@@ -84,7 +84,7 @@ public class MiningRewardService extends BaseService {
                     throw new BusinessException("收益已失效");
                 }
 
-                UserAssets userAssets = selectOneByWhereString("user_id = ", userId, UserAssets.class);
+                UserAssets userAssets = userAssetsService.getAssetsByUserId(userId);
                 BigDecimal rewardValue = miningReward.getRewardAmount();
                 Integer rewardType = miningReward.getRewardType();
 

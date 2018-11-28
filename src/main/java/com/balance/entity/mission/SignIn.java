@@ -17,17 +17,22 @@ public class SignIn implements Serializable{
     private static final long serialVersionUID = 3401595594160716158L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "user_id")
+    @Column(name = User_id)
     private String userId;
 
-    @Column(name = "user_id")
+    @Column(name = Sign_time)
     private Timestamp signTime;
 
     //扩展属性
     private String signId;
     private String signStr;
     private Boolean hasSign = false;
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String User_id = "user_id";
+    public static final String Sign_time = "sign_time";
 }

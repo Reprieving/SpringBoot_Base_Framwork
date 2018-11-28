@@ -20,18 +20,25 @@ public class GoodsSpecName implements Serializable{
     private static final long serialVersionUID = -4658507825537631178L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "spec_no")
+    @Column(name = Spec_no)
     private String specNo;//规格编号
 
-    @Column(name = "spec_name")
+    @Column(name = Spec_name)
     private String specName;//规格名字
 
-    @Column(name = "create_time")
+    @Column(name = Create_time)
     private Timestamp createTime;
 
-    @Column(name = "update_time")
+    @Column(name = Update_time)
     private Timestamp updateTime;
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Spec_no = "spec_no";
+    public static final String Spec_name = "spec_name";
+    public static final String Create_time = "create_time";
+    public static final String Update_time = "update_time";
 }

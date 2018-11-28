@@ -18,24 +18,33 @@ public class UserFrozenAssets implements Serializable { //用户冻结资产
     private static final long serialVersionUID = -309595629871171513L;
 
     @Id
-    @Column(name = "id")
+    @Column(name = Id)
     private String id;
 
-    @Column(name = "user_id")
+    @Column(name = User_id)
     private String userId; //用户名
 
-    @Column(name = "diamond")
-    private BigDecimal diamond; //美钻
+    @Column(name = Compute_power)
+    private BigDecimal computePower; //美钻
 
-    @Column(name = "ih")
+    @Column(name = Ih)
     private BigDecimal ih; //IH
 
-    @Column(name = "eth")
+    @Column(name = Eth)
     private BigDecimal eth; //ETH
 
-    @Column(name = "ore")
+    @Column(name = Ore)
     private BigDecimal ore; //矿石
 
-    @Column(name = "version")
+    @Column(name = Version)
     private Long version; //版本
+
+    //DB Column name
+    public static final String Id = "id";
+    public static final String User_id = "user_id";
+    public static final String Compute_power = "compute_power";
+    public static final String Ih = "ih";
+    public static final String Eth = "eth";
+    public static final String Ore = "ore";
+    public static final String Version = "version";
 }

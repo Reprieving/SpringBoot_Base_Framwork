@@ -22,14 +22,19 @@ public class GoodsBrand implements Serializable{
     @Column(name = "id")
     private String id;
 
-    @Column(name = "brand_name")
+    @Column(name = Brand_name)
     private String brandName;
 
-    @Column(name = "create_time")
+    @Column(name = Create_time)
     private Timestamp createTime;
 
-    @Column(name = "update_time")
+    @Column(name = Update_time)
     private Timestamp updateTime;
 
+    //DB Column name
+    public static final String Id = "id";
+    public static final String Brand_name = "brand_name";
+    public static final String Create_time = "create_time";
+    public static final String Update_time = "update_time";
 
 }
