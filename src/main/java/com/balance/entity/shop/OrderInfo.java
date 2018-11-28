@@ -4,9 +4,7 @@ package com.balance.entity.shop;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
-import com.sun.xml.internal.bind.v2.model.core.ID;
 import lombok.Data;
-import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.ibatis.type.Alias;
 
 import java.io.Serializable;
@@ -24,8 +22,8 @@ public class OrderInfo implements Serializable {
     @Column(name = Id)
     private String id;
 
-    @Column(name = Order_number)
-    private String orderNumber;
+    @Column(name = Order_no)
+    private String orderNo;
 
     @Column(name = Settlement_id)
     private Integer settlementId;
@@ -49,8 +47,8 @@ public class OrderInfo implements Serializable {
     private Timestamp createTime;
 
 
-    public OrderInfo(String orderNumber, Integer settlementId, String userId, String addressId, BigDecimal orderTotalPrice) {
-        this.orderNumber = orderNumber;
+    public OrderInfo(String orderNo, Integer settlementId, String userId, String addressId, BigDecimal orderTotalPrice) {
+        this.orderNo = orderNo;
         this.settlementId = settlementId;
         this.userId = userId;
         this.addressId = addressId;
@@ -59,7 +57,7 @@ public class OrderInfo implements Serializable {
 
     //DB Column name
     public static final String Id = "id";
-    public static final String Order_number = "order_number";
+    public static final String Order_no = "order_no";
     public static final String Settlement_id = "settlement_id";
     public static final String User_id = "user_id";
     public static final String Address_id = "address_id";

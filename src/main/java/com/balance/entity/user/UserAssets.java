@@ -22,7 +22,7 @@ public class UserAssets implements Serializable{ //用户资产
     private String id;
 
     @Column(name = User_id)
-    private String userId; //用户名
+    private String userId; //用户id
 
     @Column(name = Compute_power)
     private BigDecimal computePower; //算力

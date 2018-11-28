@@ -13,14 +13,12 @@ public class AssetTurnoverConst {
     public final static int TURNOVER_TYPE_APPLY_TRANSFER = 7;//申请充值
 
     public final static int TURNOVER_TYPE_SHOPPING_ORDER_PAY = 8;//商城订单支付
-    public final static int TURNOVER_TYPE_SHOPPING_ORDER_CANCEL = 9;//商城订单取消
-    public final static int TURNOVER_TYPE_SHOPPING_GOODS_RETURN = 10;//商品退货
 
-    public final static int TURNOVER_TYPE_MISSION_REWARD = 11;//领取任务奖励
+    public final static int TURNOVER_TYPE_MISSION_REWARD = 9;//领取任务奖励
 
-    public final static int TURNOVER_TYPE_MINING_REWARD = 12;//领取挖矿奖励
+    public final static int TURNOVER_TYPE_MINING_REWARD = 10;//领取挖矿奖励
 
-    public final static int TURNOVER_TYPE_APPLET_REWARD = 13;//应用奖励
+    public final static int TURNOVER_TYPE_APPLET_REWARD = 11;//应用奖励
     //流水类型 end
 
 

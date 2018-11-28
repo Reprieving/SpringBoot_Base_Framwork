@@ -4,6 +4,7 @@
 <mapper namespace="com.balance.mapper.shop.OrderMapper">
     <resultMap id="OrderGoodsInfoMap" type="OrderGoodsInfo">
         <id property="orderId" column="order_id"></id>
+        <result property="orderNo" column="order_number"></result>
         <result property="settlementId" column="settlement_id"></result>
         <result property="orderPrice" column="order_price"></result>
         <result property="createTime" column="create_time"></result>
@@ -21,6 +22,7 @@
     <sql id="listOrderGoodsInfo">
         SELECT
             a.id as order_id,
+            a.order_number,
             a.settlement_id,
             a.price as order_price,
             a.create_time,

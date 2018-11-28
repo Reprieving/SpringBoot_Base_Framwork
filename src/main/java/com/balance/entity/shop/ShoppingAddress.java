@@ -25,6 +25,9 @@ public class ShoppingAddress {
     @Column(name = Shoper_tel)
     private String shoperTel; //购物者手机号
 
+    @Column(name = Shoper_city)
+    private String shoperCity; //购买者省份
+
     @Column(name = Shoper_province)
     private String shoperProvince; //购买者省份
 
@@ -46,6 +49,7 @@ public class ShoppingAddress {
     public static final String Shop_name = "shoper_name";
     public static final String Shoper_tel = "shoper_tel";
     public static final String Shoper_province = "shoper_province";
+    public static final String Shoper_city = "shoper_city";
     public static final String Shoper_address = "shoper_address";
     public static final String Post_number = "post_number";
     public static final String Is_default = "is_default";

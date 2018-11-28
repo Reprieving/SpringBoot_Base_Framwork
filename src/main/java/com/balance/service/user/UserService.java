@@ -112,6 +112,10 @@ public class UserService extends BaseService {
         paramMap.put(User.Password, user.getPassword());
 
         User user1 = selectOneByWhereMap(paramMap, User.class);
+        if(user == null){
+            throw new BusinessException("账号或密码有误");
+        }
+
 
         User user2 = new User();
         user2.setUserName(user1.getUserName());
@@ -182,11 +186,11 @@ public class UserService extends BaseService {
      * @param newPassword 新密码
      * @param msgType     短信类型
      */
-    public void updatePassword(String userId, String newPassword, Integer msgType) {
+    public void resetPassword(String userId, String newPassword, Integer msgType) {
         String updatePWDColumn;
-        if (UserConst.MSG_CODE_TYPE_BACK_LOGINPWD == msgType) {
+        if (UserConst.MSG_CODE_TYPE_RESET_LOGINPWD == msgType) {
             updatePWDColumn = User.Password;
-        } else if (UserConst.MSG_CODE_TYPE_BACK_PAYPWD == msgType) {
+        } else if (UserConst.MSG_CODE_TYPE_RESET_PAYPWD == msgType) {
             updatePWDColumn = User.Pay_password;
         } else {
             throw new BusinessException("短信类型有误");
@@ -219,6 +223,8 @@ public class UserService extends BaseService {
         } else {
             throw new BusinessException("修改密码类型有误");
         }
+
+        oldPassword = EncryptUtils.md5Password(oldPassword);
 
         User user = userMapper.getUserToUpdatePwd(phoneNumber, updatePWDColumn, oldPassword);
         ValueCheckUtils.notEmpty(user, "密码有误");

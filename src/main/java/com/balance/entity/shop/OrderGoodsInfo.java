@@ -9,8 +9,9 @@ import java.util.List;
 
 @Data
 @Alias("OrderGoodsInfo")
-public class OrderGoodsInfo {
+public class OrderGoodsInfo {//用户订单列表信息
     private String orderId;
+    private String orderNo;
     private String shopName;
     private Integer settlementId;
     private String settlementName;

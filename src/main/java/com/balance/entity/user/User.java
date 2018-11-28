@@ -23,7 +23,7 @@ public class User implements Serializable{ //用户信息
     private String id;
 
     @Column(name = Head_picture_url)
-    private String headPictureUrl; //用户名
+    private String headPictureUrl; //头像图片url
 
     @Column(name = User_name)
     private String userName; //用户名
@@ -52,11 +52,12 @@ public class User implements Serializable{ //用户信息
     //扩展属性
     private String accessToken; //访问token
     private String msgCode; //短信验证码
-    private Integer msgType; //
+    private Integer msgType; //UserConst.MSG_CODE_TYPE_* 短信验证码类型
     private List<User> directUserList; //直接邀请用户记录
     private List<User> inDirectUserList; //间接邀请用户记录
     private String newPassword; //新密码
-
+    private String oldPassword; //旧密码
+    private Integer updatePwdType; //UserConst.UPDATE_PWD_TYPE_* 修改密码类型
 
     //DB Column name
     public static final String Id = "id";
