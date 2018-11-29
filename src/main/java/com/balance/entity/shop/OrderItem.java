@@ -34,7 +34,7 @@ public class OrderItem implements Serializable{
     @Column(name = Price)
     private BigDecimal price;//单价
 
-    @Column(name = TotalPrice)
+    @Column(name = Total_price)
     private BigDecimal totalPrice;//总价
 
     public OrderItem(String goodsSpuId, String goodsSkuId, Integer number, BigDecimal price, BigDecimal totalPrice) {
@@ -52,7 +52,7 @@ public class OrderItem implements Serializable{
     public static final String Goods_sku_id = "goods_sku_id";
     public static final String Number = "number";
     public static final String Price = "price";
-    public static final String TotalPrice = "totalPrice";
+    public static final String Total_price = "total_price";
 
     //----扩展属性
     //spu id

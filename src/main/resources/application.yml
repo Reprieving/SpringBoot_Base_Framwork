@@ -21,14 +21,7 @@ spring:
     testOnReturn: false
     poolPreparedStatements: true
     maxOpenPreparedStatements: 20
-#  jpa:
-#      database: MYSQL
-#      show-sql: true
-#      hibernate:
-#        ddl-auto: update
-#      properties:
-#        hibernate:
-#          dialect: org.hibernate.dialect.MySQL5Dialect
+
 jetcache:
   statIntervalMinutes: 15
   areaInCacheName: false
@@ -46,7 +39,7 @@ jetcache:
         minIdle: 5
         maxIdle: 20
         maxTotal: 50
-      host: 127.0.0.1
+      host: 47.106.158.56
       port: 6379
 
 mybatis:

@@ -171,7 +171,6 @@ public class UserAssetsService extends BaseService {
                 assetColumnName = "compute_power";
                 break;
         }
-
         return userAssetsMapper.updateUserFrozenAssets(userId, amount, assetColumnName, userFrozenAssets.getVersion());
     }
 
@@ -182,6 +181,7 @@ public class UserAssetsService extends BaseService {
      */
     public List<UserAssets> listComputePowerRank(String userId){
 //        List<UserAssets> userComputePowerList = userAssetsMapper.listComputePower();
+
         return null;
     }
 }
