@@ -1,20 +1,28 @@
 package com.balance.service.user;
 
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.constance.MissionConst;
 import com.balance.constance.UserConst;
 import com.balance.entity.common.UserFreeCount;
 import com.balance.entity.common.UserInviteCodeId;
+import com.balance.entity.information.Article;
+import com.balance.entity.mission.Mission;
 import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
+import com.balance.entity.user.UserCollection;
 import com.balance.entity.user.UserFrozenAssets;
 import com.balance.mapper.common.AutoIncreaseIdMapper;
 import com.balance.mapper.user.UserMapper;
 import com.balance.service.common.AliOSSBusiness;
+import com.balance.service.mission.MissionCompleteService;
+import com.balance.service.mission.MissionService;
 import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -42,6 +50,12 @@ public class UserService extends BaseService {
 
     @Autowired
     private AliOSSBusiness aliOSSBusiness;
+
+    @Autowired
+    private MissionService missionService;
+
+    @Autowired
+    private MissionCompleteService missionCompleteService;
 
     /**
      * 注册用户
@@ -94,6 +108,11 @@ public class UserService extends BaseService {
                 UserFreeCount userFreeCount = new UserFreeCount();
                 userFreeCount.setUser_id(userId);
                 insertIfNotNull(userFreeCount);
+
+                //完成新用户注册任务
+                Mission mission = missionService.filterTaskByCode(MissionConst.NEW_REGISTER, missionService.selectAll(null, Mission.class));
+                missionCompleteService.createOrUpdateMissionComplete(userId, mission);
+
             }
         });
 
@@ -169,9 +188,10 @@ public class UserService extends BaseService {
 
     /**
      * 获取所有用户（用于展示邀请记录）
+     *
      * @return
      */
-    public List<User> listUser4InviteRecord(){
+    public List<User> listUser4InviteRecord() {
         return userMapper.listUser4InviteRecord();
     }
 
@@ -181,7 +201,7 @@ public class UserService extends BaseService {
      * @param userId 用户id
      * @return
      */
-    @Cacheable(value = "listInviteUser",sync = true)
+    @Cacheable(value = "listInviteUser", sync = true)
     public User listInviteUser(String userId) {
         List<User> allUser = listUser4InviteRecord();
 
@@ -271,6 +291,31 @@ public class UserService extends BaseService {
         }
     }
 
+    /**
+     * 用户收藏列表
+     *
+     * @param userId
+     * @param pagination
+     * @return
+     */
+    public List<UserCollection> listCollection(String userId, Pagination pagination) {
+        Map<String, Object> whereMap = ImmutableMap.of(UserCollection.User_id + "=", userId);
+        return selectListByWhereMap(whereMap, pagination, UserCollection.class);
+    }
 
-
+    /**
+     * 收藏文章
+     *
+     * @param articleId 文章id
+     * @param userId 用户id
+     */
+    public void createCollection(String articleId, String userId) {
+        Article article = selectOneById(articleId, Article.class);
+        ValueCheckUtils.notEmpty(article, "未找到文章");
+        UserCollection userCollection = new UserCollection(userId, article.getId(), article.getArticle_title(), article.getArticleType());
+        Integer i = insertIfNotNull(userCollection);
+        if (i == 0) {
+            throw new BusinessException("收藏失败");
+        }
+    }
 }

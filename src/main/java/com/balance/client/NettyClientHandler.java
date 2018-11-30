@@ -37,7 +37,7 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
                 transferObject.setBytes(transferObjectTmp.getBytes());
             }
         }else{
-            throw new DataTypeErrorException("Netty Server return error data type");
+            throw new DataTypeErrorException("Netty Server return error data settlementId");
         }
     }
 

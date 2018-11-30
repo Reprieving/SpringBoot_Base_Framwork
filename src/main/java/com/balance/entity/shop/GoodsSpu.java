@@ -51,6 +51,10 @@ public class GoodsSpu implements Serializable{
     @Column(name = Update_time)
     private Timestamp updateTime;
 
+    //ShopConst.SPU_TYPE_*
+    @Column(name = Spu_type)
+    private Integer spuType;//spu类型
+
     //ShopConst.GOODS_STATUS_*
     @Column(name = Status)
     private Integer status;//sku状态
@@ -74,6 +78,7 @@ public class GoodsSpu implements Serializable{
     public static final String Default_img_url = "default_img_url";
     public static final String Create_time = "create_time";
     public static final String Update_time = "update_time";
+    public static final String Spu_type = "spu_type";
     public static final String Status = "status";
     public static final String Is_valid = "is_valid";
 }

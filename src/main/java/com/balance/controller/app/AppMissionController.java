@@ -29,7 +29,7 @@ public class AppMissionController {
     public Result<?> getMissionList(HttpServletRequest request, @RequestBody Mission mission) throws UnsupportedEncodingException {
 
         User user = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME));
-        List<Mission> missions = missionService.getMissionList(user.getId(),mission.getType());
+        List<Mission> missions = missionService.getMissionList(user.getId(),mission.getSettlementId());
 
         return ResultUtils.success("");
     }

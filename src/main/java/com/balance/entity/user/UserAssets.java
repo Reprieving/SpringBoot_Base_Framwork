@@ -37,7 +37,7 @@ public class UserAssets implements Serializable{ //用户资产
     private BigDecimal ore; //矿石
 
     @Column(name = Version)
-    private Long version; //版本
+    private Integer version; //版本
 
     //扩展
     private String userName;//用户名

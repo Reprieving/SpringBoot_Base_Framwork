@@ -13,7 +13,7 @@ public class ApplicationConst {
     public final static int LOCKREPOSITORY_STATUS_NONE = 0;//未开始
     public final static int LOCKREPOSITORY_STATUS_START = 1;//已开始
     public final static int LOCKREPOSITORY_STATUS_END = 2;//已结束
-    public final static int LOCKREPOSITORY_STATUS_CANCEL = 3;//已取消
+    public final static int LOCKREPOSITORY_STATUS_CANCEL = -1;//已取消
 
     //锁仓订单状态 start
     public final static int LOCKREPOSITORY_ORDER_STATUS_FROZEN = 0;//冻结（用于每天计算订单收益时上锁）

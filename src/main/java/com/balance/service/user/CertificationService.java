@@ -2,12 +2,19 @@ package com.balance.service.user;
 
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.constance.MissionConst;
 import com.balance.constance.UserConst;
+import com.balance.entity.mission.Mission;
 import com.balance.entity.user.Certification;
 import com.balance.service.common.AliOSSBusiness;
+import com.balance.service.mission.MissionCompleteService;
+import com.balance.service.mission.MissionService;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
@@ -16,7 +23,16 @@ import java.util.Date;
 public class CertificationService extends BaseService{
 
     @Autowired
+    private TransactionTemplate transactionTemplate;
+
+    @Autowired
     private AliOSSBusiness aliOSSBusiness;
+
+    @Autowired
+    private MissionService missionService;
+
+    @Autowired
+    private MissionCompleteService missionCompleteService;
 
     /**
      * app端申请实名认证
@@ -54,5 +70,29 @@ public class CertificationService extends BaseService{
         if(i==0){
             throw new BusinessException("申请实名认证失败,请稍后再试");
         }
+    }
+
+    /**
+     * 审核实名认证
+     * @param certId        实名认证记录id
+     * @param vertifyStatus 审核状态
+     */
+    public void updateCert(String certId,Integer vertifyStatus){
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                Certification certification = new Certification();
+                certification.setId(certId);
+                certification.setStatus(vertifyStatus);
+                Integer i = updateIfNotNull(certification);
+                if(i==0){
+                    throw new BusinessException("审核失败");
+                }
+                if(vertifyStatus == UserConst.USER_CERT_STATUS_PASS){
+                    Mission mission = missionService.filterTaskByCode(MissionConst.RELEASE_ARTICLE,missionService.selectAll(null,Mission.class));
+                    missionCompleteService.createOrUpdateMissionComplete(certification.getUserId(),mission);
+                }
+            }
+        });
     }
 }

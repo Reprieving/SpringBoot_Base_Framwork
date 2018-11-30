@@ -37,7 +37,7 @@ public class UserFrozenAssets implements Serializable { //用户冻结资产
     private BigDecimal ore; //矿石
 
     @Column(name = Version)
-    private Long version; //版本
+    private Integer version; //版本
 
     //DB Column name
     public static final String Id = "id";

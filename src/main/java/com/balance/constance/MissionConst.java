@@ -10,24 +10,22 @@ public class MissionConst {
     //任务领取情况 end
 
     //对应关系在e_mission的task_code字段
-    public final static int CODE1 = 1;
-    public final static int CODE2 = 2;
-    public final static int CODE3 = 3;
-    public final static int CODE4 = 4;
-    public final static int CODE5 = 5;
-    public final static int CODE6 = 6;
-    public final static int CODE7 = 7;
-    public final static int CODE8 = 8;
-    public final static int CODE9 = 9;
-    public final static int CODE10 = 10;
-    public final static int CODE11 = 11;
-    public final static int CODE12 = 12;
-    public final static int CODE13 = 13;
-    public final static int CODE14 = 14;
-    public final static int CODE15 = 15;
-    public final static int CODE16 = 16;
-    public final static int CODE17 = 17;
-
+    public final static int NEW_REGISTER = 1; //新用户注册
+    public final static int INVITE_USER_REGISTER = 2; //邀请用户注册
+    public final static int FIRST_WITHDRAW = 3; //首次充值
+    public final static int CERTIFICATION = 4; //实名认证
+    public final static int BIND_WECHAT = 5; //微信绑定
+    public final static int SIGN_DAY = 6;//每日签到
+    public final static int SIGN_WEEK = 7;//每周签到
+    public final static int SIGN_MONTH = 8;//每月签到
+    public final static int JOIN_INVESTIGATION = 9; //参与问卷调查
+    public final static int EXCHANGE_BEAUTY = 10;//兑换美妆
+    public final static int SHOPPING_RETURN_COMPUTEPOWER = 11;//购物返算力
+    public final static int SHOPPING_RETURN_IH = 12;//购物返IH
+    public final static int SHARE = 13;//朋友圈分享
+    public final static int RELEASE_ARTICLE = 14;//发布文章
+    public final static int APPLY_YEAR_CARD = 15;//办年卡
+    //对应关系在e_mission的task_code字段
 
     public final static int APP_SIGN_VIEW_COUNT = 30;//App显示签到列表数目
 

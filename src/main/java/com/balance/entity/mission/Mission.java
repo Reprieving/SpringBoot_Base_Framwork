@@ -26,8 +26,8 @@ public class Mission implements Serializable {
     @Column(name = Task_code)
     private Integer taskCode; //任务编码
 
-    @Column(name = Task_type)
-    private Integer type; //任务类型
+    @Column(name = Settlement_id)
+    private Integer settlementId; //任务类型
 
     @Column(name = Reward_value)
     private BigDecimal rewardValue; //奖励值
@@ -73,7 +73,7 @@ public class Mission implements Serializable {
     public static final String Id = "id";
     public static final String Task_name = "task_name";
     public static final String Task_code = "task_code";
-    public static final String Task_type = "task_type";
+    public static final String Settlement_id = "settlement_id";
     public static final String Reward_value = "reward_value";
     public static final String Disposable = "disposable";
     public static final String Description = "description";

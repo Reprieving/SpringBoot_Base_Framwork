@@ -86,18 +86,31 @@ public class AppApplicationController {
     }
 
 
+    /**
+     * 抽奖信息
+     * @param request
+     * @return
+     * @throws UnsupportedEncodingException
+     */
     @ResponseBody
     @RequestMapping(value = "luckDraw/info")
     public Result<?> rewardInfo(HttpServletRequest request) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
 
-        //类型 先默认为1（转盘抽奖）
+        //类型 先默认（转盘抽奖）
         Integer luckType = ApplicationConst.LUCKDRAW_TYPE_TURNTABLE;
         LuckDrawRewardInfo luckDrawRewardInfo = luckDrawService.getRewardInfo(userId,luckType);
 
         return ResultUtils.success(luckDrawRewardInfo);
     }
 
+    /**
+     * 转盘抽奖
+     * @param request
+     * @param settlementId 支付方式
+     * @return
+     * @throws UnsupportedEncodingException
+     */
     @ResponseBody
     @RequestMapping(value = "luckDraw/inTurntable/{settlementId}")
     public Result<?> turntableDraw(HttpServletRequest request,@PathVariable Integer settlementId) throws UnsupportedEncodingException {

@@ -35,6 +35,7 @@ public class MissionService extends BaseService {
     @Autowired
     private AssetsTurnoverService assetsTurnoverService;
 
+
     /**
      * 查询任务列表信息
      *
@@ -43,7 +44,7 @@ public class MissionService extends BaseService {
      * @return
      */
     public List<Mission> getMissionList(String userId, Integer type) {
-        List<Mission> missions = selectListByWhereString(Mission.Task_type + " = ", type, null, Mission.class);
+        List<Mission> missions = selectListByWhereString(Mission.Settlement_id + " = ", type, null, Mission.class);
         for (Mission mission : missions) {
 
             Map<String, Object> paramMap = ImmutableMap.of(MissionComplete.Mission_id + " = ", mission.getId(), MissionComplete.User_id + " = ", userId);
@@ -100,7 +101,7 @@ public class MissionService extends BaseService {
 
                 //按任务奖励方式增加用户资产
                 BigDecimal rewardValue = missionComplete.getRewardAmount();
-                Integer settlementId = mission.getType();
+                Integer settlementId = mission.getSettlementId();
 
                 //更改资产数目
                 UserAssets userAssets = userAssetsService.getAssetsByUserId(userId);
@@ -160,7 +161,7 @@ public class MissionService extends BaseService {
      * @return
      */
     public Boolean checkIfSignTask(Integer taskCode) {
-        if (taskCode == MissionConst.CODE13 || taskCode == MissionConst.CODE14 || taskCode == MissionConst.CODE15) {
+        if (taskCode == MissionConst.SIGN_DAY || taskCode == MissionConst.SIGN_WEEK || taskCode == MissionConst.SIGN_MONTH) {
             return true;
         } else {
             return false;

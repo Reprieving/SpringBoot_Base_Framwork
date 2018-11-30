@@ -26,6 +26,9 @@ public class SignInService extends BaseService {
     private MissionService missionService;
 
     @Autowired
+    private MissionCompleteService missionCompleteService;
+
+    @Autowired
     private MissionMapper missionMapper;
 
     @Autowired
@@ -51,7 +54,7 @@ public class SignInService extends BaseService {
                 List<Mission> allMission = selectAll(null, Mission.class);
 
                 //每日签到
-                Mission daySignMission = missionService.filterTaskByCode(MissionConst.CODE13, allMission);
+                Mission daySignMission = missionService.filterTaskByCode(MissionConst.SIGN_DAY, allMission);
 
                 //每日签到奖励
                 SignIn newSignIn = new SignIn();
@@ -99,42 +102,21 @@ public class SignInService extends BaseService {
                 }
 
                 //每日签到
-                Map<String, Object> whereMap = ImmutableMap.of("mission_id = ", daySignMission.getId(), "user_id = ", userId);
-                MissionComplete dayMissionComplete = selectOneByWhereMap(whereMap, MissionComplete.class);
-                if (dayMissionComplete == null) {
-                    MissionComplete missionComplete = new MissionComplete(daySignMission.getId(), userId, daySignMission.getRewardValue(), MissionConst.MISSION_COMPLETE_STATE_FINISH);
-                    insert(missionComplete);
-                } else {
-                    MissionComplete missionComplete = new MissionComplete(daySignMission.getId(), userId, MissionConst.MISSION_COMPLETE_STATE_RECEIVE);
-                    updateIfNotNull(missionComplete);
-                }
-
+                missionCompleteService.createOrUpdateMissionComplete(userId,daySignMission);
 
                 //完成7天连续签到
-                Mission weekSignMission = missionService.filterTaskByCode(MissionConst.CODE14, allMission);
                 if (seriesSignCount % 7 == 0) {
-                    MissionComplete weekMissionComplete = missionMapper.selectCompletion(weekSignMission.getId(), userId);
-                    if (weekMissionComplete == null) {
-                        MissionComplete missionComplete = new MissionComplete(weekSignMission.getId(), userId, weekSignMission.getRewardValue(), MissionConst.MISSION_COMPLETE_STATE_FINISH);
-                        insert(missionComplete);
-                    } else {
-                        MissionComplete missionComplete = new MissionComplete(weekSignMission.getId(), userId, MissionConst.MISSION_COMPLETE_STATE_RECEIVE);
-                        updateIfNotNull(missionComplete);
-                    }
+                    Mission weekSignMission = missionService.filterTaskByCode(MissionConst.SIGN_WEEK, allMission);
+                    missionCompleteService.createOrUpdateMissionComplete(userId,weekSignMission);
                 }
 
+
                 //完成30天连续签到
-                Mission monthSignMission = missionService.filterTaskByCode(MissionConst.CODE15, allMission);
                 if (seriesSignCount % 30 == 0) {
-                    MissionComplete monthMissionComplete = missionMapper.selectCompletion(monthSignMission.getId(), userId);
-                    if (monthMissionComplete == null) {
-                        MissionComplete missionComplete = new MissionComplete(monthSignMission.getId(), userId, monthSignMission.getRewardValue(), MissionConst.MISSION_COMPLETE_STATE_FINISH);
-                        insert(missionComplete);
-                    } else {
-                        MissionComplete missionComplete = new MissionComplete(monthSignMission.getId(), userId, MissionConst.MISSION_COMPLETE_STATE_RECEIVE);
-                        updateIfNotNull(missionComplete);
-                    }
+                    Mission monthSignMission = missionService.filterTaskByCode(MissionConst.SIGN_MONTH, allMission);
+                    missionCompleteService.createOrUpdateMissionComplete(userId,monthSignMission);
                 }
+
             }
         });
     }

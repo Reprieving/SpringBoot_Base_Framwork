@@ -1,6 +1,11 @@
 package com.balance.constance;
 
 public class ShopConst {
+    //spu类型
+    public static final int SPU_TYPE_GOODS = 1;//商城商品
+    public static final int SPU_TYPE_BEAUTY = 2;//美妆商品
+
+
     //商品状态
     public static final int GOODS_STATUS_OUTSALE = 0;//下架
     public static final int GOODS_STATUS_INSALE = 1;//上架

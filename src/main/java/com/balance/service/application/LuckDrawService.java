@@ -66,16 +66,17 @@ public class LuckDrawService extends BaseService {
             StringBuilder stringBuilder = new StringBuilder(luckDraw.getPhoneNumber());
             stringBuilder.replace(3, stringBuilder.length() - 4, "****");
             luckDraw.setPhoneNumber(stringBuilder.toString());
+            luckDraw.setRewardStr(luckDraw.getRewardAmount() + userAssetsService.getSettlementNameById(luckDraw.getSettlementId()));
         }
 
         //抽奖支付方式列表
         List<LuckRewardSettlement> luckRewardSettlementList = new ArrayList<>(5);
         //IH
-        LuckRewardSettlement luckRewardSettlement = new LuckRewardSettlement(SettlementConst.SETTLEMENT_IH, 1D);
+        LuckRewardSettlement luckRewardSettlement = new LuckRewardSettlement(SettlementConst.SETTLEMENT_IH, ApplicationConst.LUCKDRAW_IH.doubleValue());
         luckRewardSettlementList.add(luckRewardSettlement);
 
         //矿石
-        luckRewardSettlement = new LuckRewardSettlement(SettlementConst.SETTLEMENT_ORE, 10);
+        luckRewardSettlement = new LuckRewardSettlement(SettlementConst.SETTLEMENT_ORE, ApplicationConst.LUCKDRAW_ORE.doubleValue());
         luckRewardSettlementList.add(luckRewardSettlement);
 
         //抽奖奖品列表
@@ -95,7 +96,7 @@ public class LuckDrawService extends BaseService {
      * @param settlementId 支付方式
      * @return
      */
-    public Integer turntableLuckReward(String userId,Integer settlementId) {
+    public Integer turntableLuckReward(String userId, Integer settlementId) {
         final Integer[] inDrawIndex = {null};
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -116,7 +117,7 @@ public class LuckDrawService extends BaseService {
 
                 BigDecimal consumeValue = null;
                 Boolean flag = true;
-                if (settlementId == 0) {//免费抽奖
+                if (settlementId == SettlementConst.SETTLEMENT_FREE) {//免费抽奖
                     Integer freeLuckDrawNumber = selectOneByWhereString(UserFreeCount.User_id + " = ", userId, UserFreeCount.class).getLuckDrawCount();
                     if (freeLuckDrawNumber == 0) {
                         throw new BusinessException("免费抽奖次数已用完");
