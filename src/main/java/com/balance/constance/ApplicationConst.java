@@ -26,6 +26,10 @@ public class ApplicationConst {
     public static final BigDecimal LUCKDRAW_ORE = new BigDecimal(10); //矿石
 
     //锁仓订单数排行榜长度
-    public static final Integer LOCK_REPOSITORY_ORDER_RANK_LENGTH = 100;
+    public static final int LOCK_REPOSITORY_ORDER_RANK_LENGTH = 100;
+
+
+    //抽奖类型
+    public static final int LUCKDRAW_TYPE_TURNTABLE = 1;
 
 }

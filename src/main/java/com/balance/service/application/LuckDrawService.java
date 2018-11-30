@@ -7,6 +7,7 @@ import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.ApplicationConst;
 import com.balance.constance.AssetTurnoverConst;
 import com.balance.constance.SettlementConst;
+import com.balance.constance.ShopConst;
 import com.balance.entity.application.LuckInDraw;
 import com.balance.entity.application.LuckDrawReward;
 import com.balance.entity.application.LuckDrawRewardInfo;
@@ -49,7 +50,7 @@ public class LuckDrawService extends BaseService {
      * @param rewardType 抽奖类型
      * @return
      */
-    public LuckDrawRewardInfo getRewardInfo(Integer userId, Integer rewardType) {
+    public LuckDrawRewardInfo getRewardInfo(String userId, Integer rewardType) {
 
 
         //每天剩余免费抽奖次数
@@ -91,11 +92,10 @@ public class LuckDrawService extends BaseService {
      * 转盘抽奖
      *
      * @param userId       用户id
-     * @param luckDrawType 抽奖类型
      * @param settlementId 支付方式
      * @return
      */
-    public Integer turntableLuckReward(String userId, Integer luckDrawType, Integer settlementId) {
+    public Integer turntableLuckReward(String userId,Integer settlementId) {
         final Integer[] inDrawIndex = {null};
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -104,7 +104,7 @@ public class LuckDrawService extends BaseService {
                 UserAssets userAssets = userAssetsService.getAssetsByUserId(userId);
 
                 //抽奖列表
-                List<LuckDrawReward> luckDrawRewards = selectListByWhereString(LuckDrawReward.Luck_type + " = ", luckDrawType, null, LuckDrawReward.class);
+                List<LuckDrawReward> luckDrawRewards = selectListByWhereString(LuckDrawReward.Luck_type + " = ", ApplicationConst.LUCKDRAW_TYPE_TURNTABLE, null, LuckDrawReward.class);
 
                 if (luckDrawRewards.size() == 0) {
                     throw new BusinessException("暂无抽奖奖品");
