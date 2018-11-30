@@ -1,20 +1,19 @@
 package com.balance.service.user;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
-import com.balance.architecture.utils.ValueCheckUtils;
-import com.balance.constance.AssetTurnoverConst;
+import com.balance.client.RedisClient;
+import com.balance.constance.RedisKeyConst;
 import com.balance.constance.SettlementConst;
-import com.balance.entity.user.MiningReward;
+import com.balance.constance.UserConst;
 import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
 import com.balance.entity.user.UserFrozenAssets;
 import com.balance.mapper.user.UserAssetsMapper;
-import com.balance.utils.BigDecimalUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
@@ -28,6 +27,9 @@ public class UserAssetsService extends BaseService {
 
     @Autowired
     private TransactionTemplate transactionTemplate;
+
+    @Autowired
+    private RedisClient redisClient;
 
     public String getSettlementNameById(Integer settlementId) {
         switch (settlementId) {
@@ -52,11 +54,12 @@ public class UserAssetsService extends BaseService {
 
     /**
      * 获取用户的资产
+     *
      * @param userId
      * @return
      */
-    public UserAssets getAssetsByUserId(String userId){
-        return selectOneByWhereString(UserAssets.User_id+" = ", userId, UserAssets.class);
+    public UserAssets getAssetsByUserId(String userId) {
+        return selectOneByWhereString(UserAssets.User_id + " = ", userId, UserAssets.class);
     }
 
     /**
@@ -175,13 +178,23 @@ public class UserAssetsService extends BaseService {
     }
 
     /**
-     * 算力(颜值排行榜)
-     * @param userId
+     * 更新算例排行榜(颜值排行榜)
+     *
      * @return
      */
-    public List<UserAssets> listComputePowerRank(String userId){
-//        List<UserAssets> userComputePowerList = userAssetsMapper.listComputePower();
-
-        return null;
+    public void updateComputePowerRank() {
+        Integer computePowerRankLength = UserConst.COMPUTE_POWER_RANK_LENGTH;
+        List<Object> topRankUser = new ArrayList<>(UserConst.COMPUTE_POWER_RANK_LENGTH);
+        List<UserAssets> userComputePowerList = userAssetsMapper.listComputePower(UserConst.USER_STATUS_NORMAL);
+        int i = 1;
+        for (UserAssets userAssets : userComputePowerList) {
+            if (topRankUser.size() < computePowerRankLength) {
+                topRankUser.add(userAssets);
+            }
+            redisClient.set(RedisKeyConst.COMPUTE_POWER_RANK_NO + userAssets.getUserId(), String.valueOf(i)); //用户算力名次
+            i++;
+        }
+        redisClient.listTrim(RedisKeyConst.COMPUTE_POWER_RANK_LIST, computePowerRankLength, computePowerRankLength + 1);
+        redisClient.leftPushAll(RedisKeyConst.COMPUTE_POWER_RANK_LIST, topRankUser);
     }
 }

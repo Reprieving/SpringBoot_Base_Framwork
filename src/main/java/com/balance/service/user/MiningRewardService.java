@@ -6,6 +6,7 @@ import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.AssetTurnoverConst;
 import com.balance.constance.SettlementConst;
+import com.balance.constance.UserConst;
 import com.balance.entity.user.MiningReward;
 import com.balance.entity.user.UserAssets;
 import com.balance.mapper.user.UserAssetsMapper;
@@ -50,7 +51,7 @@ public class MiningRewardService extends BaseService {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                 //1.查询所有正常用户的收益
-                List<UserAssets> userAssetsList = userAssetsMapper.listComputePower();
+                List<UserAssets> userAssetsList = userAssetsMapper.listComputePower(UserConst.USER_STATUS_NORMAL);
                 for (UserAssets userAssets : userAssetsList) {
                     String userId = userAssets.getUserId();
                     BigDecimal computePower = userAssets.getComputePower();

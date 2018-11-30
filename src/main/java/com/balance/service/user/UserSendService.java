@@ -50,6 +50,10 @@ public class UserSendService extends BaseService {
      * @return
      */
     public void validateMsgCode(String userId, String phoneNumber, String msgCode, Integer msgType) {
+        ValueCheckUtils.notEmpty(phoneNumber, "手机号不能为空");
+        ValueCheckUtils.notEmpty(msgCode, "短信验证码不能为空");
+        ValueCheckUtils.notEmpty(msgType, "短信类型不能为空");
+
         Map<String, Object> whereMap = ImmutableMap.of(
                 MsgRecord.User_id + " = ", userId, MsgRecord.Phone_number + " = ", phoneNumber,
                 MsgRecord.Msg_code + " = ", msgCode, MsgRecord.Msg_type + " = ", msgType

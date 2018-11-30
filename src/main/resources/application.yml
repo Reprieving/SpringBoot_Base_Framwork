@@ -22,26 +22,16 @@ spring:
     poolPreparedStatements: true
     maxOpenPreparedStatements: 20
 
-jetcache:
-  statIntervalMinutes: 15
-  areaInCacheName: false
-  local:
-    default:
-      type: linkedhashmap
-      keyConvertor: fastjson
-  remote:
-    default:
-      type: redis
-      keyConvertor: fastjson
-      valueEncoder: java
-      valueDecoder: java
-      poolConfig:
-        minIdle: 5
-        maxIdle: 20
-        maxTotal: 50
-      host: 47.106.158.56
-      port: 6379
-
+  redis:
+    host: 47.106.158.56
+    port: 6379
+    password: luji666888
+    lettuce:
+      pool:
+        max-active: 8
+        min-idle: 0
+        max-idle: 8
+        max-wait: -1
 mybatis:
   mapperLocations: classpath:mybatis/mapper/**/*.xml
   typeAliasesPackage: com.balance.entity

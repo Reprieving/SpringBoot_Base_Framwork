@@ -41,16 +41,18 @@ public class BaseResultSetInterceptor implements Interceptor {
         MappedStatement mappedStatement  = reflectMappedStatement(resultSetHandler);
         String statementId = mappedStatement.getId();
 
+        String baseMapperName = new StringBuilder(BaseMapper.class.getSimpleName()).replace(0,1,"b").toString();
+
+
         boolean isBaseMapper = false;
         String[] strings = statementId.split("\\.");
         for(String s:strings){
-            if(s.equals(BaseMapper.class.getSimpleName())){
+            if(s.equals(baseMapperName)){
                 isBaseMapper = true;
-
             }
         }
 
-        if(isBaseMapper){
+        if(!isBaseMapper){
             return invocation.proceed();
         }
 

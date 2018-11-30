@@ -24,6 +24,14 @@ public class CertificationService extends BaseService{
      * @param files 图片
      */
     public void createCert(String userId, MultipartFile[] files) {
+        Certification certificationPo = selectOneByWhereString(Certification.User_id+"= ",userId,Certification.class);
+        if(UserConst.USER_CERT_STATUS_NONE == certificationPo.getStatus()){
+            throw new BusinessException("该用户处于认证中状态,请勿重复提交");
+        }
+        if(UserConst.USER_CERT_STATUS_PASS == certificationPo.getStatus()){
+            throw new BusinessException("该用户已通过认证.请勿重复提交");
+        }
+
         Certification certification = new Certification();
         String fileDirectory = DateFormatUtils.format(new Date(),"yyyy-MM-dd|HH");
         for(MultipartFile file:files){

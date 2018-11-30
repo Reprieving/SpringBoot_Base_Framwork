@@ -27,8 +27,9 @@ public interface UserAssetsMapper {
     Integer updateUserFrozenAssets(@Param("userId") String userId, @Param("amount") BigDecimal amount, @Param("assetColumn") String assetColumn,@Param("version") Long version);
 
     /**
-     * 查询所有用户的算力
+     * 查询所有正常用户的算力
      * @return
+     * @param status 用户正常状态
      */
-    List<UserAssets> listComputePower();
+    List<UserAssets> listComputePower(@Param("status")Integer status);
 }

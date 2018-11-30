@@ -20,7 +20,7 @@ public class User implements Serializable{ //用户信息
     private static final long serialVersionUID = 368896404002697116L;
     @Id
     @Column(name = Id)
-    private String id;
+    public String id;
 
     @Column(name = Head_picture_url)
     private String headPictureUrl; //头像图片url

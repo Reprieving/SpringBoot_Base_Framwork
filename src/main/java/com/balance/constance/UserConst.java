@@ -29,4 +29,8 @@ public class UserConst {
     //修改密码类型
     public static final int UPDATE_PWD_TYPE_LOGIN = 1;//修改登录密码
     public static final int UPDATE_PWD_TYPE_PAY = 2;//修改支付密码
+
+    //算力排行榜列表长度
+    public static final int COMPUTE_POWER_RANK_LENGTH = 10;
+
 }

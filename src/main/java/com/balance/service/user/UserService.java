@@ -17,6 +17,7 @@ import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -108,8 +109,8 @@ public class UserService extends BaseService {
      */
     public User login(User user) throws UnsupportedEncodingException {
         Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put(User.Phone_number, user.getPhoneNumber());
-        paramMap.put(User.Password, user.getPassword());
+        paramMap.put(User.Phone_number + "=", user.getPhoneNumber());
+        paramMap.put(User.Password + "=", user.getPassword());
 
         User user1 = selectOneByWhereMap(paramMap, User.class);
         if (user == null) {
@@ -151,7 +152,7 @@ public class UserService extends BaseService {
      * 修改用户名
      */
     public void updateUserName(String userId, String userName) {
-        ValueCheckUtils.notEmpty(userName,"用户昵称不能为空");
+        ValueCheckUtils.notEmpty(userName, "用户昵称不能为空");
         User userPo = selectOneByWhereString(User.User_name + "=", userName, User.class);
         if (userPo != null) {
             throw new BusinessException("用户昵称已存在");
@@ -165,14 +166,24 @@ public class UserService extends BaseService {
         }
     }
 
+
+    /**
+     * 获取所有用户（用于展示邀请记录）
+     * @return
+     */
+    public List<User> listUser4InviteRecord(){
+        return userMapper.listUser4InviteRecord();
+    }
+
     /**
      * 查询用户邀请记录
      *
      * @param userId 用户id
      * @return
      */
+    @Cacheable(value = "listInviteUser",sync = true)
     public User listInviteUser(String userId) {
-        List<User> allUser = userMapper.listUser4InviteRecord();
+        List<User> allUser = listUser4InviteRecord();
 
         //直接邀请用户列表
         List<User> directUserList = new ArrayList<>();
@@ -206,6 +217,7 @@ public class UserService extends BaseService {
      * @param msgType     短信类型
      */
     public void resetPassword(String userId, String newPassword, Integer msgType) {
+        ValueCheckUtils.notEmpty(newPassword, "新密码不能为空");
         String updatePWDColumn;
         if (UserConst.MSG_CODE_TYPE_RESET_LOGINPWD == msgType) {
             updatePWDColumn = User.Password;
@@ -234,6 +246,11 @@ public class UserService extends BaseService {
      * @param updatePwdType 修改类型
      */
     public void updatePassword(String userId, String phoneNumber, String oldPassword, String newPassword, Integer updatePwdType) {
+        ValueCheckUtils.notEmpty(phoneNumber, "手机号不能为空");
+        ValueCheckUtils.notEmpty(newPassword, "新密码不能为空");
+        ValueCheckUtils.notEmpty(oldPassword, "旧密码不能为空");
+        ValueCheckUtils.notEmpty(updatePwdType, "修改密码类型不能为空");
+
         String updatePWDColumn;
         if (UserConst.UPDATE_PWD_TYPE_LOGIN == updatePwdType) {
             updatePWDColumn = User.Password;
@@ -253,6 +270,7 @@ public class UserService extends BaseService {
             throw new BusinessException("修改密码失败");
         }
     }
+
 
 
 }

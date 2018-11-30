@@ -34,7 +34,8 @@
     <select id="listComputePower" resultMap="userAssetsMap">
         SELECT a.id,a.user_id,a.compute_power,b.user_name
         FROM user_assets a LEFT JOIN user_info b on a.user_id = b.id
-        where b.status != -1
+        WHERE b.status = ${status}
+        ORDER BY a.compute_power DESC
     </select>
 
 </mapper>
