@@ -5,8 +5,8 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class OrderPayReq {
+public class ShopOrderPayReq {
     private String addressId;
     private String settlementId;
-    private List<OrderSkuReq> orderSkuReqList;
+    private List<ShopOrderSkuReq> orderSkuReqList;
 }

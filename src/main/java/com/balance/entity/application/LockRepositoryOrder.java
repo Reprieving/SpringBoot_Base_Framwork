@@ -41,15 +41,6 @@ public class LockRepositoryOrder implements Serializable {
     @Column(name = Create_time)
     private Timestamp createTime; //创建时间
 
-    public LockRepositoryOrder(String lockRepositoryId, String userId, BigDecimal buyAmount, BigDecimal totalIncome, Integer status, Timestamp expireTime) {
-        this.lockRepositoryId = lockRepositoryId;
-        this.userId = userId;
-        this.orderAmount = buyAmount;
-        this.totalIncome = totalIncome;
-        this.status = status;
-        this.expireTime = expireTime;
-    }
-
     //DB Column name
     public static final String Id = "id";
     public static final String Lock_repository_id = "lock_repository_id";
@@ -59,4 +50,17 @@ public class LockRepositoryOrder implements Serializable {
     public static final String Status = "status";
     public static final String Expire_time = "expire_time";
     public static final String Create_time = "create_time";
+
+    //扩展属性
+    private Long period;//锁仓产品名
+
+
+    public LockRepositoryOrder(String lockRepositoryId, String userId, BigDecimal buyAmount, BigDecimal totalIncome, Integer status, Timestamp expireTime) {
+        this.lockRepositoryId = lockRepositoryId;
+        this.userId = userId;
+        this.orderAmount = buyAmount;
+        this.totalIncome = totalIncome;
+        this.status = status;
+        this.expireTime = expireTime;
+    }
 }

@@ -252,9 +252,10 @@ public class AppUserController {
      */
     @RequestMapping("computePowerRank")
     public Result<?> listComputePowerRank(HttpServletRequest request) throws UnsupportedEncodingException {
-        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        User user = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME));
         UserComputePowerRank userComputePowerRank = new UserComputePowerRank();
-        userComputePowerRank.setComputeRankNo(Integer.valueOf(redisClient.get(RedisKeyConst.COMPUTE_POWER_RANK_NO + userId)));
+        userComputePowerRank.setUserName(user.getUserName());
+        userComputePowerRank.setComputeRankNo(Integer.valueOf(redisClient.get(RedisKeyConst.COMPUTE_POWER_RANK_NO + user.getId())));
         userComputePowerRank.setUserAssetsList((List<UserAssets>) redisClient.listRange(RedisKeyConst.COMPUTE_POWER_RANK_LIST,0,9));
 
         return ResultUtils.success(userComputePowerRank);

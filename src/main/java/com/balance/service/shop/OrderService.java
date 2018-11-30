@@ -1,10 +1,11 @@
 package com.balance.service.shop;
 
 import com.alibaba.fastjson.JSONObject;
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.constance.AssetTurnoverConst;
-import com.balance.controller.app.req.OrderSkuReq;
+import com.balance.controller.app.req.ShopOrderSkuReq;
 import com.balance.entity.shop.*;
 import com.balance.entity.user.UserAssets;
 import com.balance.mapper.shop.OrderMapper;
@@ -51,13 +52,13 @@ public class OrderService extends BaseService {
      * @param settlementId    支付id
      * @throws BusinessException
      */
-    public void createOrder(List<OrderSkuReq> orderSkuReqList, String userId, String addressId, Integer settlementId) throws BusinessException {
+    public void createOrder(List<ShopOrderSkuReq> orderSkuReqList, String userId, String addressId, Integer settlementId) throws BusinessException {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                 BigDecimal orderTotalPrice = BigDecimalUtils.newObject(0d);
                 List<OrderItem> orderItems = new ArrayList<>();
-                for (OrderSkuReq orderSkuReq : orderSkuReqList) {
+                for (ShopOrderSkuReq orderSkuReq : orderSkuReqList) {
                     //1.检查商品是否支持用户选择的支付方式
                     BigDecimal skuNumber = BigDecimalUtils.newObject(orderSkuReq.getNumber());
                     String spuId = orderSkuReq.getSpuId();
@@ -119,10 +120,11 @@ public class OrderService extends BaseService {
      *
      * @param userId      用户id
      * @param orderStatus 订单状态
+     * @param pagination
      * @return
      */
-    public List<OrderGoodsInfo> listOrderGoodsInfo(String userId, Integer orderStatus) {
-        List<OrderGoodsInfo> orderGoodsInfoList = orderMapper.listOrderGoodsInfo(userId, orderStatus);
+    public List<OrderGoodsInfo> listOrderGoodsInfo(String userId, Integer orderStatus, Pagination pagination) {
+        List<OrderGoodsInfo> orderGoodsInfoList = orderMapper.listOrderGoodsInfo(userId, orderStatus,pagination);
 
         for (OrderGoodsInfo orderGoodsInfo : orderGoodsInfoList) {//订单列表
             for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表

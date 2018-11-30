@@ -12,16 +12,52 @@
         <result property="status" column="status"></result>
         <result property="expireTime" column="expire_time"></result>
         <result property="createTime" column="create_time"></result>
+        <result property="period" column="period"></result>
+    </resultMap>
+
+    <resultMap id="userMap" type="User">
+        <id property="id" column="id"></id>
+        <result property="userName" column="user_name"></result>
+        <result property="lockRepOrderCount" column="lock_repository_order_count"></result>
     </resultMap>
 
     <update id="updateLockRepositoryToReceive">
       UPDATE applet_lock_repository_order SET status = ${receiveStatus} WHERE id IN
       <foreach collection="updateOrderIds" open="(" close=")" separator="," item="item">
-          ${item}
+          #{item}
       </foreach>
     </update>
 
     <select id="listLockRepOrderToReward" resultMap="LockRepositoryOrderMap">
-      SELECT * FROM applet_lock_repository_order WHERE expire_time = DATE_FORMAT( ${expireTime}, '%Y-%m-%d' )
+      SELECT * FROM applet_lock_repository_order WHERE expire_time = DATE_FORMAT( #{expireTime}, '%Y-%m-%d' )
+    </select>
+
+    <select id="listLockRepOrderOfUser" resultMap="LockRepositoryOrderMap">
+      SELECT
+        a.id,
+        a.lock_repository_id,
+        a.user_id,
+        a.order_amount,
+        a.total_income,
+        a.status,
+        a.expire_time,
+        a.create_time,
+        b.period
+      FROM applet_lock_repository_order a LEFT JOIN applet_lock_repository b ON a.lock_repository_id = b.id
+      WHERE user_id = #{userId}
+    </select>
+
+    <select id="listLockRepOrderRank" resultType="com.balance.entity.user.User">
+      SELECT
+        a.id,
+        a.user_name,
+        (SELECT count(1) FROM applet_lock_repository_order WHERE user_id = a.id) as lock_repository_order_count
+      FROM
+        user_info a
+        LEFT JOIN applet_lock_repository_order b ON a.id = b.user_id
+      GROUP BY
+        a.id
+      ORDER BY order_count DESC
+        LIMIT #{rankLength}
     </select>
 </mapper>

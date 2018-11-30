@@ -33,6 +33,11 @@ public class BaseResultSetInterceptor implements Interceptor {
         DefaultResultSetHandler resultSetHandler = (DefaultResultSetHandler) target;
         // 利用反射获取参数对象
         ParameterHandler parameterHandler = reflectParameterHandler(resultSetHandler);
+
+        if(!(parameterHandler.getParameterObject() instanceof MybatisMapperParam)){
+            return invocation.proceed();
+        }
+
         MybatisMapperParam parameterObj = (MybatisMapperParam) parameterHandler.getParameterObject();
 
         Field field = ReflectionUtils.findField(DefaultResultSetHandler.class, "parameterHandler");

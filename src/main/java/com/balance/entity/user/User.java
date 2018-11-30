@@ -58,6 +58,8 @@ public class User implements Serializable{ //用户信息
     private String newPassword; //新密码
     private String oldPassword; //旧密码
     private Integer updatePwdType; //UserConst.UPDATE_PWD_TYPE_* 修改密码类型
+    private Integer lockRepOrderCount; //锁仓订单数量
+
 
     //DB Column name
     public static final String Id = "id";

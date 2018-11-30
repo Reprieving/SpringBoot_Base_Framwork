@@ -22,7 +22,7 @@
     <sql id="listOrderGoodsInfo">
         SELECT
             a.id as order_id,
-            a.order_number,
+            a.order_no,
             a.settlement_id,
             a.price as order_price,
             a.create_time,

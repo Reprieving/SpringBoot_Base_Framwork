@@ -9,6 +9,7 @@ import com.balance.constance.AssetTurnoverConst;
 import com.balance.constance.SettlementConst;
 import com.balance.entity.application.LockRepository;
 import com.balance.entity.application.LockRepositoryOrder;
+import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
 import com.balance.mapper.application.LockRepositoryMapper;
 import com.balance.mapper.application.LockRepositoryOrderMapper;
@@ -131,6 +132,24 @@ public class LockRepositoryService extends BaseService {
 
             }
         });
+    }
+
+    /**
+     * 查询个人锁仓订单
+     *
+     * @param userId
+     * @return
+     */
+    public List<LockRepositoryOrder> listLockRepOrder(String userId, Pagination pagination) {
+        return lockRepositoryOrderMapper.listLockRepOrderOfUser(userId, pagination);
+    }
+
+    /**
+     * 查询锁仓订单排行榜
+     * @return
+     */
+    public List<User> listLockRepOrderRank(){
+        return lockRepositoryOrderMapper.listLockRepOrderRank(ApplicationConst.LOCK_REPOSITORY_ORDER_RANK_LENGTH);
     }
 
     /**

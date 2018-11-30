@@ -24,4 +24,8 @@ public class ApplicationConst {
     //转盘抽奖费用
     public static final BigDecimal LUCKDRAW_IH = new BigDecimal(1); //IH
     public static final BigDecimal LUCKDRAW_ORE = new BigDecimal(10); //矿石
+
+    //锁仓订单数排行榜长度
+    public static final Integer LOCK_REPOSITORY_ORDER_RANK_LENGTH = 100;
+
 }
