@@ -6,6 +6,7 @@ import com.balance.architecture.mybatis.annotation.Table;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 
 @Data
@@ -33,6 +34,9 @@ public class Investigation implements Serializable{
     @Column(name = Is_template)
     private Boolean isTemplate; //是否属于模板
 
+    @Column(name = CreateTime)
+    private Timestamp createTime; //提交时间
+
 
     //DB Column name
     public static final String Id = "id";
@@ -41,5 +45,6 @@ public class Investigation implements Serializable{
     public static final String Investigation_title = "investigation_title";
     public static final String Investigation_content = "investigation_content";
     public static final String Is_template = "is_template";
+    public static final String CreateTime = "create_time";
 
 }

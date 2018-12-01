@@ -61,10 +61,8 @@ public class GoodsSku implements Serializable{
     @Column(name = Is_valid)
     private Boolean isValid;//是否有效
 
-
     //扩展属性
     private List<String> imgUrl; //介绍图
-
 
     //DB Column name
     public static final String Id = "id";

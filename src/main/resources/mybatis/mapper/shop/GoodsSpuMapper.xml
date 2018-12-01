@@ -29,6 +29,9 @@
         <if test="brandId!=null">
             AND d.id = #{brandId}
         </if>
+        <if test="spuType!=null">
+            AND a.spuType = #{spuType}
+        </if>
     </select>
 
 

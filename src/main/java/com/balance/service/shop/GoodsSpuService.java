@@ -2,9 +2,12 @@ package com.balance.service.shop;
 
 import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.dto.Pagination;
+import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.ShopConst;
 import com.balance.entity.shop.*;
+import com.balance.entity.user.UserArticleCollection;
 import com.balance.mapper.shop.GoodsSpuMapper;
 import com.balance.service.common.AliOSSBusiness;
 import com.google.common.collect.ImmutableMap;
@@ -56,14 +59,16 @@ public class GoodsSpuService extends BaseService {
     /**
      * 商品基本信息列表
      *
-     * @param name
-     * @param categoryId
-     * @param brandId
-     * @param pagination
+     * @param goodsName  商品名称
+     * @param categoryId 类目id
+     * @param brandId    品牌id
+     * @param supType    商品类型
+     * @param status     商品状态
+     * @param pagination 分页实体
      * @return
      */
-    public List<GoodsSpu> listGoodsSpu(String name, String categoryId, String brandId, Integer status, Pagination pagination) {
-        List<GoodsSpu> goodsSpuList = goodsSpuMapper.listGoodsSpu(name, categoryId, brandId, status, pagination);
+    public List<GoodsSpu> listGoodsSpu(String goodsName, String categoryId, String brandId, Integer supType, Integer status, Pagination pagination) {
+        List<GoodsSpu> goodsSpuList = goodsSpuMapper.listGoodsSpu(goodsName, categoryId, brandId, supType, status, pagination);
         return goodsSpuList;
     }
 
@@ -73,8 +78,22 @@ public class GoodsSpuService extends BaseService {
      * @param spuId
      * @return
      */
-    public GoodsDetail getGoodsDetail(String spuId) {
+    public GoodsDetail getGoodsDetail(String userId, String spuId) {
         GoodsDetail goodsDetail = new GoodsDetail();
+
+        GoodsSpu goodsSpu = selectOneById(spuId, GoodsSpu.class);
+        if (goodsSpu == null || !goodsSpu.getIsValid()) {
+            throw new BusinessException("商品不存在");
+        }
+
+        //检查用户是否有收藏商品
+        Map<String, Object> whereMap_ = ImmutableMap.of(GoodsCollection.User_id + "=", userId, GoodsCollection.Spu_id + "=", spuId);
+        GoodsCollection goodsCollection = selectOneByWhereMap(whereMap_, GoodsCollection.class);
+        if (goodsCollection != null) {
+            goodsDetail.setIsCollect(1);
+        } else {
+            goodsDetail.setIsCollect(0);
+        }
 
         //查询spu的sku列表
         List<GoodsSku> goodsSkuList = selectListByWhereString(GoodsSku.Spu_id + " = ", spuId, null, GoodsSku.class);
@@ -136,4 +155,41 @@ public class GoodsSpuService extends BaseService {
     }
 
 
+    /**
+     * 收藏商品
+     *
+     * @param userId
+     * @param spuId
+     */
+    public void updateGoodCollection(String userId, String spuId) {
+        GoodsSpu goodsSpu = selectOneById(spuId, GoodsSpu.class);
+        ValueCheckUtils.notEmpty(goodsSpu, "未找到商品");
+
+        Map<String, Object> whereMap = ImmutableMap.of(GoodsCollection.User_id + "=", userId, GoodsCollection.Spu_id + "=", spuId);
+        GoodsCollection goodsCollection = selectOneByWhereMap(whereMap, GoodsCollection.class);
+
+        if (goodsSpu == null) {//收藏商品
+            goodsCollection = new GoodsCollection(userId, spuId, goodsSpu.getGoodsName(), goodsSpu.getLowPrice(), goodsSpu.getDefaultImgUrl());
+            Integer i = insertIfNotNull(goodsCollection);
+            if (i == 0) {
+                throw new BusinessException("收藏商品失败");
+            }
+        } else { //取消收藏商品
+            Integer i = delete(goodsCollection);
+            if (i == 0) {
+                throw new BusinessException("取消收藏失败");
+            }
+        }
+    }
+
+    /**
+     * 用户的收藏商品列表
+     *
+     * @param userId
+     * @param pagination
+     * @return
+     */
+    public List<GoodsCollection> listGoodsCollection(String userId, Pagination pagination) {
+        return selectListByWhereString(GoodsCollection.User_id, userId, pagination, GoodsCollection.class);
+    }
 }

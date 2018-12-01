@@ -28,7 +28,7 @@ public class SignIn implements Serializable{
 
     //扩展属性
     private String signId;
-    private String signStr;
+    private String signTimeStr;
     private Boolean hasSign = false;
 
     //DB Column name

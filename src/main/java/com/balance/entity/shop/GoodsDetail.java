@@ -52,4 +52,7 @@ public class GoodsDetail {//商品详情实体
 
     //skuList
     private List<GoodsSpec> goodsSpecList;
+
+    //是否有收藏
+    private Integer isCollect;
 }

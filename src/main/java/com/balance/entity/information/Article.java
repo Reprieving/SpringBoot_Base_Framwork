@@ -20,7 +20,7 @@ public class Article implements Serializable{
     private String id;
 
     @Column(name = Article_title)
-    private String article_title; //标题
+    private String articleTitle; //标题
 
     @Column(name = Article_content)
     private String articleContent; //内容
@@ -40,6 +40,10 @@ public class Article implements Serializable{
     @Column(name = CreateTime)
     private Timestamp createTime; //发布时间
 
+    //扩展属性
+    private Integer ifLike; //是否点赞
+    private Integer likeAmount; //点赞数
+    private Integer ifCollect; //是否收藏
 
     //DB Column name
     public static final String Id = "id";
@@ -50,4 +54,6 @@ public class Article implements Serializable{
     public static final String VerifyStatus = "verify_status";
     public static final String CreateBy = "create_by";
     public static final String CreateTime = "create_time";
+
+
 }

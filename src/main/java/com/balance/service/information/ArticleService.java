@@ -4,10 +4,14 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.client.RedisClient;
 import com.balance.constance.InformationConst;
 import com.balance.constance.MissionConst;
+import com.balance.constance.RedisKeyConst;
 import com.balance.entity.information.Article;
 import com.balance.entity.mission.Mission;
+import com.balance.entity.sys.Subscriber;
+import com.balance.entity.user.UserArticleCollection;
 import com.balance.service.mission.MissionCompleteService;
 import com.balance.service.mission.MissionService;
 import com.google.common.collect.ImmutableMap;
@@ -33,16 +37,126 @@ public class ArticleService extends BaseService {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
+    @Autowired
+    private RedisClient redisClient;
+
+
     /**
-     * 根据类型查询发布文章
+     * 发布文章
+     * @param userId
+     * @param article
+     */
+    public void createArticle(String userId,Article article){
+        if(InformationConst.ARTICLE_TYPE_ANNOUNCE == article.getArticleType() || InformationConst.ARTICLE_TYPE_ACTIVITY == article.getArticleType()){
+            Subscriber subscriber = selectOneById(userId,Subscriber.class);
+            ValueCheckUtils.notEmpty(subscriber,"非管理员用户不能发布公告和活动");
+        }
+        article.setCreateBy(userId);
+        Integer i = insertIfNotNull(article);
+        if(i == 0){
+            throw new BusinessException("发布文章失败");
+        }
+    }
+
+    /**
+     * 根据类型查询文章
      *
      * @param pagination
-     * @param announceType InformationConst.ARTICLE_TYPE_*
+     * @param articleType InformationConst.ARTICLE_TYPE_*
      * @return
      */
-    public List<Article> listArticle(Pagination pagination, Integer announceType) {
-        Map<String, Object> whereMap = ImmutableMap.of(Article.Article_type + "=", announceType);
-        return selectListByWhereMap(whereMap, pagination, Article.class);
+    public List<Article> listArticle(String userId, Integer articleType,Pagination pagination) {
+        Map<String, Object> whereMap = ImmutableMap.of(Article.Article_type + "=", articleType);
+        List<Article> articles =  selectListByWhereMap(whereMap, pagination, Article.class);
+        articles.stream().forEach(article -> {
+            String articleId = article.getId();
+            article.setIfLike((Integer) redisClient.getHashKey(RedisKeyConst.ARTICLE_IF_LIKE, RedisKeyConst.buildUserIdLikeArticleId(userId, articleId)));//是否点赞
+            article.setLikeAmount((Integer) redisClient.getHashKey(RedisKeyConst.ARTICLE_LIKE_COUNT, RedisKeyConst.buildArticleIdLikeCount(articleId)));//点赞数
+            article.setIfCollect((Integer) redisClient.getHashKey(RedisKeyConst.ARTICLE_IF_COLLECT, RedisKeyConst.buildUserIdCollectArticleId(userId, articleId))); //是否收藏
+        });
+        return articles;
+    }
+
+    /**
+     * 用户文章收藏列表
+     *
+     * @param userId
+     * @param pagination
+     * @return
+     */
+    public List<UserArticleCollection> listArticleCollection(String userId, Pagination pagination) {
+        Map<String, Object> whereMap = ImmutableMap.of(UserArticleCollection.User_id + "=", userId);
+        List<UserArticleCollection> collections = selectListByWhereMap(whereMap, pagination, UserArticleCollection.class);
+        for (UserArticleCollection userArticleCollection : collections) {
+            String articleId = userArticleCollection.getArticleId();
+            Integer ifLike = (Integer) redisClient.getHashKey(RedisKeyConst.ARTICLE_IF_LIKE, RedisKeyConst.buildUserIdLikeArticleId(userId, articleId));
+            Integer likeAmount = (Integer) redisClient.getHashKey(RedisKeyConst.ARTICLE_LIKE_COUNT, RedisKeyConst.buildArticleIdLikeCount(articleId));
+            Integer ifCollect = (Integer) redisClient.getHashKey(RedisKeyConst.ARTICLE_IF_COLLECT, RedisKeyConst.buildUserIdCollectArticleId(userId, articleId));
+
+            userArticleCollection.setIfLike(ifLike == null ? 0 : ifLike);//是否点赞
+            userArticleCollection.setLikeAmount(likeAmount == null ? 0 : likeAmount);//点赞数
+            userArticleCollection.setIfCollect(ifCollect == null ? 0 : ifCollect); //是否收藏
+        }
+        return collections;
+    }
+
+    /**
+     * 根据id查询文章
+     * @param articleId
+     * @return
+     */
+    public Article getArticleById(String articleId){
+        return selectOneById(articleId,Article.class);
+    }
+
+    /**
+     * 收藏文章/取消收藏文章
+     *
+     * @param articleId 文章id
+     * @param userId    用户id
+     */
+    public void updateCollection(String userId, String articleId) {
+        Article article = selectOneById(articleId, Article.class);
+        ValueCheckUtils.notEmpty(article, "未找到文章");
+
+//        Map<String, Object> whereMap = ImmutableMap.of(UserArticleCollection.User_id + "=", userId, UserArticleCollection.Article_id + "=", articleId);
+//        UserArticleCollection userArticleCollection = selectOneByWhereMap(whereMap, UserArticleCollection.class);
+//        if (userArticleCollection == null) {//收藏文章
+//            userArticleCollection = new UserArticleCollection(userId, article.getId(), article.getArticle_title(), article.getArticleType());
+//            Integer i = insertIfNotNull(userArticleCollection);
+//            if (i == 0) {
+//                throw new BusinessException("收藏失败");
+//            }
+//        } else { //取消收藏文章
+//            Integer i = delete(userArticleCollection);
+//            if (i == 0) {
+//                throw new BusinessException("取消收藏失败");
+//            }
+//        }
+
+        String articleIfCollect = RedisKeyConst.ARTICLE_IF_COLLECT;
+        String userIdCollectArticleIdKey = RedisKeyConst.buildUserIdCollectArticleId(userId, articleId);
+        Integer i = (Integer) redisClient.getHashKey(articleIfCollect, userIdCollectArticleIdKey);
+        i = i == null ? 0 : i;     // i为空 则未收藏
+        Integer j = i == 0 ? 1 : 0; //i == 0 设置为收藏, 为1则取消收藏
+        redisClient.put(articleIfCollect, userIdCollectArticleIdKey, j);
+    }
+
+    /**
+     * 点赞文章/取消点赞文章
+     *
+     * @param userId    用户id
+     * @param articleId 文章id
+     */
+    public void updateLike(String userId, String articleId) {
+        Article article = selectOneById(articleId, Article.class);
+        ValueCheckUtils.notEmpty(article, "未找到文章");
+        String articleIfLike = RedisKeyConst.ARTICLE_IF_LIKE;
+        String userIdLikeArticleIdKey = RedisKeyConst.buildUserIdLikeArticleId(userId, articleId);
+        Integer i = (Integer) redisClient.getHashKey(articleIfLike, userIdLikeArticleIdKey);
+        i = i == null ? 0 : i;// i为空 则未收藏
+        Integer j = i == 0 ? 1 : 0; //i为0 设置为收藏, 为1则取消收藏
+        redisClient.put(articleIfLike, userIdLikeArticleIdKey, j);
     }
 
     /**
@@ -71,7 +185,6 @@ public class ArticleService extends BaseService {
                 }
             }
         });
-
-
     }
+
 }

@@ -1,17 +1,13 @@
 package com.balance.entity.shop;
 
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.ibatis.type.Alias;
-import org.springframework.cache.annotation.Cacheable;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Timestamp;
 
 @Data
@@ -66,6 +62,8 @@ public class GoodsSpu implements Serializable{
     private String categoryName;//类目名
     private String brandName;//品牌名
 
+    //分页
+    private Pagination pagination;
 
     //DB Column name
     public static final String Id = "id";

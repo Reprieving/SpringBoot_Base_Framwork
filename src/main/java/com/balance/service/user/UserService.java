@@ -5,7 +5,9 @@ import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.client.RedisClient;
 import com.balance.constance.MissionConst;
+import com.balance.constance.RedisKeyConst;
 import com.balance.constance.UserConst;
 import com.balance.entity.common.UserFreeCount;
 import com.balance.entity.common.UserInviteCodeId;
@@ -13,7 +15,7 @@ import com.balance.entity.information.Article;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
-import com.balance.entity.user.UserCollection;
+import com.balance.entity.user.UserArticleCollection;
 import com.balance.entity.user.UserFrozenAssets;
 import com.balance.mapper.common.AutoIncreaseIdMapper;
 import com.balance.mapper.user.UserMapper;
@@ -24,6 +26,7 @@ import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -56,6 +59,9 @@ public class UserService extends BaseService {
 
     @Autowired
     private MissionCompleteService missionCompleteService;
+
+    @Autowired
+    private RedisClient redisClient;
 
     /**
      * 注册用户
@@ -291,31 +297,5 @@ public class UserService extends BaseService {
         }
     }
 
-    /**
-     * 用户收藏列表
-     *
-     * @param userId
-     * @param pagination
-     * @return
-     */
-    public List<UserCollection> listCollection(String userId, Pagination pagination) {
-        Map<String, Object> whereMap = ImmutableMap.of(UserCollection.User_id + "=", userId);
-        return selectListByWhereMap(whereMap, pagination, UserCollection.class);
-    }
 
-    /**
-     * 收藏文章
-     *
-     * @param articleId 文章id
-     * @param userId 用户id
-     */
-    public void createCollection(String articleId, String userId) {
-        Article article = selectOneById(articleId, Article.class);
-        ValueCheckUtils.notEmpty(article, "未找到文章");
-        UserCollection userCollection = new UserCollection(userId, article.getId(), article.getArticle_title(), article.getArticleType());
-        Integer i = insertIfNotNull(userCollection);
-        if (i == 0) {
-            throw new BusinessException("收藏失败");
-        }
-    }
 }

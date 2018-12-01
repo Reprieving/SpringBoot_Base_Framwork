@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface GoodsSpuMapper {
-    List<GoodsSpu> listGoodsSpu(@Param("goodsName") String name, @Param("categoryId") String categoryId, @Param("brandId") String brandId, @Param("status")Integer status, @Param("pagination") Pagination pagination);
+    List<GoodsSpu> listGoodsSpu(@Param("goodsName") String name, @Param("categoryId") String categoryId, @Param("brandId") String brandId,@Param("spuType") Integer spuType, @Param("status")Integer status, @Param("pagination") Pagination pagination);
 }

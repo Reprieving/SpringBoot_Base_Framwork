@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.AssetTurnoverConst;
 import com.balance.controller.app.req.ShopOrderSkuReq;
 import com.balance.entity.shop.*;
@@ -64,16 +65,12 @@ public class OrderService extends BaseService {
                     String spuId = orderSkuReq.getSpuId();
                     Map<String, Object> spuWhereMap = ImmutableMap.of(GoodsSpu.Id + " = ", spuId, GoodsSpu.Settlement_id + " = ", settlementId);
                     GoodsSpu goodsSpu = selectOneByWhereMap(spuWhereMap, GoodsSpu.class);
-                    if (goodsSpu == null) {
-                        throw new BusinessException("商品不支持该支付方式");
-                    }
+                    ValueCheckUtils.notEmpty(goodsSpu,"商品不支持该支付方式");
 
                     //2.计算订单总价格
-                    Map<String, Object> skuWhereMap = ImmutableMap.of(GoodsSku.Spu_id + " = ", spuId, GoodsSku.Spec_json + " = ", JSONObject.toJSONString(orderSkuReq.getSpecIdStrList()));
+                    Map<String, Object> skuWhereMap = ImmutableMap.of(GoodsSku.Spu_id + " = ", spuId, GoodsSku.Spec_json + " = ", orderSkuReq.getSpecIdStr());
                     GoodsSku goodsSku = selectOneByWhereMap(skuWhereMap, GoodsSku.class);
-                    if (goodsSku == null) {
-                        throw new BusinessException("未找到商品");
-                    }
+                    ValueCheckUtils.notEmpty(goodsSku,"未找到商品");
 
                     if (orderSkuReq.getNumber() > goodsSku.getStock()) {
                         throw new BusinessException("商品编号" + goodsSku.getSkuNo() + "库存不足");
@@ -125,7 +122,6 @@ public class OrderService extends BaseService {
      */
     public List<OrderGoodsInfo> listOrderGoodsInfo(String userId, Integer orderStatus, Pagination pagination) {
         List<OrderGoodsInfo> orderGoodsInfoList = orderMapper.listOrderGoodsInfo(userId, orderStatus,pagination);
-
         for (OrderGoodsInfo orderGoodsInfo : orderGoodsInfoList) {//订单列表
             for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
                 orderItem.setSpecStr(goodsSpecService.strSpecIdToSpecValue(orderItem.getSpecJson()));

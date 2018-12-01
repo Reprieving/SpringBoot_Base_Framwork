@@ -27,7 +27,7 @@ public class Mission implements Serializable {
     private Integer taskCode; //任务编码
 
     @Column(name = Settlement_id)
-    private Integer settlementId; //任务类型
+    private Integer settlementId; //任务类型(支付方式)
 
     @Column(name = Reward_value)
     private BigDecimal rewardValue; //奖励值

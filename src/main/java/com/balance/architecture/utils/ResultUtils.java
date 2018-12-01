@@ -24,6 +24,15 @@ public class ResultUtils {
     }
 
     //request success
+    public static Result success(Object data, Integer count){
+        Result result = new Result();
+        result.setStateCode(RSP_SUCCESS);
+        result.setCount(count);
+        result.setData(data);
+        return result;
+    }
+
+    //request success
     public static Result success(Object data){
         Result result = new Result();
         result.setStateCode(RSP_SUCCESS);

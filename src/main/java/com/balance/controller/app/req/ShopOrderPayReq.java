@@ -7,6 +7,6 @@ import java.util.List;
 @Data
 public class ShopOrderPayReq {
     private String addressId;
-    private String settlementId;
+    private Integer settlementId;
     private List<ShopOrderSkuReq> orderSkuReqList;
 }

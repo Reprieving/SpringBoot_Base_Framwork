@@ -5,11 +5,9 @@ import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.constance.MissionConst;
 import com.balance.entity.mission.Mission;
-import com.balance.entity.mission.MissionComplete;
 import com.balance.entity.mission.SignIn;
 import com.balance.entity.mission.SignInfo;
 import com.balance.mapper.mission.MissionMapper;
-import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -84,7 +82,7 @@ public class SignInService extends BaseService {
                             break;
                         }
                     }
-                    signInApp.setSignStr(day);
+                    signInApp.setSignTimeStr(day);
                     signListApp.add(signInApp);
                 }
 
@@ -158,7 +156,7 @@ public class SignInService extends BaseService {
                     signInApp.setHasSign(true);
                 }
             }
-            signInApp.setSignStr(day);
+            signInApp.setSignTimeStr(day);
             signListAppReturn.add(signInApp);
         }
 
@@ -186,7 +184,7 @@ public class SignInService extends BaseService {
                 seriesSignCount++;
             }
 
-            if (today.equals(signListAppReturn.get(i).getSignStr())) {
+            if (today.equals(signListAppReturn.get(i).getSignTimeStr())) {
                 if (signListAppReturn.get(i).getHasSign()) {
                     flag = true;
                 }

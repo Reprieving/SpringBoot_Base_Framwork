@@ -11,9 +11,9 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Data
-@Alias("UserCollection")
-@Table(name = "user_collection")
-public class UserCollection implements Serializable {
+@Alias("UserArticleCollection")
+@Table(name = "user_article_collection")
+public class UserArticleCollection implements Serializable {
     private static final long serialVersionUID = -3481512245256625366L;
 
     @Id
@@ -43,7 +43,12 @@ public class UserCollection implements Serializable {
     public static final String Article_type = "article_type";
     public static final String Create_time = "create_time";
 
-    public UserCollection(String userId, String articleId, String articleTitle, Integer articleType) {
+    //扩展属性
+    private Integer ifLike; //是否点赞
+    private Integer likeAmount; //点赞数
+    private Integer ifCollect; //是否收藏
+
+    public UserArticleCollection(String userId, String articleId, String articleTitle, Integer articleType) {
         this.userId = userId;
         this.articleId = articleId;
         this.articleTitle = articleTitle;

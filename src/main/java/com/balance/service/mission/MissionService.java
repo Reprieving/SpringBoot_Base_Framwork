@@ -40,11 +40,11 @@ public class MissionService extends BaseService {
      * 查询任务列表信息
      *
      * @param userId
-     * @param type
+     * @param settlementId
      * @return
      */
-    public List<Mission> getMissionList(String userId, Integer type) {
-        List<Mission> missions = selectListByWhereString(Mission.Settlement_id + " = ", type, null, Mission.class);
+    public List<Mission> getMissionList(String userId, String settlementId) {
+        List<Mission> missions = selectListByWhereString(Mission.Settlement_id + " = ", settlementId, null, Mission.class);
         for (Mission mission : missions) {
 
             Map<String, Object> paramMap = ImmutableMap.of(MissionComplete.Mission_id + " = ", mission.getId(), MissionComplete.User_id + " = ", userId);
@@ -82,7 +82,7 @@ public class MissionService extends BaseService {
                 Mission mission = filterTaskById(missionComplete.getMissionId(), selectAll(null, Mission.class));
                 ValueCheckUtils.notEmpty(mission, "未找到任务信息");
 
-                if (missionComplete.getStatus() == MissionConst.MISSION_COMPLETE_STATE_NONE) {
+                if (missionComplete.getStatus() != MissionConst.MISSION_COMPLETE_STATE_FINISH) {
                     throw new BusinessException("未完成任务");
                 }
 

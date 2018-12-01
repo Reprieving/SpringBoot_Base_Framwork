@@ -2,6 +2,7 @@ package com.balance.service.shop;
 
 import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.service.BaseService;
+import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.ShopConst;
 import com.balance.entity.shop.GoodsImg;
 import com.balance.entity.shop.GoodsSku;
@@ -30,7 +31,6 @@ public class GoodsSkuService extends BaseService {
      */
     public void createGoodsSku(GoodsSku goodsSku, MultipartFile[] goodsIntroduceFiles) {
         String fileDirectory = DateFormatUtils.format(new Date(), "yyyy-MM-dd|HH");
-        List<String> spceJsonList = JSONObject.parseArray(goodsSku.getSpecJson(), String.class);//用于校验前端传过来的spec组合值(格式=>["规格名:规格值,规格名:规格值"])
         insert(goodsSku);
         List<GoodsImg> goodsIntroduceImgList = new ArrayList<>();
         for (MultipartFile goodsIntroduceFile : goodsIntroduceFiles) {
@@ -44,22 +44,22 @@ public class GoodsSkuService extends BaseService {
     /**
      * 选择sku
      *
-     * @param spuId
-     * @param specJson
+     * @param spuId spuId
+     * @param specJson 规格json字符串
      * @return
      */
     public GoodsSku chooseGoodsSku(String spuId, String specJson) {
-
         Map<String, Object> skuWhereMap = ImmutableMap.of(GoodsSku.Spu_id + " = ", spuId, GoodsSku.Spec_json + " = ", specJson);
         GoodsSku goodsSku = selectOneByWhereMap(skuWhereMap, GoodsSku.class);
-
-        if (goodsSku == null) {
-            throw new RuntimeException("未找到改商品信息");
-        }
+        ValueCheckUtils.notEmpty(goodsSku,"未找到改商品信息");
 
         Map<String, Object> imgWhereMap = ImmutableMap.of(GoodsImg.Spu_id + " = ", spuId, GoodsImg.Sku_id + " = ", goodsSku.getId());
         List<GoodsImg> goodsImgList = selectListByWhereMap(imgWhereMap, null, GoodsImg.class);
+        List<String> imgList = new ArrayList<>(goodsImgList.size());
 
+        goodsImgList.stream().forEach(goodsImg -> imgList.add(goodsImg.getImgUrl()));
+
+        goodsSku.setImgUrl(imgList);
 
         return goodsSku;
     }
