@@ -3,9 +3,15 @@ package com.balance.client;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import com.alibaba.fastjson.JSON;
-import com.balance.entity.user.UserAssets;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.geo.Circle;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.GeoResults;
+import org.springframework.data.geo.Point;
+import org.springframework.data.redis.connection.RedisGeoCommands;
+import org.springframework.data.redis.connection.RedisGeoCommands.*;
+import org.springframework.data.redis.core.GeoOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Component;
@@ -983,5 +989,54 @@ public class RedisClient {
     public Long intersectAndStore(String key, Collection<String> otherKeys, String destKey) {
         return redisTemplate.opsForZSet().intersectAndStore(key, otherKeys, destKey);
     }
+
+
+    //GEO操作
+
+    /**
+     * 设置geo
+     *
+     * @param key
+     * @param x
+     * @param y
+     * @param member
+     * @param time
+     */
+    public void cacheGeo(String key, Double x, Double y, String member, Long time) {
+        GeoOperations<Object, Object> geoOps = redisTemplate.opsForGeo();
+        geoOps.add(key, new Point(x, y), member);
+        if (time > 0) redisTemplate.expire(key, time, TimeUnit.SECONDS);
+    }
+
+    /**
+     * 获取附近坐标
+     *
+     * @param key 用户坐标
+     * @param x
+     * @param y
+     * @param distance  距离
+     * @param direction 排序类型
+     * @param limit     数量限制
+     * @return
+     */
+    public GeoResults<RedisGeoCommands.GeoLocation<Object>> radiusGeo(String key, Double x, Double y, Double distance, Sort.Direction direction, Long limit) {
+        GeoOperations<Object, Object> geoOps = redisTemplate.opsForGeo();
+
+        //设置geo查询参数
+        RedisGeoCommands.GeoRadiusCommandArgs geoRadiusArgs = RedisGeoCommands.GeoRadiusCommandArgs.newGeoRadiusArgs();
+        geoRadiusArgs = geoRadiusArgs.includeCoordinates().includeDistance();//查询返回结果包括距离和坐标
+        if (Sort.Direction.ASC.equals(direction)) {//按查询出的坐标距离中心坐标的距离进行排序
+            geoRadiusArgs.sortAscending();
+        } else if (Sort.Direction.DESC.equals(direction)) {
+            geoRadiusArgs.sortDescending();
+        }
+        geoRadiusArgs.limit(limit);//限制查询数量
+
+        GeoResults<RedisGeoCommands.GeoLocation<Object>> radiusGeo = geoOps.radius(key, new Circle(new Point(x, y), new Distance(distance, RedisGeoCommands.DistanceUnit.KILOMETERS)), geoRadiusArgs);
+
+
+        return radiusGeo;
+    }
+
 
 }

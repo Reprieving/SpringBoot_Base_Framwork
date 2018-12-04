@@ -70,9 +70,9 @@ public class ArticleService extends BaseService {
         List<Article> articles =  selectListByWhereMap(whereMap, pagination, Article.class);
         articles.stream().forEach(article -> {
             String articleId = article.getId();
-            article.setIfLike((Integer) redisClient.getHashKey(RedisKeyConst.ARTICLE_IF_LIKE, RedisKeyConst.buildUserIdLikeArticleId(userId, articleId)));//是否点赞
-            article.setLikeAmount((Integer) redisClient.getHashKey(RedisKeyConst.ARTICLE_LIKE_COUNT, RedisKeyConst.buildArticleIdLikeCount(articleId)));//点赞数
-            article.setIfCollect((Integer) redisClient.getHashKey(RedisKeyConst.ARTICLE_IF_COLLECT, RedisKeyConst.buildUserIdCollectArticleId(userId, articleId))); //是否收藏
+            article.setIfLike((Integer) redisClient.getHashKey(userId, RedisKeyConst.buildUserIdLikeArticleId(userId, articleId)));//是否点赞
+            article.setLikeAmount((Integer) redisClient.getHashKey(userId, RedisKeyConst.buildArticleIdLikeCount(articleId)));//点赞数
+            article.setIfCollect((Integer) redisClient.getHashKey(userId, RedisKeyConst.buildUserIdCollectArticleId(userId, articleId))); //是否收藏
         });
         return articles;
     }
@@ -89,9 +89,9 @@ public class ArticleService extends BaseService {
         List<UserArticleCollection> collections = selectListByWhereMap(whereMap, pagination, UserArticleCollection.class);
         for (UserArticleCollection userArticleCollection : collections) {
             String articleId = userArticleCollection.getArticleId();
-            Integer ifLike = (Integer) redisClient.getHashKey(RedisKeyConst.ARTICLE_IF_LIKE, RedisKeyConst.buildUserIdLikeArticleId(userId, articleId));
-            Integer likeAmount = (Integer) redisClient.getHashKey(RedisKeyConst.ARTICLE_LIKE_COUNT, RedisKeyConst.buildArticleIdLikeCount(articleId));
-            Integer ifCollect = (Integer) redisClient.getHashKey(RedisKeyConst.ARTICLE_IF_COLLECT, RedisKeyConst.buildUserIdCollectArticleId(userId, articleId));
+            Integer ifLike = (Integer) redisClient.getHashKey(userId, RedisKeyConst.buildUserIdLikeArticleId(userId, articleId));
+            Integer likeAmount = (Integer) redisClient.getHashKey(userId, RedisKeyConst.buildArticleIdLikeCount(articleId));
+            Integer ifCollect = (Integer) redisClient.getHashKey(userId, RedisKeyConst.buildUserIdCollectArticleId(userId, articleId));
 
             userArticleCollection.setIfLike(ifLike == null ? 0 : ifLike);//是否点赞
             userArticleCollection.setLikeAmount(likeAmount == null ? 0 : likeAmount);//点赞数
@@ -134,12 +134,11 @@ public class ArticleService extends BaseService {
 //            }
 //        }
 
-        String articleIfCollect = RedisKeyConst.ARTICLE_IF_COLLECT;
         String userIdCollectArticleIdKey = RedisKeyConst.buildUserIdCollectArticleId(userId, articleId);
-        Integer i = (Integer) redisClient.getHashKey(articleIfCollect, userIdCollectArticleIdKey);
+        Integer i = (Integer) redisClient.getHashKey(userId, userIdCollectArticleIdKey);
         i = i == null ? 0 : i;     // i为空 则未收藏
         Integer j = i == 0 ? 1 : 0; //i == 0 设置为收藏, 为1则取消收藏
-        redisClient.put(articleIfCollect, userIdCollectArticleIdKey, j);
+        redisClient.put(userId, userIdCollectArticleIdKey, j);
     }
 
     /**
@@ -151,12 +150,11 @@ public class ArticleService extends BaseService {
     public void updateLike(String userId, String articleId) {
         Article article = selectOneById(articleId, Article.class);
         ValueCheckUtils.notEmpty(article, "未找到文章");
-        String articleIfLike = RedisKeyConst.ARTICLE_IF_LIKE;
         String userIdLikeArticleIdKey = RedisKeyConst.buildUserIdLikeArticleId(userId, articleId);
-        Integer i = (Integer) redisClient.getHashKey(articleIfLike, userIdLikeArticleIdKey);
+        Integer i = (Integer) redisClient.getHashKey(userId, userIdLikeArticleIdKey);
         i = i == null ? 0 : i;// i为空 则未收藏
         Integer j = i == 0 ? 1 : 0; //i为0 设置为收藏, 为1则取消收藏
-        redisClient.put(articleIfLike, userIdLikeArticleIdKey, j);
+        redisClient.put(userId, userIdLikeArticleIdKey, j);
     }
 
     /**

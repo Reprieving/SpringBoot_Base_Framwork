@@ -21,7 +21,7 @@ public class MybatisBuildUtil {
         return table.name();
     }
 
-    public static MybatisMapperParam buildMapperParam4Select(Serializable id, Map<String, Object> whereMap, Pagination pagination,Class clazz) throws IllegalAccessException, InstantiationException, EntityLackTableAnnotationException {
+    public static MybatisMapperParam buildMapperParam4Select(Serializable id, Map<String, Object> whereMap, Pagination pagination,Class clazz, Map<String, Object> orderMap) throws IllegalAccessException, InstantiationException, EntityLackTableAnnotationException {
         Object object = clazz.newInstance();
         String tableName = getTableName(clazz);
         List<String> dbColumnList = new ArrayList<>(20);
@@ -54,23 +54,24 @@ public class MybatisBuildUtil {
         mybatisMapperParam.setIdDbColumn(idDbColumn);
         mybatisMapperParam.setIdPoVal(id);
         mybatisMapperParam.setPagination(pagination);
+        mybatisMapperParam.setOrderMap(orderMap);
         return mybatisMapperParam;
     }
 
-    public static MybatisMapperParam buildMapperParam4Select(Map<String, Object> whereMap, Class clazz) throws IllegalAccessException, InstantiationException, EntityLackTableAnnotationException {
-        return buildMapperParam4Select(null,whereMap,null,clazz);
+    public static MybatisMapperParam buildMapperParam4SelectOne(Map<String, Object> whereMap, Class clazz) throws IllegalAccessException, InstantiationException, EntityLackTableAnnotationException {
+        return buildMapperParam4Select(null,whereMap,null,clazz,null);
     }
 
-    public static MybatisMapperParam buildMapperParam4Select(Map<String, Object> whereMap,Pagination pagination, Class clazz) throws IllegalAccessException, InstantiationException, EntityLackTableAnnotationException {
-        return buildMapperParam4Select(null,whereMap,pagination,clazz);
+    public static MybatisMapperParam buildMapperParam4SelectListByWhere(Map<String, Object> whereMap,Pagination pagination, Class clazz,Map<String,Object> orderMap) throws IllegalAccessException, InstantiationException, EntityLackTableAnnotationException {
+        return buildMapperParam4Select(null,whereMap,pagination,clazz,orderMap);
     }
 
-    public static MybatisMapperParam buildMapperParam4Select(Serializable id, Class clazz) throws IllegalAccessException, InstantiationException, EntityLackTableAnnotationException {
-        return buildMapperParam4Select(id,null,null,clazz);
+    public static MybatisMapperParam buildMapperParam4SelectById(Serializable id, Class clazz) throws IllegalAccessException, InstantiationException, EntityLackTableAnnotationException {
+        return buildMapperParam4Select(id,null,null,clazz,null);
     }
 
-    public static MybatisMapperParam buildMapperParam4Select(Pagination pagination, Class clazz) throws IllegalAccessException, InstantiationException, EntityLackTableAnnotationException {
-        return buildMapperParam4Select(null,pagination,clazz);
+    public static MybatisMapperParam buildMapperParam4SelectAll(Pagination pagination, Class clazz, Map<String,Object> orderMap) throws IllegalAccessException, InstantiationException, EntityLackTableAnnotationException {
+        return buildMapperParam4SelectListByWhere(null,pagination,clazz,orderMap);
     }
 
 

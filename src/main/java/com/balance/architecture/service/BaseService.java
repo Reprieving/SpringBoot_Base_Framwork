@@ -107,7 +107,15 @@ public class BaseService {
 
     public <T> List<T> selectAll(Pagination pagination,Class<T> tClass) {
         try {
-            return (List<T>) baseMapper.selectAll(tClass, pagination).get(0);
+            return (List<T>) baseMapper.selectAll(tClass, pagination,null).get(0);
+        } catch (NullPointerException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public <T> List<T> selectAll(Pagination pagination,Class<T> tClass,Map<String,Object> orderMap) {
+        try {
+            return (List<T>) baseMapper.selectAll(tClass, pagination,orderMap).get(0);
         } catch (NullPointerException e) {
             return new ArrayList<>();
         }
@@ -116,7 +124,20 @@ public class BaseService {
     public <T> List<T> selectListByWhereString(String whereStr, Object whereValue, Pagination pagination, Class<T> tClass) {
         try {
             Map<String,Object> whereMap = ImmutableMap.of(whereStr,whereValue);
-            T o = baseMapper.selectListByWhere(whereMap,tClass, pagination).get(0);
+            T o = baseMapper.selectListByWhere(whereMap,tClass, pagination,null).get(0);
+            if(!(o instanceof List)){
+                return Arrays.asList(o);
+            }
+            return (List<T>) o;
+        } catch (NullPointerException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public <T> List<T> selectListByWhereString(String whereStr, Object whereValue, Pagination pagination, Class<T> tClass,Map<String,Object> orderMap) {
+        try {
+            Map<String,Object> whereMap = ImmutableMap.of(whereStr,whereValue);
+            T o = baseMapper.selectListByWhere(whereMap,tClass, pagination,orderMap).get(0);
             if(!(o instanceof List)){
                 return Arrays.asList(o);
             }
@@ -128,7 +149,7 @@ public class BaseService {
 
     public <T> List<T> selectListByWhereMap(Map<String,Object> whereMap, Pagination pagination,Class<T> clazz) {
         try {
-            T o = baseMapper.selectListByWhere(whereMap,clazz, pagination).get(0);
+            T o = baseMapper.selectListByWhere(whereMap,clazz, pagination,null).get(0);
             if(!(o instanceof List)){
                 return Arrays.asList(o);
             }
@@ -138,4 +159,15 @@ public class BaseService {
         }
     }
 
+    public <T> List<T> selectListByWhereMap(Map<String,Object> whereMap, Pagination pagination,Class<T> clazz,Map<String,Object> orderMap) {
+        try {
+            T o = baseMapper.selectListByWhere(whereMap,clazz, pagination,orderMap).get(0);
+            if(!(o instanceof List)){
+                return Arrays.asList(o);
+            }
+            return (List<T>) o;
+        } catch (NullPointerException e) {
+            return new ArrayList<>();
+        }
+    }
 }

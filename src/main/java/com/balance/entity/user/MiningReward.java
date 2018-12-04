@@ -23,6 +23,9 @@ public class MiningReward implements Serializable{
     @Column(name = User_id)
     private String userId; //用户id
 
+    @Column(name = Stolen_count)
+    private Integer stolenCount; //被偷取次数
+
     @Column(name = Compute_power)
     private BigDecimal computePower; //算力
 
@@ -38,6 +41,9 @@ public class MiningReward implements Serializable{
     @Column(name = Is_valid)
     private Boolean isValid; //是否有效
 
+    @Column(name = Version)
+    private Boolean version; //版本号
+
     public MiningReward(String userId, BigDecimal computePower, BigDecimal rewardValue, Integer rewardType) {
         this.userId = userId;
         this.computePower = computePower;
@@ -48,9 +54,16 @@ public class MiningReward implements Serializable{
     //DB Column name
     public static final String Id = "id";
     public static final String User_id = "user_id";
+    public static final String Stolen_count = "stolen_count";
     public static final String Compute_power = "compute_power";
     public static final String Reward_amount = "reward_amount";
     public static final String Reward_type = "reward_type";
     public static final String Create_time = "create_time";
     public static final String Is_valid = "is_valid";
+    public static final String Version = "version";
+
+
+    //扩展属性
+    private Boolean canSteal; //能否被偷取
+
 }

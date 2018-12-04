@@ -54,5 +54,12 @@
                 </foreach>
             </trim>
         </if>
+
+        <if test="orderMap !=null">
+            ORDER BY
+            <foreach collection="orderMap" index="key"  item="value">
+                ${key} #{value}
+            </foreach>
+        </if>
     </select>
 </mapper>

@@ -16,7 +16,9 @@ public class AssetTurnoverConst {
 
     public final static int TURNOVER_TYPE_MISSION_REWARD = 9;//领取任务奖励
 
-    public final static int TURNOVER_TYPE_MINING_REWARD = 10;//领取挖矿奖励
+    public final static int TURNOVER_TYPE_RECEIVE_MINING_REWARD = 10;//领取挖矿奖励
+
+    public final static int TURNOVER_TYPE_STEAL_MINING_REWARD = 10;//偷取挖矿奖励
 
     public final static int TURNOVER_TYPE_APPLET_REWARD = 11;//应用奖励
     //流水类型 end

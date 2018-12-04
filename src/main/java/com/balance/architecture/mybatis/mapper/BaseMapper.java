@@ -235,7 +235,7 @@ public class BaseMapper {
     public <T> T selectById(Serializable id, Class<T> clazz) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         try {
-            MybatisMapperParam mybatisMapperParam = MybatisBuildUtil.buildMapperParam4Select(id, clazz);
+            MybatisMapperParam mybatisMapperParam = MybatisBuildUtil.buildMapperParam4SelectById(id, clazz);
             return sqlSession.selectOne("baseMapper.selectById", mybatisMapperParam);
         } catch (EntityLackTableAnnotationException e) {
             e.printStackTrace();
@@ -252,7 +252,7 @@ public class BaseMapper {
     public <T> T selectOneByWhereMap(Map<String, Object> whereMap, Class<T> clazz) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         try {
-            MybatisMapperParam mybatisMapperParam = MybatisBuildUtil.buildMapperParam4Select(whereMap, clazz);
+            MybatisMapperParam mybatisMapperParam = MybatisBuildUtil.buildMapperParam4SelectOne(whereMap, clazz);
             return sqlSession.selectOne("baseMapper.selectByWhere", mybatisMapperParam);
         } catch (EntityLackTableAnnotationException e) {
             e.printStackTrace();
@@ -266,10 +266,10 @@ public class BaseMapper {
         return null;
     }
 
-    public <T> List<T> selectAll(Class<T> clazz, Pagination pagination) {
+    public <T> List<T> selectAll(Class<T> clazz, Pagination pagination, Map<String, Object> orderMap) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         try {
-            MybatisMapperParam mybatisMapperParam = MybatisBuildUtil.buildMapperParam4Select(pagination, clazz);
+            MybatisMapperParam mybatisMapperParam = MybatisBuildUtil.buildMapperParam4SelectAll(pagination, clazz, orderMap);
             return sqlSession.selectList("baseMapper.selectByWhere", mybatisMapperParam);
         } catch (EntityLackTableAnnotationException e) {
             e.printStackTrace();
@@ -283,10 +283,10 @@ public class BaseMapper {
         return null;
     }
 
-    public <T> List<T> selectListByWhere(Map<String, Object> whereMap, Class<T> clazz, Pagination pagination) {
+    public <T> List<T> selectListByWhere(Map<String, Object> whereMap, Class<T> clazz, Pagination pagination,Map<String, Object> orderMap) {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         try {
-            MybatisMapperParam mybatisMapperParam = MybatisBuildUtil.buildMapperParam4Select(whereMap, pagination, clazz);
+            MybatisMapperParam mybatisMapperParam = MybatisBuildUtil.buildMapperParam4SelectListByWhere(whereMap, pagination, clazz,orderMap);
             return sqlSession.selectList("baseMapper.selectByWhere", mybatisMapperParam);
         } catch (EntityLackTableAnnotationException e) {
             e.printStackTrace();

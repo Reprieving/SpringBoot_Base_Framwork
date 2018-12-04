@@ -22,6 +22,9 @@ public class MybatisMapperParam {
     //where sql map --
     private Map<String,Object> whereMap;
 
+    //where sql map --
+    private Map<String,Object> orderMap;
+
     //update data table column name and value
     private Map<String,Object> updateMap;
 

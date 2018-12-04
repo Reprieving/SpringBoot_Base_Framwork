@@ -6,29 +6,30 @@ import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.client.RedisClient;
+import com.balance.constance.AssetTurnoverConst;
 import com.balance.constance.MissionConst;
 import com.balance.constance.RedisKeyConst;
 import com.balance.constance.UserConst;
 import com.balance.entity.common.UserFreeCount;
 import com.balance.entity.common.UserInviteCodeId;
-import com.balance.entity.information.Article;
 import com.balance.entity.mission.Mission;
-import com.balance.entity.user.User;
-import com.balance.entity.user.UserAssets;
-import com.balance.entity.user.UserArticleCollection;
-import com.balance.entity.user.UserFrozenAssets;
+import com.balance.entity.user.*;
 import com.balance.mapper.common.AutoIncreaseIdMapper;
+import com.balance.mapper.user.MiningRewardMapper;
 import com.balance.mapper.user.UserMapper;
 import com.balance.service.common.AliOSSBusiness;
 import com.balance.service.mission.MissionCompleteService;
 import com.balance.service.mission.MissionService;
+import com.balance.utils.BigDecimalUtils;
 import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.geo.GeoResult;
+import org.springframework.data.geo.GeoResults;
+import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -36,6 +37,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -141,7 +143,6 @@ public class UserService extends BaseService {
         if (user == null) {
             throw new BusinessException("账号或密码有误");
         }
-
 
         User user2 = new User();
         user2.setUserName(user1.getUserName());
@@ -295,6 +296,48 @@ public class UserService extends BaseService {
         if (i == 0) {
             throw new BusinessException("修改密码失败");
         }
+    }
+
+    /**
+     * 附近的人
+     *
+     * @param userId       用户id
+     * @param provinceCode 省编码
+     * @param cityCode     城市编码
+     * @param regionCode   区编码
+     * @param streetCode   街道编码
+     * @param coordinateX  经度
+     * @param coordinateY  纬度
+     * @param computePower 算力
+     * @return
+     */
+    public List<NearByUser> nearUserList(String userId, String provinceCode, String cityCode, String regionCode, String streetCode, Double coordinateX, Double coordinateY, BigDecimal computePower) {
+        User user = selectOneById(userId, User.class);
+        ValueCheckUtils.notEmpty(user, "未找到用户");
+        String headImgPic = user.getHeadPictureUrl() == null ? " " : user.getHeadPictureUrl();
+
+        //获取用户剩余偷币用户数目
+        Integer limit = (Integer) redisClient.getHashKey(userId, RedisKeyConst.buildUserStealCount(userId));
+
+        //更新用户坐标缓存信息
+        String userCoordinateKey = RedisKeyConst.buildUserCoordinate(userId, provinceCode, cityCode, regionCode, streetCode);
+        String member = user.getId() + ":" + user.getUserName() + ":" + headImgPic + ":" + computePower;
+        redisClient.cacheGeo(userCoordinateKey, coordinateX, coordinateY, member, 300L);
+
+        //查找附近的人
+        List<NearByUser> nearByUsers = new ArrayList<>(100);
+        GeoResults<RedisGeoCommands.GeoLocation<Object>> radiusGeo = redisClient.radiusGeo(userCoordinateKey, coordinateX, coordinateY, 1000D, Sort.Direction.DESC, Long.valueOf(limit));
+        for (GeoResult<RedisGeoCommands.GeoLocation<Object>> geoResult : radiusGeo.getContent()) {
+            Integer distance = Integer.parseInt(new java.text.DecimalFormat("0").format(geoResult.getDistance().getValue()));
+            RedisGeoCommands.GeoLocation<Object> geoLocation = geoResult.getContent();
+
+            //[userId],[userName],[headImgPic],[computePower],[distance]
+            String[] nearByUserInfo = String.valueOf(geoLocation.getName()).split(":");
+            NearByUser nearByUser = new NearByUser(nearByUserInfo[0],nearByUserInfo[1],nearByUserInfo[2],nearByUserInfo[3],distance);
+            nearByUsers.add(nearByUser);
+        }
+
+        return nearByUsers;
     }
 
 

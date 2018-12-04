@@ -1,5 +1,7 @@
 package com.balance.architecture.utils;
 
+import com.balance.architecture.exception.BusinessException;
+
 import java.util.List;
 
 public class ValueCheckUtils {
@@ -12,13 +14,19 @@ public class ValueCheckUtils {
 
     public static void notEmpty(Object o,String message) {
         if (null == o ) {
-            throw new IllegalArgumentException(message);
+            throw new BusinessException(message);
         }
     }
 
     public static void notEmpty(List<?> o, String message) {
         if (null == o || o.size()==0) {
-            throw new IllegalArgumentException(message);
+            throw new BusinessException(message);
+        }
+    }
+
+    public static void isZero(Integer i, String message) {
+        if(i==0){
+            throw new BusinessException(message);
         }
     }
 }

@@ -1,13 +1,17 @@
 package com.balance.constance;
 
+import com.sun.org.apache.bcel.internal.generic.NEW;
+
+import java.math.BigDecimal;
+
 public class UserConst {
     //用户状态
     public static final int USER_STATUS_NORMAL = 1;//正常
     public static final int USER_STATUS_FROZEN = -1;//冻结
 
     //查询邀请记录类型
-    public static final int USER_INVITE_TYPE_DIRECT= 1;//直接邀请
-    public static final int USER_INVITE_TYPE_INDIRECT= 2;//间接邀请
+    public static final int USER_INVITE_TYPE_DIRECT = 1;//直接邀请
+    public static final int USER_INVITE_TYPE_INDIRECT = 2;//间接邀请
 
 
     //用户实名认证状态
@@ -33,4 +37,9 @@ public class UserConst {
     //算力排行榜列表长度
     public static final int COMPUTE_POWER_RANK_LENGTH = 10;
 
+    //收益最多被偷取几次
+    public static final int MINING_REWARD_STOLEN_LIMIT_COUNT = 3;
+
+    //偷取收益比例
+    public static final BigDecimal MINING_REWARD_STOLEN_RATE = new BigDecimal(0.016);
 }

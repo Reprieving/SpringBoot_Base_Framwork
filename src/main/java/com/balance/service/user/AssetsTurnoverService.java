@@ -28,7 +28,7 @@ public class AssetsTurnoverService extends BaseService {
      * @param settlementId   支付方式
      * @param detailStr      详细信息
      */
-    public void createAssetsTurnover(String userId, Integer turnoverType, BigDecimal turnoverAmount, String sourceId, String targetId, UserAssets userAssets, Integer settlementId, String detailStr) throws BusinessException {
+    public Integer createAssetsTurnover(String userId, Integer turnoverType, BigDecimal turnoverAmount, String sourceId, String targetId, UserAssets userAssets, Integer settlementId, String detailStr) throws BusinessException {
         AssetsTurnover assetsTurnover = new AssetsTurnover();
         assetsTurnover.setUserId(userId);
         assetsTurnover.setTurnoverType(turnoverType);
@@ -42,7 +42,7 @@ public class AssetsTurnoverService extends BaseService {
         assetsTurnover.setBeforeAmount(targetAssetsAmount);
         assetsTurnover.setAfterAmount(BigDecimalUtils.add(targetAssetsAmount,turnoverAmount));
 
-        insertIfNotNull(assetsTurnover);
+        return insertIfNotNull(assetsTurnover);
     }
 
 
