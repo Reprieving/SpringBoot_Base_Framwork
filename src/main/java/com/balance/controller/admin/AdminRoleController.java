@@ -27,7 +27,7 @@ public class AdminRoleController {
     private RoleService roleService;
 
     @RequestMapping("create")
-    public Result<?> createRole(Role role) {
+    public Result<?> createRole(@RequestBody Role role) {
         roleService.insertIfNotNull(role);
         List<RoleFunction> rolesList = new ArrayList<>(50);
         for (String functionId : role.getFunctionIdList()) {
@@ -41,12 +41,15 @@ public class AdminRoleController {
     public Result<?> roleList(@RequestBody RoleReq roleReq) {
         Pagination pagination = roleReq.getPagination();
         List<Role> roleList;
-        if(StringUtils.isNoneBlank(roleReq.getRoleName())){
+        if (StringUtils.isNoneBlank(roleReq.getRoleName())) {
             roleList = roleService.selectListByWhereString(Role.Role_name + " like ", "%" + roleReq.getRoleName() + "%", pagination, Role.class);
-        }else {
-            roleList = roleService.selectAll(pagination,Role.class);
+        } else {
+            roleList = roleService.selectAll(pagination, Role.class);
         }
-        return ResultUtils.success(roleList, pagination.getTotalRecordNumber());
+
+        Integer count = pagination == null ? roleList.size() : pagination.getTotalRecordNumber();
+
+        return ResultUtils.success(roleList, count);
     }
 
 }

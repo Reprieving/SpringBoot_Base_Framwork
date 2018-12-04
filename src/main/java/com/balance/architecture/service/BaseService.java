@@ -107,7 +107,11 @@ public class BaseService {
 
     public <T> List<T> selectAll(Pagination pagination,Class<T> tClass) {
         try {
-            return (List<T>) baseMapper.selectAll(tClass, pagination,null).get(0);
+            T o = baseMapper.selectAll(tClass, pagination,null).get(0);
+            if(!(o instanceof List)){
+                return Arrays.asList(o);
+            }
+            return (List<T>) o;
         } catch (NullPointerException e) {
             return new ArrayList<>();
         }
@@ -115,7 +119,11 @@ public class BaseService {
 
     public <T> List<T> selectAll(Pagination pagination,Class<T> tClass,Map<String,Object> orderMap) {
         try {
-            return (List<T>) baseMapper.selectAll(tClass, pagination,orderMap).get(0);
+            T o = baseMapper.selectAll(tClass, pagination,orderMap).get(0);
+            if(!(o instanceof List)){
+                return Arrays.asList(o);
+            }
+            return (List<T>) o;
         } catch (NullPointerException e) {
             return new ArrayList<>();
         }
