@@ -1,4 +1,4 @@
-package com.balance.controller.admin.work;
+package com.balance.controller.admin;
 
 import com.alibaba.fastjson.JSON;
 import com.balance.architecture.dto.Result;

@@ -26,4 +26,5 @@ public class SubscriberRole implements Serializable {
 
     @Column(name = "role_id")
     private String roleId;
+
 }

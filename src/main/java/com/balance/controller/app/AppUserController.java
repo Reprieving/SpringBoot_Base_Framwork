@@ -8,10 +8,8 @@ import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.client.RedisClient;
 import com.balance.constance.RedisKeyConst;
 import com.balance.constance.UserConst;
-import com.balance.entity.user.Certification;
-import com.balance.entity.user.User;
-import com.balance.entity.user.UserAssets;
-import com.balance.entity.user.UserComputePowerRank;
+import com.balance.controller.app.req.UserLocation;
+import com.balance.entity.user.*;
 import com.balance.service.common.WjSmsService;
 import com.balance.service.user.CertificationService;
 import com.balance.service.user.UserAssetsService;
@@ -22,10 +20,7 @@ import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -261,4 +256,21 @@ public class AppUserController {
         return ResultUtils.success(userComputePowerRank);
     }
 
+    /**
+     * 附近的人
+     * @param request
+     * @param userLocation
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @ResponseBody
+    @RequestMapping(value = "nearByUserList", method = RequestMethod.POST)
+    public Result<?> nearByUserList(HttpServletRequest request,UserLocation userLocation) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        UserAssets userAssets = userAssetsServices.getAssetsByUserId(userId);
+        ValueCheckUtils.notEmpty(userAssets,"未找到用户资产");
+        return ResultUtils.success(userService.nearUserList(userId,userLocation.getProvinceCode(),
+                userLocation.getCityCode(),userLocation.getRegionCode(),userLocation.getStreetCode(),
+                userLocation.getCoordinateX(),userLocation.getCoordinateY(),userAssets.getComputePower()));
+    }
 }

@@ -50,7 +50,7 @@
             WHERE
             <trim prefix="1=1" suffixOverrides=",">
                 <foreach collection="whereMap" index="key"  item="value">
-                    AND ${key} #{value}
+                    AND #{key} #{value}
                 </foreach>
             </trim>
         </if>
@@ -58,7 +58,7 @@
         <if test="orderMap !=null">
             ORDER BY
             <foreach collection="orderMap" index="key"  item="value">
-                ${key} #{value}
+                #{key} #{value}
             </foreach>
         </if>
     </select>

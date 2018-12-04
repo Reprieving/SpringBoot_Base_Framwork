@@ -24,7 +24,7 @@ public class ValueCheckUtils {
         }
     }
 
-    public static void isZero(Integer i, String message) {
+    public static void notZero(Integer i, String message) {
         if(i==0){
             throw new BusinessException(message);
         }

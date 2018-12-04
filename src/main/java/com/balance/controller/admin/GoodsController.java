@@ -1,4 +1,4 @@
-package com.balance.controller.admin.shop;
+package com.balance.controller.admin;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

@@ -159,25 +159,25 @@ public class MiningRewardService extends BaseService {
 
                 //2.增加收益被偷取次数
                 miningReward.setStolenCount(i + 1);
-                ValueCheckUtils.isZero(miningRewardMapper.updateStolenCount(miningReward), excMessage);
+                ValueCheckUtils.notZero(miningRewardMapper.updateStolenCount(miningReward), excMessage);
 
                 //3.增加主动偷取用户收益,增加流水记录
                 UserAssets stealUserAssets = userAssetsService.getAssetsByUserId(stealUserId);
-                ValueCheckUtils.isZero(userAssetsService.changeUserAssets(userId, turnoverAmount, miningReward.getRewardType(), stealUserAssets), excMessage);
-                ValueCheckUtils.isZero(assetsTurnoverService.createAssetsTurnover(userId, AssetTurnoverConst.TURNOVER_TYPE_STEAL_MINING_REWARD, turnoverAmount,
+                ValueCheckUtils.notZero(userAssetsService.changeUserAssets(userId, turnoverAmount, miningReward.getRewardType(), stealUserAssets), excMessage);
+                ValueCheckUtils.notZero(assetsTurnoverService.createAssetsTurnover(userId, AssetTurnoverConst.TURNOVER_TYPE_STEAL_MINING_REWARD, turnoverAmount,
                         stolenUserId, stealUserId, stealUserAssets, settlementId, "偷取用户[" + stolenUser.getUserName() + "]收益"), excMessage);
 
 
                 //4.减少被偷取用户收益, 增加被偷取记录,增加流水记录order_info
                 BigDecimal stolenTurnoverAmount = BigDecimalUtils.transfer2Negative(turnoverAmount);
                 UserAssets stolenUserAssets = userAssetsService.getAssetsByUserId(stolenUserId);
-                ValueCheckUtils.isZero(userAssetsService.changeUserAssets(userId, stolenTurnoverAmount, miningReward.getRewardType(), stolenUserAssets), excMessage);
-                ValueCheckUtils.isZero(assetsTurnoverService.createAssetsTurnover(userId, AssetTurnoverConst.TURNOVER_TYPE_STEAL_MINING_REWARD, stolenTurnoverAmount,
+                ValueCheckUtils.notZero(userAssetsService.changeUserAssets(userId, stolenTurnoverAmount, miningReward.getRewardType(), stolenUserAssets), excMessage);
+                ValueCheckUtils.notZero(assetsTurnoverService.createAssetsTurnover(userId, AssetTurnoverConst.TURNOVER_TYPE_STEAL_MINING_REWARD, stolenTurnoverAmount,
                         stolenUserId, stealUserId, stolenUserAssets, settlementId, "被用户[" + stealUser.getUserName() + "],偷取收益"), excMessage);
 
 
                 StealMiningRecord stealMiningRecord = new StealMiningRecord(stolenUserId, stealUserId, stealUser.getUserName(), stealUser.getHeadPictureUrl(), turnoverAmount, settlementId);
-                ValueCheckUtils.isZero(insertIfNotNull(stealMiningRecord), excMessage);
+                ValueCheckUtils.notZero(insertIfNotNull(stealMiningRecord), excMessage);
             }
         });
     }

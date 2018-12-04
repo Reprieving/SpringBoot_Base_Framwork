@@ -3,11 +3,13 @@ package com.balance.service.mission;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.constance.CommonConst;
 import com.balance.constance.MissionConst;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.mission.SignIn;
 import com.balance.entity.mission.SignInfo;
 import com.balance.mapper.mission.MissionMapper;
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -127,7 +129,8 @@ public class SignInService extends BaseService {
      */
     public SignInfo getSignList(String userId) {
         SignInfo signInfo = new SignInfo();
-        List<SignIn> signList = selectListByWhereString("user_id = ", userId, new Pagination(), SignIn.class);
+        Map<String,Object> orderMap = ImmutableMap.of(SignIn.User_id, CommonConst.MYSQL_DESC);
+        List<SignIn> signList = selectListByWhereString("user_id = ", userId, new Pagination(), SignIn.class,orderMap);
 
         List<SignIn> signListAppReturn = new ArrayList<>();//用户最近30天签到信息(用于返回移动端)
 

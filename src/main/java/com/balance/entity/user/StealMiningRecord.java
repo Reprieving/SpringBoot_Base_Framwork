@@ -39,7 +39,7 @@ public class StealMiningRecord implements Serializable{
     private Integer settlementId; //偷取收益类型
 
     @Column(name = Create_time)
-    private Timestamp create_time; //主动偷取用户名
+    private Timestamp create_time; //创建时间
 
     //DB Column name
     public static final String Id = "id";

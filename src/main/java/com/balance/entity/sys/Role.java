@@ -30,7 +30,7 @@ public class Role implements Serializable{
     private String parentId;
 
     //角色名
-    @Column(name = "role_name")
+    @Column(name = Role_name)
     private String roleName;
 
     //创建人
@@ -45,9 +45,14 @@ public class Role implements Serializable{
     @Column(name = "is_valid")
     private Boolean isValid = true;
 
+    private List<String> functionIdList;
+
     //value column
     private List<Function> functionList;
 
     //value column
     private List<RoleFunction> roleFunctions;
+
+    public static final String Role_name = "role_name";
+
 }

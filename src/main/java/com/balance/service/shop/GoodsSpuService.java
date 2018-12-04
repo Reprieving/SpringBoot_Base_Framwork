@@ -86,6 +86,9 @@ public class GoodsSpuService extends BaseService {
             throw new BusinessException("商品不存在");
         }
 
+        goodsDetail.setGoodsName(goodsSpu.getGoodsName());
+        goodsDetail.setPrice(goodsSpu.getLowPrice());
+
         //检查用户是否有收藏商品
         Map<String, Object> whereMap_ = ImmutableMap.of(GoodsCollection.User_id + "=", userId, GoodsCollection.Spu_id + "=", spuId);
         GoodsCollection goodsCollection = selectOneByWhereMap(whereMap_, GoodsCollection.class);

@@ -1,4 +1,4 @@
-package com.balance.controller.admin.work;
+package com.balance.controller.admin;
 
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.utils.ResultUtils;

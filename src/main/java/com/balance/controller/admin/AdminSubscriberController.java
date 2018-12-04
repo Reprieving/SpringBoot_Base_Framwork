@@ -1,4 +1,4 @@
-package com.balance.controller.admin.sys;
+package com.balance.controller.admin;
 
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
@@ -9,6 +9,7 @@ import com.balance.service.sys.SubscriberService;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,7 +46,7 @@ public class AdminSubscriberController {
     }
 
     @RequestMapping("login")
-    public Result<?> create(Subscriber subscriber) throws Exception {
+    public Result<?> create(@RequestBody Subscriber subscriber) throws Exception {
         Subscriber subscriberPo = subscriberService.getSubscriberByLogin(subscriber.getUserName(),subscriber.getPassword());
         if(subscriberPo == null){
             return ResultUtils.error("用户名或密码错误");

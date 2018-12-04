@@ -28,4 +28,8 @@ public class RoleFunction implements Serializable {
     private String roleId;
 
 
+    public RoleFunction(String functionId, String roleId) {
+        this.functionId = functionId;
+        this.roleId = roleId;
+    }
 }

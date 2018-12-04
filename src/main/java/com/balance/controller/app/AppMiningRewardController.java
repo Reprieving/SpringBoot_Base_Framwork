@@ -4,9 +4,12 @@ package com.balance.controller.app;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
+import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.controller.app.req.UserLocation;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.user.MiningReward;
 import com.balance.entity.user.User;
+import com.balance.entity.user.UserAssets;
 import com.balance.service.mission.MissionService;
 import com.balance.service.user.MiningRewardService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,12 @@ public class AppMiningRewardController {
     @Autowired
     private MiningRewardService miningRewardService;
 
+    /**
+     * 查询用户收益列表
+     * @param request
+     * @return
+     * @throws UnsupportedEncodingException
+     */
     @ResponseBody
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     public Result<?> list(HttpServletRequest request) throws UnsupportedEncodingException {
@@ -31,6 +40,13 @@ public class AppMiningRewardController {
     }
 
 
+    /**
+     * 领取收益
+     * @param request
+     * @param miningRewardId
+     * @return
+     * @throws UnsupportedEncodingException
+     */
     @ResponseBody
     @RequestMapping(value = "/obtain/{miningRewardId}", method = RequestMethod.POST)
     public Result<?> list(HttpServletRequest request,@PathVariable String miningRewardId) throws UnsupportedEncodingException {
@@ -38,5 +54,50 @@ public class AppMiningRewardController {
         miningRewardService.obtainMiningReward(miningRewardId,userId);
         return ResultUtils.success();
     }
+
+    /**
+     * 用户可偷取收益列表
+     * @param request
+     * @param stolenUserId
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @ResponseBody
+    @RequestMapping(value = "stealMiningRewardList/{stolenUserId}", method = RequestMethod.POST)
+    public Result<?> stealMiningRewardList(HttpServletRequest request,@PathVariable String stolenUserId) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        return ResultUtils.success(miningRewardService.listMiningReward(stolenUserId));
+    }
+
+
+    /**
+     * 偷取收益
+     * @param request
+     * @param miningRewardId 收益id
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @ResponseBody
+    @RequestMapping(value = "steal/{miningRewardId}", method = RequestMethod.POST)
+    public Result<?> nearByUserList(HttpServletRequest request,@PathVariable String miningRewardId) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        miningRewardService.stealIh(userId,miningRewardId);
+        return ResultUtils.success();
+    }
+
+    /**
+     * 偷取我的收益用户列表
+     * @param request
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @ResponseBody
+    @RequestMapping(value = "stealUserList", method = RequestMethod.POST)
+    public Result<?> stealUserList(HttpServletRequest request) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+
+        return ResultUtils.success(miningRewardService.listStealMiningRecord(userId));
+    }
+
 
 }
