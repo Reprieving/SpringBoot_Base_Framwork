@@ -84,9 +84,10 @@ public class UserService extends BaseService {
                 }
 
                 User inviteUser = selectOneByWhereString(User.Invite_code + " = ", user.getInviteCode(), User.class);
-                ValueCheckUtils.notEmpty(inviteUser, "邀请码对应的用户不存在");
 
-                user.setInviteId(inviteUser.getId());
+                String inviteId = inviteUser==null?"":inviteUser.getId();
+
+                user.setInviteId(inviteId);
                 user.setUserName("");
                 user.setCreateTime(new Timestamp(System.currentTimeMillis()));
 
@@ -98,7 +99,7 @@ public class UserService extends BaseService {
                 user.setInviteCode(newInviteCode);
                 user.setPassword(EncryptUtils.md5Password(user.getPassword()));
 
-                insert(user);
+                insertIfNotNull(user);
 
                 String userId = user.getId();
 
@@ -137,10 +138,10 @@ public class UserService extends BaseService {
     public User login(User user) throws UnsupportedEncodingException {
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put(User.Phone_number + "=", user.getPhoneNumber());
-        paramMap.put(User.Password + "=", user.getPassword());
+        paramMap.put(User.Password + "=", EncryptUtils.md5Password(user.getPassword()));
 
         User user1 = selectOneByWhereMap(paramMap, User.class);
-        if (user == null) {
+        if (user1 == null) {
             throw new BusinessException("账号或密码有误");
         }
 
@@ -244,11 +245,11 @@ public class UserService extends BaseService {
      * @param msgType     短信类型
      */
     public void resetPassword(String userId, String newPassword, Integer msgType) {
-        ValueCheckUtils.notEmpty(newPassword, "新密码不能为空");
         String updatePWDColumn;
         if (UserConst.MSG_CODE_TYPE_RESET_LOGINPWD == msgType) {
             updatePWDColumn = User.Password;
-        } else if (UserConst.MSG_CODE_TYPE_RESET_PAYPWD == msgType) {
+            ValueCheckUtils.notEmpty(newPassword, "新密码不能为空");
+        } else if (UserConst.MSG_CODE_TYPE_RESET_PAYPWD == msgType || UserConst.MSG_CODE_TYPE_SETTLE_PAYPWD == msgType) {
             updatePWDColumn = User.Pay_password;
         } else {
             throw new BusinessException("短信类型有误");

@@ -9,6 +9,7 @@ import com.balance.entity.sys.Role;
 import com.balance.architecture.utils.ResultUtils;
 import com.balance.entity.sys.RoleFunction;
 import com.balance.entity.sys.SubscriberRole;
+import com.balance.entity.user.User;
 import com.balance.service.sys.RoleService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +29,7 @@ public class AdminRoleController {
 
     @RequestMapping("create")
     public Result<?> createRole(@RequestBody Role role) {
-        roleService.insertIfNotNull(role);
-        List<RoleFunction> rolesList = new ArrayList<>(50);
-        for (String functionId : role.getFunctionIdList()) {
-            rolesList.add(new RoleFunction(functionId, role.getId()));
-        }
-        roleService.insertBatch(rolesList, false);
+        roleService.insertRole(role);
         return ResultUtils.success("创建角色成功");
     }
 
@@ -48,8 +44,13 @@ public class AdminRoleController {
         }
 
         Integer count = pagination == null ? roleList.size() : pagination.getTotalRecordNumber();
-
         return ResultUtils.success(roleList, count);
+    }
+
+    @RequestMapping("edit")
+    public Result<?> editRole(@RequestBody Role role) {
+        Role role1 = roleService.listFunction(role.getId());
+        return ResultUtils.success(role1);
     }
 
 }

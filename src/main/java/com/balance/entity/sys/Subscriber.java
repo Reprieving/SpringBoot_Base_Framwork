@@ -1,15 +1,11 @@
 package com.balance.entity.sys;
 
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.ibatis.type.Alias;
-import org.springframework.stereotype.Component;
-
-import javax.management.relation.Role;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
@@ -27,7 +23,7 @@ public class Subscriber implements Serializable{
     private String id;
 
     //用户名
-    @Column(name = "user_name")
+    @Column(name = Subscriber.User_name)
     private String userName;
 
     //真实姓名
@@ -58,15 +54,20 @@ public class Subscriber implements Serializable{
     @Column(name = "is_valid")
     private Boolean isValid = true;
 
+    //DB column
+    public static final String User_name = "user_name";
+
     //value column
     //角色
     private List<Role> roleList;
+    private List<String> roleIdList;
 
     //value column
     //subscriberFunctionTree
     private FuncTreeNode funcTreeNode;
 
-    //value column
-    //loginToken
+    //value column loginToken
     private String loginToken;
+
+    private Pagination pagination;
 }

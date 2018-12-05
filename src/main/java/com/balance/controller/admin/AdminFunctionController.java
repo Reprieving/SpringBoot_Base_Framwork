@@ -7,6 +7,7 @@ import com.balance.entity.sys.Subscriber;
 import com.balance.service.sys.FunctionService;
 import com.balance.architecture.utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,7 +36,7 @@ public class AdminFunctionController {
     }
 
     @RequestMapping("info")
-    public Result<?> viewFunc(Function function)  {
+    public Result<?> viewFunc(@RequestBody Function function)  {
         return ResultUtils.success(functionService.viewFuc(function),"success");
     }
 }

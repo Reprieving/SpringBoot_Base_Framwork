@@ -2,12 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace = "com.balance.mapper.sys.SubscriberMapper">
+<mapper namespace="com.balance.mapper.sys.SubscriberMapper">
     <resultMap id="subscriberMap" type="Subscriber">
         <id property="id" column="id"></id>
         <result property="userName" column="user_name"></result>
         <result property="realName" column="real_name"></result>
-        <result property="password" column="pass_word"></result>
+        <result property="password" column="password"></result>
         <result property="departmentId" column="department_id"></result>
         <result property="workNumber" column="work_number"></result>
         <result property="createBy" column="create_by"></result>
@@ -15,11 +15,14 @@
         <result property="isValid" column="is_valid"></result>
     </resultMap>
 
-    <insert id="insertUser" parameterType="com.balance.entity.sys.Subscriber">
-        INSERT INTO sys_subscriber (id,user_name,real_name,password,department_id,work_number,create_by,create_time,is_valid)
-          VALUES (#{subscriber.id},#{subscriber.userName},#{subscriber.realName},#{subscriber.password},#{subscriber.departmenid}
-                  ,#{subscriber.workNumber},#{subscriber.createBy},#{subscriber.createTime},#{subscriber.isValid})
-    </insert>
+    <resultMap id="subRoleMap" type="Subscriber" extends="subscriberMap">
+        <collection property="roleIdList" ofType="string">
+            <result column="role_id"></result>
+        </collection>
+    </resultMap>
+    <delete id="deleteRoles">
+        DELETE FROM sys_subscriber_role WHERE subscriber_id = #{subscriberId}
+    </delete>
 
     <select id="selectList" resultMap="subscriberMap">
         SELECT * FROM sys_subscriber
@@ -27,6 +30,15 @@
 
     <select id="selectSubscriberByLogin" resultMap="subscriberMap">
         SELECT id,user_name FROM sys_subscriber where user_name = #{userName} and password = #{password}
+    </select>
+
+    <select id="listRole" resultMap="subRoleMap">
+      SELECT
+        a.id,a.user_name,a.real_name,a.password,a.is_valid,b.role_id
+      FROM sys_subscriber a
+      LEFT JOIN sys_subscriber_role b on a.id = b.subscriber_id
+      WHERE
+        a.id = #{subscriberId}
     </select>
 
 </mapper>

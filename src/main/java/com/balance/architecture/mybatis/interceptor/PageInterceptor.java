@@ -34,7 +34,7 @@ public class PageInterceptor implements Interceptor {
         Object parameterObject = boundSql.getParameterObject();
         if (parameterObject instanceof MybatisMapperParam) {
             pagination = ((MybatisMapperParam) parameterObject).getPagination();
-        } else {
+        } else if(parameterObject instanceof Map){
             Map<String, Object> params = (Map<String, Object>) boundSql.getParameterObject();
             Boolean flag = false;
             for(Map.Entry<String,Object> entry :params.entrySet()){

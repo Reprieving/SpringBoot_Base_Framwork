@@ -1,6 +1,7 @@
 package com.balance.architecture.controller;
 
 import com.balance.architecture.dto.Result;
+import com.balance.architecture.exception.LoginException;
 import com.balance.architecture.utils.ResultUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,13 @@ public class BaseController {
         String[] arr = e.getClass().getName().split("\\.");
 //        Result<?> result = ResultUtils.error(ResultUtils.RSP_FAIL, arr[arr.length - 1]);
         Result<?> result = ResultUtils.error(ResultUtils.RSP_FAIL, e.getMessage());
+        return result;
+    }
+
+    @ExceptionHandler(LoginException.class)
+    @ResponseBody
+    public Result<?> loginExceptionHandler(Exception e) {
+        Result<?> result = ResultUtils.reLogin("");
         return result;
     }
 

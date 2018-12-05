@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AutoIncreaseIdMapper {
-    Integer insertUserInviteCode(@Param("userInviteCodeId") UserInviteCodeId userInviteCodeId);
+    Integer insertUserInviteCode(UserInviteCodeId userInviteCodeId);
 }

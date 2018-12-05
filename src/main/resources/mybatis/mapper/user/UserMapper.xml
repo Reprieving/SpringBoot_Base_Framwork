@@ -15,7 +15,7 @@
     </resultMap>
 
     <update id="updatePassword">
-      UPDATE user_info SET ${updatePWDColumn} = #{newPassword} WHERE id = ${userId}
+      UPDATE user_info SET ${updatePWDColumn} = #{newPassword} WHERE id = #{userId}
     </update>
 
     <select id="listUser4InviteRecord" resultMap="userMap">

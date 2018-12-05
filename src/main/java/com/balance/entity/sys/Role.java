@@ -53,6 +53,7 @@ public class Role implements Serializable{
     //value column
     private List<RoleFunction> roleFunctions;
 
+    //DB column
     public static final String Role_name = "role_name";
 
 }

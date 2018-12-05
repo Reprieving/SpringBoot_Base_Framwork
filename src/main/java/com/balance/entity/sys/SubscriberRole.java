@@ -27,4 +27,8 @@ public class SubscriberRole implements Serializable {
     @Column(name = "role_id")
     private String roleId;
 
+    public SubscriberRole(String subscriberId, String roleId) {
+        this.subscriberId = subscriberId;
+        this.roleId = roleId;
+    }
 }

@@ -56,17 +56,30 @@ public class AppUserController {
     /**
      * 发送短信
      *
-     * @param user
+     * @param userReq
      * @return
      * @throws BusinessException
      */
     @RequestMapping("msg/send")
-    public Result<?> sendMsg4register(User user) throws BusinessException {
+    public Result<?> sendMsg4register(HttpServletRequest request, User userReq) throws BusinessException, UnsupportedEncodingException {
         String msgCode = RandomUtil.randomNumber(6);
-        userSendService.createMsgRecord(user.getId(), user.getPhoneNumber(), msgCode, user.getMsgType());
+
+        String userId;
+        Integer msgType = userReq.getMsgType();
+        if (UserConst.MSG_CODE_TYPE_RESET_LOGINPWD == msgType) { //重置登陆密码
+            User user = userService.selectOneByWhereString(User.Phone_number + "=", userReq.getPhoneNumber(), User.class);
+            ValueCheckUtils.notEmpty(user, "该手机号未注册");
+            userId = user.getId();
+        } else if (UserConst.MSG_CODE_TYPE_RESET_PAYPWD == msgType || UserConst.MSG_CODE_TYPE_SETTLE_PAYPWD == msgType) { //重置,设置支付密码
+            userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        } else {
+            userId = userReq.getId();
+        }
+
+        userSendService.createMsgRecord(userId, userReq.getPhoneNumber(), msgCode, userReq.getMsgType());
 
         String msgTypeStr = "";
-        switch (user.getMsgType()) {
+        switch (userReq.getMsgType()) {
             case UserConst.MSG_CODE_TYPE_REGISTER:
                 msgTypeStr = "[注册]";
                 break;
@@ -82,9 +95,11 @@ public class AppUserController {
         }
 
         String content = "美妆连" + msgTypeStr + "验证码： " + msgCode + "，五分钟有效。【美妆连】";
-        wjSmsService.sendSms(user.getPhoneNumber(), content);
+        wjSmsService.sendSms(userReq.getPhoneNumber(), content);
 
-        return ResultUtils.success("发送短信成功");
+        return ResultUtils.success("发送短信成功,验证码：" + msgCode);
+
+//        return ResultUtils.success("发送短信成功");
     }
 
     /**
@@ -112,12 +127,12 @@ public class AppUserController {
     @RequestMapping("login")
     public Result<?> login(User user) throws BusinessException, UnsupportedEncodingException {
         User userInfo = userService.login(user);
-        userAssetsServices.updateComputePowerRank();
         return ResultUtils.success(userInfo, "登录成功");
     }
 
     /**
      * 修改用户昵称
+     *
      * @param request
      * @param userName
      * @return
@@ -127,7 +142,7 @@ public class AppUserController {
     @RequestMapping("info/update/{userName}")
     public Result<?> updateInfo(HttpServletRequest request, @PathVariable String userName) throws BusinessException, UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        userService.updateUserName(userId,userName);
+        userService.updateUserName(userId, userName);
         return ResultUtils.success("修改用户昵称成功");
     }
 
@@ -192,18 +207,26 @@ public class AppUserController {
     /**
      * 重置密码
      *
-     * @param request
      * @param userReq
      */
     @RequestMapping("pwd/reset")
-    public Result<?> resetPassword(HttpServletRequest request, @RequestBody User userReq) throws UnsupportedEncodingException {
-        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+    public Result<?> resetPassword(HttpServletRequest request, User userReq) throws UnsupportedEncodingException {
+        String userId;
+        Integer msgType = userReq.getMsgType();
+        if (UserConst.MSG_CODE_TYPE_RESET_LOGINPWD == msgType) {
+            User user = userService.selectOneByWhereString(User.Phone_number + "=", userReq.getPhoneNumber(), User.class);
+            ValueCheckUtils.notEmpty(user, "该手机号未注册");
+            userId = user.getId();
+        } else if (UserConst.MSG_CODE_TYPE_RESET_PAYPWD == msgType || UserConst.MSG_CODE_TYPE_SETTLE_PAYPWD == msgType) {
+            userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        } else {
+            throw new BusinessException("短信验证码类型有误");
+        }
 
         userSendService.validateMsgCode(userId, userReq.getPhoneNumber(), userReq.getMsgCode(), userReq.getMsgType());
         userService.resetPassword(userId, userReq.getNewPassword(), userReq.getMsgType());
 
         return ResultUtils.success("重置密码成功");
-
     }
 
     /**
@@ -215,32 +238,34 @@ public class AppUserController {
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("payPwd/settle")
-    public Result<?> settlePayPassword(HttpServletRequest request, @RequestBody User userReq) throws UnsupportedEncodingException {
+    public Result<?> settlePayPassword(HttpServletRequest request, User userReq) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         Integer msgType = UserConst.MSG_CODE_TYPE_SETTLE_PAYPWD;
 
         userSendService.validateMsgCode(userId, userReq.getPhoneNumber(), userReq.getMsgCode(), msgType);
-        userService.resetPassword(userId, userReq.getNewPassword(), msgType);
+        userService.resetPassword(userId, userReq.getPayPassword(), msgType);
 
         return ResultUtils.success("设置支付密码成功");
     }
 
     /**
      * 修改密码
+     *
      * @param request
      * @param userReq
      * @return
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("pwd/update")
-    public Result<?> updatePassword(HttpServletRequest request, @RequestBody User userReq) throws UnsupportedEncodingException {
+    public Result<?> updatePassword(HttpServletRequest request, User userReq) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        userService.updatePassword(userId,userReq.getPhoneNumber(),userReq.getOldPassword(),userReq.getNewPassword(),userReq.getUpdatePwdType());
+        userService.updatePassword(userId, userReq.getPhoneNumber(), userReq.getOldPassword(), userReq.getNewPassword(), userReq.getUpdatePwdType());
         return ResultUtils.success("修改密码成功");
     }
 
     /**
      * 首页算力排行榜
+     *
      * @param request
      * @return
      * @throws UnsupportedEncodingException
@@ -251,13 +276,14 @@ public class AppUserController {
         UserComputePowerRank userComputePowerRank = new UserComputePowerRank();
         userComputePowerRank.setUserName(user.getUserName());
         userComputePowerRank.setComputeRankNo(Integer.valueOf(redisClient.get(RedisKeyConst.COMPUTE_POWER_RANK_NO + user.getId())));
-        userComputePowerRank.setUserAssetsList((List<UserAssets>) redisClient.listRange(RedisKeyConst.COMPUTE_POWER_RANK_LIST,0,9));
+        userComputePowerRank.setUserAssetsList((List<UserAssets>) redisClient.listRange(RedisKeyConst.COMPUTE_POWER_RANK_LIST, 0, 9));
 
         return ResultUtils.success(userComputePowerRank);
     }
 
     /**
      * 附近的人
+     *
      * @param request
      * @param userLocation
      * @return
@@ -265,12 +291,12 @@ public class AppUserController {
      */
     @ResponseBody
     @RequestMapping(value = "nearByUserList", method = RequestMethod.POST)
-    public Result<?> nearByUserList(HttpServletRequest request,UserLocation userLocation) throws UnsupportedEncodingException {
+    public Result<?> nearByUserList(HttpServletRequest request, UserLocation userLocation) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         UserAssets userAssets = userAssetsServices.getAssetsByUserId(userId);
-        ValueCheckUtils.notEmpty(userAssets,"未找到用户资产");
-        return ResultUtils.success(userService.nearUserList(userId,userLocation.getProvinceCode(),
-                userLocation.getCityCode(),userLocation.getRegionCode(),userLocation.getStreetCode(),
-                userLocation.getCoordinateX(),userLocation.getCoordinateY(),userAssets.getComputePower()));
+        ValueCheckUtils.notEmpty(userAssets, "未找到用户资产");
+        return ResultUtils.success(userService.nearUserList(userId, userLocation.getProvinceCode(),
+                userLocation.getCityCode(), userLocation.getRegionCode(), userLocation.getStreetCode(),
+                userLocation.getCoordinateX(), userLocation.getCoordinateY(), userAssets.getComputePower()));
     }
 }

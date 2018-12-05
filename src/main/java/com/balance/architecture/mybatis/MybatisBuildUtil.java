@@ -5,6 +5,7 @@ import com.balance.architecture.exception.EntityLackTableAnnotationException;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
+import com.balance.entity.user.MsgRecord;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -74,6 +75,10 @@ public class MybatisBuildUtil {
         return buildMapperParam4SelectListByWhere(null,pagination,clazz,orderMap);
     }
 
-
+    public static void main(String[] args) throws IllegalAccessException, InstantiationException {
+        Class clazz = MsgRecord.class;
+        Object object = clazz.newInstance();
+        System.out.println(object);
+    }
 
 }

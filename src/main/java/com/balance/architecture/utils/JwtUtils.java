@@ -4,6 +4,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.balance.architecture.exception.BusinessException;
+import com.balance.architecture.exception.LoginException;
 import com.balance.entity.sys.Subscriber;
 import com.balance.entity.user.User;
 
@@ -101,7 +103,14 @@ public class JwtUtils {
     public static User getUserByToken(String token) throws UnsupportedEncodingException {
         Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
         JWTVerifier jwtVerifier = JWT.require(algorithm).build();
-        DecodedJWT decodedJWT= jwtVerifier.verify(token);
+
+        DecodedJWT decodedJWT = null;
+        try{
+            decodedJWT= jwtVerifier.verify(token);
+        }catch (Exception e){
+            throw new LoginException();
+        }
+
 
         User user = new User();
         user.setId(decodedJWT.getClaim(TOKEN_CLAIM_USERID).asString());

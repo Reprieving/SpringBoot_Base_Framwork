@@ -43,7 +43,7 @@ public class AppGoodsController {
      * @return
      */
     @RequestMapping("spuList")
-    public Result<?> spuList(HttpServletRequest request, @RequestBody GoodsSpu goodsSpu) {
+    public Result<?> spuList(HttpServletRequest request, GoodsSpu goodsSpu) {
         List<GoodsSpu> goodsSpuList = goodsSpuService.listGoodsSpu(goodsSpu.getGoodsName(), goodsSpu.getCategoryId(), goodsSpu.getBrandId(),
                 goodsSpu.getSpuType(), goodsSpu.getStatus(), goodsSpu.getPagination());
         return ResultUtils.success(goodsSpuList);
@@ -71,7 +71,7 @@ public class AppGoodsController {
      * @return
      */
     @RequestMapping("skuChoose")
-    public Result<?> skuChoose(@RequestBody ShopOrderSkuReq shopOrderSkuReq){
+    public Result<?> skuChoose(ShopOrderSkuReq shopOrderSkuReq){
         GoodsSku goodsSku = goodsSkuService.chooseGoodsSku(shopOrderSkuReq.getSpuId(), shopOrderSkuReq.getSpecIdStr());
         return ResultUtils.success(goodsSku);
     }
@@ -100,11 +100,9 @@ public class AppGoodsController {
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("collection")
-    public Result<?> collection(HttpServletRequest request, @RequestBody PaginationReq paginationReq) throws UnsupportedEncodingException {
+    public Result<?> collection(HttpServletRequest request, PaginationReq paginationReq) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         List<GoodsCollection> goodsCollections = goodsSpuService.listGoodsCollection(userId, paginationReq.getPagination());
         return ResultUtils.success(goodsCollections);
     }
-
-
 }

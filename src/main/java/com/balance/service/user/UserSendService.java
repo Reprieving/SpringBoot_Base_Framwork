@@ -1,5 +1,6 @@
 package com.balance.service.user;
 
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -32,10 +34,14 @@ public class UserSendService extends BaseService {
      * @throws BusinessException
      */
     public void createMsgRecord(String userId, String phoneNumber, String msgCode, Integer msgType) throws BusinessException {
-        Integer result = userFreeCountMapper.updateUserSendMsgCount(userId);
-        if (result == 0) {
-            throw new BusinessException("当天发送短信次数已到达上限3条");
-        }
+        List<MsgRecord> msgRecords = selectListByWhereString(MsgRecord.User_id + "=", userId, new Pagination(), MsgRecord.class);
+//        if (msgRecords.size() > 0) {
+//            Integer result = userFreeCountMapper.updateUserSendMsgCount(userId);
+//            if (result == 0) {
+//                throw new BusinessException("当天发送短信次数已到达上限3条");
+//            }
+//        }
+
         MsgRecord msgRecord = new MsgRecord(userId, phoneNumber, msgCode, msgType, new Timestamp(System.currentTimeMillis()), true);
         insertIfNotNull(msgRecord);
 
@@ -65,7 +71,7 @@ public class UserSendService extends BaseService {
             throw new BusinessException("短信验证码已经失效");
         }
 
-        long minutes = DateUtils.getFragmentInMinutes(new Date(), Calendar.MONDAY);
+        long minutes = DateUtils.getFragmentInMinutes(new Date(), Calendar.MINUTE);
 
         if (minutes > 5) {
             throw new BusinessException("短信验证码已经过期");
