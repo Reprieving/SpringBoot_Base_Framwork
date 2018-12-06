@@ -21,8 +21,8 @@
     <update id="update">
         UPDATE ${tableName}
         <trim prefix="set" suffixOverrides=",">
-            <foreach collection="updateMap" index="key"  item="value">
-              ${key} = #{value},
+            <foreach collection="updateMap" index="key" item="value">
+                ${key} = #{value},
             </foreach>
         </trim>
         WHERE ${idDbColumn} = #{idPoVal}
@@ -45,11 +45,11 @@
             ${item}
         </foreach>
         FROM
-          ${tableName}
-        <if test="whereMap!=null">
+        ${tableName}
+        <if test="whereMap!=null and whereMap.size > 0 ">
             WHERE
             <trim prefix="1=1" suffixOverrides=",">
-                <foreach collection="whereMap" index="key"  item="value">
+                <foreach collection="whereMap" index="key" item="value">
                     AND ${key} #{value}
                 </foreach>
             </trim>
@@ -57,7 +57,7 @@
 
         <if test="orderMap !=null">
             ORDER BY
-            <foreach collection="orderMap" index="key"  item="value">
+            <foreach collection="orderMap" index="key" item="value">
                 ${key} ${value}
             </foreach>
         </if>
