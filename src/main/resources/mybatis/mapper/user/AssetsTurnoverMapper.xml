@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.balance.mapper.user.AssetsTurnoverMapper">
+    <resultMap id="BaseResultMap" type="AssetsTurnover">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="turnover_type" property="turnoverType" jdbcType="INTEGER"/>
+        <result column="turnover_amount" property="turnoverAmount" jdbcType="DECIMAL"/>
+        <result column="before_amount" property="beforeAmount" jdbcType="DECIMAL"/>
+        <result column="after_amount" property="afterAmount" jdbcType="DECIMAL"/>
+        <result column="source_id" property="sourceId" jdbcType="VARCHAR"/>
+        <result column="target_id" property="targetId" jdbcType="VARCHAR"/>
+        <result column="settlement_id" property="settlementId" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="detail_str" property="detailStr" jdbcType="VARCHAR"/>
+        <!-- 扩展 -->
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="head_picture_url" property="headPictureUrl" jdbcType="VARCHAR"/>
+        <result column="phone_number" property="phoneNumber" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        t.id, t.user_id, t.turnover_type, t.turnover_amount, t.before_amount, t.after_amount, t.source_id,
+        t.target_id, t.settlement_id, t.create_time, t.detail_str
+    </sql>
+
+    <select id="selectByPage" resultMap="BaseResultMap" >
+        select
+        <include refid="Base_Column_List"/>, ui.user_name, ui.head_picture_url, ui.phone_number
+        <include refid="pageSql"/>
+        LIMIT #{page.startRow,jdbcType=INTEGER}, #{page.pageSize,jdbcType=INTEGER}
+    </select>
+    <sql id="pageSql">
+        from assets_turnover t
+        join user_info ui on ui.id = t.user_id
+        where 1 = 1
+        <if test="userName != null">
+            ui.user_name = #{param.userName}
+        </if>
+        <if test="phoneNumber != null">
+            ui.phone_number = #{param.phoneNumber}
+        </if>
+    </sql>
+    <select id="selectCount" parameterType="map" resultType="int">
+        select count(*)
+        <include refid="pageSql"/>
+    </select>
+
+
+</mapper>

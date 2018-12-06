@@ -25,7 +25,7 @@ public class Certification implements Serializable { //用户认证
     private String userId; //用户id
 
     @Column(name = License_type)
-    private String licenseType; //证件类型
+    private Integer licenseType; //证件类型
 
     @Column(name = License_number)
     private String licenseNumber; //证件号码
