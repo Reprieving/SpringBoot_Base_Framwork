@@ -11,6 +11,7 @@ public class Pagination {
     private int totalPageNumber;// 总共的页数，通过总共的记录条数以及每页大小计算而得
     private List<?> objectList;
 
+    
     public int getPageNum() {
         return pageNum;
     }
