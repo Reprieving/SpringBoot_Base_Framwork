@@ -6,6 +6,7 @@ import com.balance.entity.shop.GoodsSpu;
 import com.balance.service.shop.GoodsSpuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,8 +23,12 @@ public class AdminGoodsController {
      * @return
      */
     @RequestMapping("spu/{operatorType}")
-    public Result<?> spuList(GoodsSpu goodsSpu, @PathVariable Integer operatorType) {
-        Object object = goodsSpuService.operator(goodsSpu, operatorType,goodsSpu.getDefaultImgUrl(),goodsSpu.getDetailImgs(),goodsSpu.getPagination());
+    public Result<?> spuList(@RequestBody GoodsSpu goodsSpu, @PathVariable Integer operatorType) {
+        Object object = goodsSpuService.operator(goodsSpu, operatorType,goodsSpu.getDefaultImg(),goodsSpu.getDetailImg(),goodsSpu.getPagination());
+        if(object instanceof String){
+            String message = String.valueOf(object);
+            return ResultUtils.success(message);
+        }
         return ResultUtils.success(object);
     }
 
