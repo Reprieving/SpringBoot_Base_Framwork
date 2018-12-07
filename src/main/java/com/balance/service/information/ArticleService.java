@@ -12,6 +12,7 @@ import com.balance.entity.information.Article;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.sys.Subscriber;
 import com.balance.entity.user.UserArticleCollection;
+import com.balance.mapper.information.ArticleMapper;
 import com.balance.service.mission.MissionCompleteService;
 import com.balance.service.mission.MissionService;
 import com.google.common.collect.ImmutableMap;
@@ -40,6 +41,8 @@ public class ArticleService extends BaseService {
     @Autowired
     private RedisClient redisClient;
 
+    @Autowired
+    private ArticleMapper articleMapper;
 
     /**
      * 发布文章
@@ -185,4 +188,17 @@ public class ArticleService extends BaseService {
         });
     }
 
+    public Pagination getByPage4Admin(Map<String, Object> params) {
+        Pagination pagination = new Pagination();
+        pagination.setObjectList(articleMapper.selectByPage4Admin(params));
+        pagination.setTotalRecordNumber(articleMapper.selectCount4Admin(params));
+        return pagination;
+    }
+
+    public Pagination getByPage4User(Map<String, Object> params) {
+        Pagination pagination = new Pagination();
+        pagination.setObjectList(articleMapper.selectByPage4User(params));
+        pagination.setTotalRecordNumber(articleMapper.selectCount4User(params));
+        return pagination;
+    }
 }

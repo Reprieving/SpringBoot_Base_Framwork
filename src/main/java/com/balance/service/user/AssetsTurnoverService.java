@@ -1,20 +1,26 @@
 package com.balance.service.user;
 
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.entity.user.AssetsTurnover;
 import com.balance.entity.user.UserAssets;
+import com.balance.mapper.user.AssetsTurnoverMapper;
 import com.balance.utils.BigDecimalUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Service
 public class AssetsTurnoverService extends BaseService {
 
     @Autowired
     private UserAssetsService userAssetsService;
+
+    @Autowired
+    private AssetsTurnoverMapper assetsTurnoverMapper;
 
     /**
      * 创建流水记录
@@ -43,6 +49,14 @@ public class AssetsTurnoverService extends BaseService {
         assetsTurnover.setAfterAmount(BigDecimalUtils.add(targetAssetsAmount,turnoverAmount));
 
         return insertIfNotNull(assetsTurnover);
+    }
+
+
+    public Pagination getByPage(Map<String, Object> params) {
+        Pagination pagination = new Pagination();
+        pagination.setTotalRecordNumber(assetsTurnoverMapper.selectCount(params));
+        pagination.setObjectList(assetsTurnoverMapper.selectByPage(params));
+        return pagination;
     }
 
 
