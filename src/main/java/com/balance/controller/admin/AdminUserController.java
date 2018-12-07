@@ -108,9 +108,9 @@ public class AdminUserController {
      * @return
      */
     @PostMapping("assetsList")
-    public Result<?> assetsList(Pagination pagination, String userName, String phoneNumber) {
-        return ResultUtils.success(assetsTurnoverService.getByPage(pagination, userName, phoneNumber),
-                pagination.getTotalRecordNumber());
+    public Result<?> assetsList(@RequestBody Map<String, Object> params) {
+        Pagination pagination = assetsTurnoverService.getByPage(params);
+        return ResultUtils.success(pagination.getObjectList(), pagination.getTotalRecordNumber());
     }
 
     /**
@@ -122,7 +122,6 @@ public class AdminUserController {
     public Result<?> auth(@PathVariable String id) {
         return ResultUtils.success(baseService.selectOneByWhereString(UserAssets.User_id + " = ", id, UserAssets.class));
     }
-
 
 
 }
