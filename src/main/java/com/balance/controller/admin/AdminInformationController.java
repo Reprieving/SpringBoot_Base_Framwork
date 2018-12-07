@@ -31,9 +31,9 @@ public class AdminInformationController {
     @PostMapping("list")
     public Result<?> articleList(@RequestBody Map<String, Object> params) {
         Object type = params.get("type");
-        if(InformationConst.ARTICLE_TYPE_ANNOUNCE == Article.getArticleType() || InformationConst.ARTICLE_TYPE_ACTIVITY == Article.getArticleType()){
-
-        }
+//        if(InformationConst.ARTICLE_TYPE_ANNOUNCE == Article.getArticleType() || InformationConst.ARTICLE_TYPE_ACTIVITY == Article.getArticleType()){
+//
+//        }
         Pagination pagination = null;
 //        if (type == 1) {
 //            pagination = articleService.getByPage4Admin(params);
