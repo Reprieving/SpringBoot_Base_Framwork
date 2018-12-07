@@ -5,8 +5,13 @@ import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.ShopConst;
 import com.balance.entity.shop.ShoppingAddress;
 import com.balance.mapper.shop.ShoppingAddressMapper;
+import com.google.common.collect.ImmutableMap;
+import com.sun.corba.se.spi.ior.ObjectKey;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 public class ShoppingAddressService extends BaseService {
@@ -36,7 +41,7 @@ public class ShoppingAddressService extends BaseService {
     public Object operatorAddress(String userId, Integer operatorType,ShoppingAddress shoppingAddress) {
         Object o = null;
         Class clazz = ShoppingAddress.class;
-        Integer i = 0;
+        Integer i;
         switch (operatorType) {
             case ShopConst.SHOPPING_ADDRESS_OPERATOR_TYPE_INSERT: //添加
                 shoppingAddress.setUserId(userId);
@@ -76,5 +81,16 @@ public class ShoppingAddressService extends BaseService {
                 break;
         }
         return o;
+    }
+
+    /**
+     * 查询用户默认收获地址
+     * @param userId
+     * @return
+     */
+    public ShoppingAddress getDefaultShoppingAddress(String userId){
+        userId = "123";
+        Map<String,Object> whereMap = ImmutableMap.of(ShoppingAddress.User_id+"=",userId,ShoppingAddress.Is_default+"=",true);
+        return selectOneByWhereMap(whereMap,ShoppingAddress.class);
     }
 }

@@ -83,7 +83,7 @@ public class OrderService extends BaseService {
                 }
 
                 //3.增加订单记录
-                String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSS");
+                String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
                 OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, addressId, orderTotalPrice);
                 insertIfNotNull(orderInfo);
                 for (OrderItem orderItem : orderItems) {

@@ -240,15 +240,4 @@ public class AliOSSBusiness {
 		this.deleteObject(bucketName, key);
 	}
 
-
-
-	@Test
-	public void test(){
-		//OSSObject object = client.getObject(OSS_COMMON_BUCKET_NAME, "COMMODITY_SHOW_IMG/1534853437158");
-
-		System.out.println(DateFormatUtils.format(new Date(),"yyyy-MM-dd|HH"));
-	}
-
-
-
 }

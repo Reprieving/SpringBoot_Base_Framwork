@@ -9,6 +9,7 @@ import org.apache.ibatis.type.Alias;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 @Alias("GoodsSpu")
@@ -64,6 +65,12 @@ public class GoodsSpu implements Serializable{
 
     //分页
     private Pagination pagination;
+
+    //默认图Url
+    private String defaultImg;
+    //详情图url
+    private List<String> detailImgs;
+
 
     //DB Column name
     public static final String Id = "id";

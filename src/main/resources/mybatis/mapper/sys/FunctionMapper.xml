@@ -28,7 +28,7 @@
 
     <select id="selectFuncList" resultMap="funcTreeMap">
         <choose>
-            <when test=" subscriberId != null and subscriberId == '1'.toString()">
+            <when test=" subscriberId != null and subscriberId == '0'.toString()">
                 SELECT id,parent_id,module_name,function_name,component,icon_code,path,url,is_leaf FROM sys_function
             </when>
             <otherwise>
@@ -50,9 +50,9 @@
                                     sys_subscriber a
                                 LEFT JOIN sys_subscriber_role b ON a.id = b.subscriber_id
                                 WHERE
-                                    a.id = '10000'
+                                    a.id = ${subscriberId}
                             )
-                    )
+                    ) AND d.is_valid = 1
             </otherwise>
         </choose>
     </select>

@@ -3,13 +3,20 @@ package com.balance;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cache.annotation.EnableCaching;
 
 @SpringBootApplication
 @MapperScan("com.balance.**.mapper")
 @EnableCaching
-public class BootStrapApplication {
+public class BootStrapApplication extends SpringBootServletInitializer{
 	public static void main(String[] args) {
 		SpringApplication.run(BootStrapApplication.class, args);
+	}
+
+	@Override //为了打包springBoot项目
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+		return builder.sources(this.getClass());
 	}
 }

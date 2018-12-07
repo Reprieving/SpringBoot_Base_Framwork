@@ -5,6 +5,7 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.constance.CommonConst;
 import com.balance.constance.ShopConst;
 import com.balance.entity.shop.*;
 import com.balance.entity.user.UserArticleCollection;
@@ -13,9 +14,11 @@ import com.balance.service.common.AliOSSBusiness;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -35,25 +38,36 @@ public class GoodsSpuService extends BaseService {
      * 新增商品基本信息
      *
      * @param goodsSpu
-     * @param goodsDefaultFile 商品默认图片
-     * @param goodsDetailFiles 商品详情图片
+     * @param defaultImgUrl 商品默认图片url
+     * @param detailImgUrls 商品详情图片urls
      */
-    public void createGoodsSpu(GoodsSpu goodsSpu, MultipartFile goodsDefaultFile, MultipartFile[] goodsDetailFiles) {
-        String fileDirectory = DateFormatUtils.format(new Date(), "yyyy-MM-dd|HH");
+    public Integer createGoodsSpu(GoodsSpu goodsSpu,String defaultImgUrl,List<String> detailImgUrls) {
+        ValueCheckUtils.notEmpty(goodsSpu.getGoodsName(),"商品名不能为空");
+        ValueCheckUtils.notEmpty(goodsSpu.getLowPrice(),"商品最低价格不能为空");
+        if(goodsSpu.getLowPrice().compareTo(new BigDecimal(0))==-1){
+            throw new BusinessException("商品最低价格不能少0");
+        }
+        ValueCheckUtils.notEmpty(goodsSpu.getSettlementId(),"商品支付方式不能为空");
+        ValueCheckUtils.notEmpty(goodsSpu.getSpuType(),"商品类型不能为空");
+
+        ValueCheckUtils.notEmpty(defaultImgUrl,"商品默认图片不能为空");
+        ValueCheckUtils.notEmpty(detailImgUrls,"商品详情图片不能为空");
 
         //上传文件
-        String defaultImgUrl = aliOSSBusiness.uploadCommonPic(goodsDefaultFile, fileDirectory);
+        String spuNo = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
         goodsSpu.setDefaultImgUrl(defaultImgUrl);
+        goodsSpu.setSpuNo(spuNo);
+
         insert(goodsSpu);
 
         List<GoodsImg> goodsDetailImgList = new ArrayList<>();
-        for (MultipartFile goodsDetailFile : goodsDetailFiles) {
-            String detailImgUrl = aliOSSBusiness.uploadCommonPic(goodsDetailFile, fileDirectory);
+        for (String detailImgUrl : detailImgUrls) {
             GoodsImg goodsDetailImg = new GoodsImg(goodsSpu.getId(), detailImgUrl, ShopConst.GOODS_IMG_TYPE_DETAIL);
             goodsDetailImgList.add(goodsDetailImg);
         }
         insertBatch(goodsDetailImgList, false);
 
+        return 1;
     }
 
     /**
@@ -194,5 +208,43 @@ public class GoodsSpuService extends BaseService {
      */
     public List<GoodsCollection> listGoodsCollection(String userId, Pagination pagination) {
         return selectListByWhereString(GoodsCollection.User_id, userId, pagination, GoodsCollection.class);
+    }
+
+    /**
+     * 增删改查Spu
+     * @param goodsSpu
+     * @param operatorType
+     * @return
+     */
+    public Object operator(GoodsSpu goodsSpu, Integer operatorType,String defaultImg,List<String> detailImgs, Pagination pagination) {
+        Object o = null;
+        switch (operatorType) {
+            case CommonConst.OPERATOR_TYPE_INSERT: //添加
+                o = "上传商品成功";
+                if(createGoodsSpu(goodsSpu,defaultImg,detailImgs) == 0){
+                    throw new BusinessException("上传商品失败");
+                }
+                break;
+
+            case CommonConst.OPERATOR_TYPE_DELETE: //删除
+                goodsSpu.setIsValid(false);
+                o = "删除商品成功";
+                if(delete(goodsSpu) == 0){
+                    throw new BusinessException("删除商品失败");
+                }
+                break;
+
+            case CommonConst.OPERATOR_TYPE_UPDATE: //更新
+                o = "更新商品成功";
+                if(updateIfNotNull(goodsSpu) == 0){
+                    throw new BusinessException("更新商品失败");
+                }
+                break;
+
+            case CommonConst.OPERATOR_TYPE_QUERY: //查询
+                o = listGoodsSpu(goodsSpu.getGoodsName(),goodsSpu.getCategoryId(),goodsSpu.getBrandId(),goodsSpu.getSpuType(),goodsSpu.getStatus(),pagination);
+                break;
+        }
+        return o;
     }
 }

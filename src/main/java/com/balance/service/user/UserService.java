@@ -23,6 +23,7 @@ import com.balance.service.mission.MissionService;
 import com.balance.utils.BigDecimalUtils;
 import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.UnsupportedEncodingException;
@@ -85,7 +87,7 @@ public class UserService extends BaseService {
 
                 User inviteUser = selectOneByWhereString(User.Invite_code + " = ", user.getInviteCode(), User.class);
 
-                String inviteId = inviteUser==null?"":inviteUser.getId();
+                String inviteId = inviteUser == null ? "" : inviteUser.getId();
 
                 user.setInviteId(inviteId);
                 user.setUserName("");
@@ -160,7 +162,7 @@ public class UserService extends BaseService {
      * @param userId 用户id
      * @param file   头像图片
      */
-    public String updateHeadPic(String userId, MultipartFile file) {
+    public String updateHeadPic(String userId, @RequestParam("file")MultipartFile file) {
         String fileDirectory = DateFormatUtils.format(new Date(), "yyyy-MM-dd|HH");
         String imgUrl = aliOSSBusiness.uploadCommonPic(file, fileDirectory);
 
@@ -180,7 +182,8 @@ public class UserService extends BaseService {
      */
     public void updateUserName(String userId, String userName) {
         ValueCheckUtils.notEmpty(userName, "用户昵称不能为空");
-        User userPo = selectOneByWhereString(User.User_name + "=", userName, User.class);
+        Map<String, Object> whereMap = ImmutableMap.of(User.User_name + "=", userName, User.Id + "!=", userId);
+        User userPo = selectOneByWhereMap(whereMap, User.class);
         if (userPo != null) {
             throw new BusinessException("用户昵称已存在");
         }
@@ -273,7 +276,10 @@ public class UserService extends BaseService {
      * @param newPassword   新密码
      * @param updatePwdType 修改类型
      */
-    public void updatePassword(String userId, String phoneNumber, String oldPassword, String newPassword, Integer updatePwdType) {
+    public void updatePassword(String userId, String oldPassword, String newPassword, Integer updatePwdType) {
+        User userPo = selectOneById(userId, User.class);
+        String phoneNumber = userPo.getPhoneNumber();
+
         ValueCheckUtils.notEmpty(phoneNumber, "手机号不能为空");
         ValueCheckUtils.notEmpty(newPassword, "新密码不能为空");
         ValueCheckUtils.notEmpty(oldPassword, "旧密码不能为空");
@@ -289,9 +295,10 @@ public class UserService extends BaseService {
         }
 
         oldPassword = EncryptUtils.md5Password(oldPassword);
+        newPassword = EncryptUtils.md5Password(newPassword);
 
-        User user = userMapper.getUserToUpdatePwd(phoneNumber, updatePWDColumn, oldPassword);
-        ValueCheckUtils.notEmpty(user, "密码有误");
+        User checkUser = userMapper.getUserToUpdatePwd(phoneNumber, updatePWDColumn, oldPassword);
+        ValueCheckUtils.notEmpty(checkUser, "密码有误");
 
         Integer i = userMapper.updatePassword(userId, newPassword, updatePWDColumn);
         if (i == 0) {
@@ -334,7 +341,7 @@ public class UserService extends BaseService {
 
             //[userId],[userName],[headImgPic],[computePower],[distance]
             String[] nearByUserInfo = String.valueOf(geoLocation.getName()).split(":");
-            NearByUser nearByUser = new NearByUser(nearByUserInfo[0],nearByUserInfo[1],nearByUserInfo[2],nearByUserInfo[3],distance);
+            NearByUser nearByUser = new NearByUser(nearByUserInfo[0], nearByUserInfo[1], nearByUserInfo[2], nearByUserInfo[3], distance);
             nearByUsers.add(nearByUser);
         }
 

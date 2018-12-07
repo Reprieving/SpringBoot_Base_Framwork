@@ -47,4 +47,8 @@ public class UserFrozenAssets implements Serializable { //用户冻结资产
     public static final String Eth = "eth";
     public static final String Ore = "ore";
     public static final String Version = "version";
+
+    public UserFrozenAssets(){
+
+    }
 }

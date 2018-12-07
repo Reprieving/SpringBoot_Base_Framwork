@@ -10,6 +10,7 @@ import com.balance.entity.information.Investigation;
 import com.balance.service.information.ArticleService;
 import com.balance.service.information.InvestigationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,13 +34,11 @@ public class AppInformationController {
      *
      * @param request
      * @param articleType
-     * @param paginationReq
      * @return
      */
     @RequestMapping("article/list/{articleType}")
-    public Result<?> articleList(HttpServletRequest request, @PathVariable Integer articleType, @RequestBody PaginationReq paginationReq) throws UnsupportedEncodingException {
+    public Result<?> articleList(HttpServletRequest request, @PathVariable Integer articleType, Pagination pagination) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        Pagination pagination = paginationReq.getPagination();
         return ResultUtils.success(articleService.listArticle(userId, articleType, pagination));
     }
 
@@ -52,7 +51,7 @@ public class AppInformationController {
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("article/create")
-    public Result<?> createArticle(HttpServletRequest request, @RequestBody Article article) throws UnsupportedEncodingException {
+    public Result<?> createArticle(HttpServletRequest request, Article article) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         articleService.createArticle(userId, article);
         return ResultUtils.success();
@@ -92,14 +91,13 @@ public class AppInformationController {
      * 用户收藏文章列表
      *
      * @param request
-     * @param paginationReq
      * @return
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("article/collection/list")
-    public Result<?> collectionList(HttpServletRequest request, @RequestBody PaginationReq paginationReq) throws UnsupportedEncodingException {
+    public Result<?> collectionList(HttpServletRequest request, Pagination pagination) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        return ResultUtils.success(articleService.listArticleCollection(userId, paginationReq.getPagination()));
+        return ResultUtils.success(articleService.listArticleCollection(userId, pagination));
     }
 
     /**
@@ -119,12 +117,10 @@ public class AppInformationController {
      *
      * @param request
      * @param beautyId
-     * @param paginationReq
      * @return
      */
     @RequestMapping("investTemplate/list/{beautyId}")
-    public Result<?> articleList(HttpServletRequest request, @PathVariable String beautyId, @RequestBody PaginationReq paginationReq) {
-        Pagination pagination = paginationReq.getPagination();
+    public Result<?> articleList(HttpServletRequest request, @PathVariable String beautyId, Pagination pagination) {
         return ResultUtils.success(investigationService.listInvestigationTemplate(beautyId, pagination));
     }
 
@@ -137,7 +133,7 @@ public class AppInformationController {
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("invest/create")
-    public Result<?> createInvestigation(HttpServletRequest request, @RequestBody Investigation investigation) throws UnsupportedEncodingException {
+    public Result<?> createInvestigation(HttpServletRequest request, Investigation investigation) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         investigationService.createInvestigation(userId, investigation);
         return ResultUtils.success();

@@ -11,6 +11,6 @@ public class UserServiceTest {
 
     @Test
     public void nearUserListTest(){
-//        userService.nearUserList()
+        System.out.println(1);
     }
 }

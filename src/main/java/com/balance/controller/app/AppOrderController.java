@@ -11,10 +11,8 @@ import com.balance.entity.shop.OrderInfo;
 import com.balance.service.shop.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -61,7 +59,7 @@ public class AppOrderController {
      * @return
      */
     @RequestMapping("create")
-    public Result<?> create(HttpServletRequest request, @RequestBody ShopOrderPayReq shopOrderPayReq) throws UnsupportedEncodingException {
+    public Result<?> create(HttpServletRequest request,ShopOrderPayReq shopOrderPayReq) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         orderService.createOrder(shopOrderPayReq.getOrderSkuReqList(),userId,shopOrderPayReq.getAddressId(),shopOrderPayReq.getSettlementId());
         return ResultUtils.success();

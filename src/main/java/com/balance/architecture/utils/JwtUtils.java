@@ -18,7 +18,7 @@ public class JwtUtils {
     /**
      * 过期时间15分钟
      */
-    public static final long EXPIRE_TIME = 15*60*1000;
+    public static final long EXPIRE_TIME = 60*60*1000*24*50;
 
     /**
      * token私钥
@@ -118,4 +118,7 @@ public class JwtUtils {
         return user;
     }
 
+    public static void main(String[] args) {
+
+    }
 }

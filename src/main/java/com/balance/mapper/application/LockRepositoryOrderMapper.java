@@ -31,7 +31,7 @@ public interface LockRepositoryOrderMapper {
      * @param userId
      * @return
      */
-    List<LockRepositoryOrder> listLockRepOrderOfUser(@Param("userId")String userId, @Param("userId")Pagination pagination);
+    List<LockRepositoryOrder> listLockRepOrderOfUser(@Param("userId")String userId, @Param("pagination")Pagination pagination);
 
 
     /**

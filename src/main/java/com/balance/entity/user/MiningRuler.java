@@ -41,4 +41,8 @@ public class MiningRuler implements Serializable{ //挖矿规则
     public static final String End_value = "end_value";
     public static final String Reward_rate = "reward_rate";
     public static final String Reward_type = "reward_type";
+
+    public MiningRuler(){
+    }
+
 }

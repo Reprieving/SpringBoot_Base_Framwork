@@ -54,20 +54,22 @@ public class LockRepositoryService extends BaseService {
      */
     public List<LockRepository> listLockRepository(LockRepository lockRepository, Pagination pagination) {
         Map<String, Object> whereMap = new HashMap<>();
-        if (lockRepository.getPeriod() != null) {
-            whereMap.put(LockRepository.Period + " = ", lockRepository.getPeriod());
-        }
-        if (lockRepository.getLockType() != null) {
-            whereMap.put(LockRepository.Lock_type + " = ", lockRepository.getLockType());
-        }
-        if (lockRepository.getStatus() != null) {
-            whereMap.put(LockRepository.Status + " = ", lockRepository.getStatus());
-        }
-        if (lockRepository.getStartTime() != null) {
-            whereMap.put(LockRepository.Create_time + " >= ", lockRepository.getCreateTime());
-        }
-        if (lockRepository.getEndTime() != null) {
-            whereMap.put(LockRepository.End_time + " <= ", lockRepository.getEndTime());
+        if(lockRepository!=null){
+            if (lockRepository.getPeriod() != null) {
+                whereMap.put(LockRepository.Period + " = ", lockRepository.getPeriod());
+            }
+            if (lockRepository.getLockType() != null) {
+                whereMap.put(LockRepository.Lock_type + " = ", lockRepository.getLockType());
+            }
+            if (lockRepository.getStatus() != null) {
+                whereMap.put(LockRepository.Status + " = ", lockRepository.getStatus());
+            }
+            if (lockRepository.getStartTime() != null) {
+                whereMap.put(LockRepository.Create_time + " >= ", lockRepository.getCreateTime());
+            }
+            if (lockRepository.getEndTime() != null) {
+                whereMap.put(LockRepository.End_time + " <= ", lockRepository.getEndTime());
+            }
         }
 
         return selectListByWhereMap(whereMap, pagination, LockRepository.class);

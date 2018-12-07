@@ -52,4 +52,7 @@ public class UserAssets implements Serializable{ //用户资产
     public static final String Ore = "ore";
     public static final String Version = "version";
 
+    public UserAssets(){
+
+    }
 }
