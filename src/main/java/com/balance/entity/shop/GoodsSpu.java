@@ -69,7 +69,7 @@ public class GoodsSpu implements Serializable{
     //默认图Url
     private String defaultImg;
     //详情图url
-    private List<String> detailImgs;
+    private List<String> detailImg;
 
 
     //DB Column name

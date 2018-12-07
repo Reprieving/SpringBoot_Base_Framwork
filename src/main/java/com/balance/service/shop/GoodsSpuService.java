@@ -58,7 +58,7 @@ public class GoodsSpuService extends BaseService {
         goodsSpu.setDefaultImgUrl(defaultImgUrl);
         goodsSpu.setSpuNo(spuNo);
 
-        insert(goodsSpu);
+        insertIfNotNull(goodsSpu);
 
         List<GoodsImg> goodsDetailImgList = new ArrayList<>();
         for (String detailImgUrl : detailImgUrls) {
