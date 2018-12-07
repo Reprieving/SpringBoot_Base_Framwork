@@ -12,5 +12,5 @@ public interface OrderMapper {
 
     List<OrderGoodsInfo> listOrderGoodsInfo(@Param("userId") String userId, @Param("orderStatus") Integer orderStatus, @Param("pagination") Pagination pagination);
 
-    OrderGoodsInfo getOrderGoodsInfo(@Param("userId") String orderId);
+    OrderGoodsInfo getOrderGoodsInfo(@Param("orderId") String orderId);
 }

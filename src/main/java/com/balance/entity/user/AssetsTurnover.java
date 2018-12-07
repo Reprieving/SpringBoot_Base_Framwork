@@ -71,4 +71,6 @@ public class AssetsTurnover implements Serializable { //资产流水
     public static final String Settlement_id = "settlement_id";
     public static final String Create_time = "create_time";
     public static final String Detail_str = "detail_str";
+
+    public AssetsTurnover(){}
 }

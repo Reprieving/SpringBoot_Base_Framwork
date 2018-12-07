@@ -37,7 +37,7 @@ public class InvestigationService extends BaseService{
      * @return
      */
     public List<Investigation> listInvestigationTemplate(String beautyId, Pagination pagination){
-        Map<String,Object> whereMap = ImmutableMap.of(Investigation.Beauty_id,beautyId,Investigation.Is_template,1);
+        Map<String,Object> whereMap = ImmutableMap.of(Investigation.Beauty_id+"=",beautyId,Investigation.Is_template+"=",true);
         List<Investigation> investigationTemplates = selectListByWhereMap(whereMap,pagination,Investigation.class);
         return investigationTemplates;
     }

@@ -56,4 +56,6 @@ public class Certification implements Serializable { //用户认证
     public static final String Handle_photo_url = "handle_photo_url";
     public static final String Create_time = "create_time";
     public static final String Status = "status";
+
+    public Certification(){}
 }

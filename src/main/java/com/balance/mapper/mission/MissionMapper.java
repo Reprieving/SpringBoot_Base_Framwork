@@ -9,9 +9,5 @@ import java.util.List;
 
 @Repository
 public interface MissionMapper {
-    List<Mission> selectMissionList(Integer type);
-
-    MissionComplete selectCompletion(String id, String userId);
-
     Integer selectCountTodaySign(@Param("userId")String userId, @Param("today")String today);
 }

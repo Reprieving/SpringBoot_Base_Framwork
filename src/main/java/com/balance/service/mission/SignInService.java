@@ -62,7 +62,9 @@ public class SignInService extends BaseService {
 
                 insertIfNotNull(newSignIn);
 
-                List<SignIn> signList = selectListByWhereString(SignIn.User_id + " = ", userId, new Pagination(), SignIn.class);
+                Pagination pagination = new Pagination();
+                pagination.setPageSize(30);
+                List<SignIn> signList = selectListByWhereString(SignIn.User_id + " = ", userId, pagination, SignIn.class);
 
                 Integer seriesSignCount = 0;
 
@@ -78,10 +80,12 @@ public class SignInService extends BaseService {
                     Date d = c.getTime();
                     String day = format.format(d);
                     for (SignIn signIn : signList) {
-                        String signDay = format.format(signIn.getSignTime());
-                        if (day.equals(signDay)) {
-                            signInApp.setHasSign(true);
-                            break;
+                        if (signIn.getSignTime() != null) {
+                            String signDay = format.format(signIn.getSignTime());
+                            if (day.equals(signDay)) {
+                                signInApp.setHasSign(true);
+                                break;
+                            }
                         }
                     }
                     signInApp.setSignTimeStr(day);
@@ -102,19 +106,19 @@ public class SignInService extends BaseService {
                 }
 
                 //每日签到
-                missionCompleteService.createOrUpdateMissionComplete(userId,daySignMission);
+                missionCompleteService.createOrUpdateMissionComplete(userId, daySignMission);
 
                 //完成7天连续签到
                 if (seriesSignCount % 7 == 0) {
                     Mission weekSignMission = missionService.filterTaskByCode(MissionConst.SIGN_WEEK, allMission);
-                    missionCompleteService.createOrUpdateMissionComplete(userId,weekSignMission);
+                    missionCompleteService.createOrUpdateMissionComplete(userId, weekSignMission);
                 }
 
 
                 //完成30天连续签到
                 if (seriesSignCount % 30 == 0) {
                     Mission monthSignMission = missionService.filterTaskByCode(MissionConst.SIGN_MONTH, allMission);
-                    missionCompleteService.createOrUpdateMissionComplete(userId,monthSignMission);
+                    missionCompleteService.createOrUpdateMissionComplete(userId, monthSignMission);
                 }
 
             }
@@ -129,8 +133,8 @@ public class SignInService extends BaseService {
      */
     public SignInfo getSignList(String userId) {
         SignInfo signInfo = new SignInfo();
-        Map<String,Object> orderMap = ImmutableMap.of(SignIn.User_id, CommonConst.MYSQL_DESC);
-        List<SignIn> signList = selectListByWhereString("user_id = ", userId, new Pagination(), SignIn.class,orderMap);
+        Map<String, Object> orderMap = ImmutableMap.of(SignIn.User_id, CommonConst.MYSQL_DESC);
+        List<SignIn> signList = selectListByWhereString("user_id = ", userId, null, SignIn.class, orderMap);
 
         List<SignIn> signListAppReturn = new ArrayList<>();//用户最近30天签到信息(用于返回移动端)
 
@@ -139,7 +143,7 @@ public class SignInService extends BaseService {
         Date nowDate = new Date();
 
 
-        //计算当天7天签到日期及用户在这7天中是否有签到
+        //计算当天7天签到日期及用户在这30天中是否有签到
         int signSize;
         int appSignListCount = MissionConst.APP_SIGN_VIEW_COUNT;
         if (signList.size() > appSignListCount) {

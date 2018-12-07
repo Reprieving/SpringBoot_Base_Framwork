@@ -33,13 +33,11 @@ public class AppApplicationController {
 
     /**
      * 锁仓产品列表
-     * @param request
      * @return
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("lockRep/list")
-    public Result<?> lockRepList(HttpServletRequest request, @RequestBody Pagination pagination) throws UnsupportedEncodingException {
-//        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+    public Result<?> lockRepList(Pagination pagination) throws UnsupportedEncodingException {
         List<LockRepository> lockRepositoryList = lockRepositoryService.listLockRepository(null,pagination);
         return ResultUtils.success(lockRepositoryList);
     }
@@ -51,7 +49,7 @@ public class AppApplicationController {
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("lockRepOrder/create")
-    public Result<?> createLockRepOrder(HttpServletRequest request, @RequestBody LockRepOrderPayReq lockRepOrderPayReq) throws UnsupportedEncodingException {
+    public Result<?> createLockRepOrder(HttpServletRequest request, LockRepOrderPayReq lockRepOrderPayReq) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         lockRepositoryService.createOrder(userId,lockRepOrderPayReq.getLockRepId(),lockRepOrderPayReq.getBuyAmount());
         return ResultUtils.success("购买成功");
@@ -66,7 +64,7 @@ public class AppApplicationController {
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("lockRepOrder/list")
-    public Result<?> listLockRepOrder(HttpServletRequest request, @RequestBody Pagination pagination) throws UnsupportedEncodingException {
+    public Result<?> listLockRepOrder(HttpServletRequest request, Pagination pagination) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         List<LockRepositoryOrder> lockRepositoryOrders = lockRepositoryService.listLockRepOrder(userId,pagination);
         return ResultUtils.success(lockRepositoryOrders);

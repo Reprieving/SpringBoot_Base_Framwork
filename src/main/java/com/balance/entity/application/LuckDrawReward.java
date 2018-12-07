@@ -39,8 +39,8 @@ public class LuckDrawReward {
     @Column(name = Luck_type)
     private Integer luckType; //抽奖类型
 
-    @Column(name = Index)
-    private Integer index; // 奖品索引
+//    @Column(name = Index)
+//    private Integer index; // 奖品索引
 
     @Column(name = Is_valid)
     private Boolean isValid; //有效性

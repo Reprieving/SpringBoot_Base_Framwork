@@ -30,10 +30,22 @@ public class AppShoppingAddressController {
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("operator/{operatorType}")
-    public Result<?> operator(HttpServletRequest request, @PathVariable("operatorType") Integer operatorType, @RequestBody ShoppingAddress shoppingAddress) throws UnsupportedEncodingException {
+    public Result<?> operator(HttpServletRequest request, @PathVariable("operatorType") Integer operatorType, ShoppingAddress shoppingAddress) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         Object o = shoppingAddressService.operatorAddress(userId, operatorType, shoppingAddress);
         return ResultUtils.success(o);
+    }
+
+    /**
+     * 获取默认收获地址
+     * @param request
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @RequestMapping("default")
+    public Result<?> getDefaultAdd(HttpServletRequest request) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        return ResultUtils.success(shoppingAddressService.getDefaultShoppingAddress(userId));
     }
 
 }

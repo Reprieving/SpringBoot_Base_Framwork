@@ -15,9 +15,6 @@ import java.sql.Timestamp;
 public class MsgRecord implements Serializable{
     private static final long serialVersionUID = -8770953734638830657L;
 
-    public MsgRecord(){
-    }
-
     @Id
     @Column(name = Id)
     private String id;
@@ -39,6 +36,10 @@ public class MsgRecord implements Serializable{
 
     @Column(name = Is_valid)
     private Boolean isValid; //
+
+    public MsgRecord(){
+    }
+
 
     public MsgRecord(String userId, String phoneNumber, String msgCode, Integer msgType, Timestamp timestamp,Boolean isValid) {
         this.userId = userId;

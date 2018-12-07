@@ -51,6 +51,10 @@ public class StealMiningRecord implements Serializable{
     public static final String Settlement_id = "settlement_id";
     public static final String Create_time = "create_time";
 
+    public StealMiningRecord(){
+
+    }
+
     public StealMiningRecord(String stolenUserId, String stealUserId, String userName,String headPictureUrl, BigDecimal turnoverAmount, Integer settlementId) {
         this.stolenUserId = stolenUserId;
         this.stealUserId = stealUserId;

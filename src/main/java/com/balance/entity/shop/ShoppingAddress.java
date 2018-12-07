@@ -55,6 +55,10 @@ public class ShoppingAddress {
     public static final String Is_default = "is_default";
     public static final String Create_time = "create_time";
 
+    public ShoppingAddress(){
+
+    }
+
     public ShoppingAddress(String addressId, Boolean isDefault) {
         this.id = addressId;
         this.isDefault = isDefault;

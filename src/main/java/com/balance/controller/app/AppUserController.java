@@ -134,15 +134,14 @@ public class AppUserController {
      * 修改用户昵称
      *
      * @param request
-     * @param userName
      * @return
      * @throws BusinessException
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping("info/update/{userName}")
-    public Result<?> updateInfo(HttpServletRequest request, @PathVariable String userName) throws BusinessException, UnsupportedEncodingException {
+    @RequestMapping("info/update")
+    public Result<?> updateInfo(HttpServletRequest request, User user) throws BusinessException, UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        userService.updateUserName(userId, userName);
+        userService.updateUserName(userId, user.getUserName());
         return ResultUtils.success("修改用户昵称成功");
     }
 
@@ -259,7 +258,7 @@ public class AppUserController {
     @RequestMapping("pwd/update")
     public Result<?> updatePassword(HttpServletRequest request, User userReq) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        userService.updatePassword(userId, userReq.getPhoneNumber(), userReq.getOldPassword(), userReq.getNewPassword(), userReq.getUpdatePwdType());
+        userService.updatePassword(userId, userReq.getOldPassword(), userReq.getNewPassword(), userReq.getUpdatePwdType());
         return ResultUtils.success("修改密码成功");
     }
 

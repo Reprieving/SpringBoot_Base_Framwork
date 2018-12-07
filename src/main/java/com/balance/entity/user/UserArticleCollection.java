@@ -48,6 +48,9 @@ public class UserArticleCollection implements Serializable {
     private Integer likeAmount; //点赞数
     private Integer ifCollect; //是否收藏
 
+    public UserArticleCollection(){}
+
+
     public UserArticleCollection(String userId, String articleId, String articleTitle, Integer articleType) {
         this.userId = userId;
         this.articleId = articleId;

@@ -44,6 +44,8 @@ public class MiningReward implements Serializable{
     @Column(name = Version)
     private Boolean version; //版本号
 
+    public MiningReward(){}
+
     public MiningReward(String userId, BigDecimal computePower, BigDecimal rewardValue, Integer rewardType) {
         this.userId = userId;
         this.computePower = computePower;
@@ -61,6 +63,7 @@ public class MiningReward implements Serializable{
     public static final String Create_time = "create_time";
     public static final String Is_valid = "is_valid";
     public static final String Version = "version";
+
 
 
     //扩展属性
