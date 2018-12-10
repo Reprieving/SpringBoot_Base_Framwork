@@ -188,17 +188,10 @@ public class ArticleService extends BaseService {
         });
     }
 
-    public Pagination getByPage4Admin(Map<String, Object> params) {
+    public Pagination getByPage(Map<String, Object> params) {
         Pagination pagination = new Pagination();
-        pagination.setObjectList(articleMapper.selectByPage4Admin(params));
-        pagination.setTotalRecordNumber(articleMapper.selectCount4Admin(params));
-        return pagination;
-    }
-
-    public Pagination getByPage4User(Map<String, Object> params) {
-        Pagination pagination = new Pagination();
-        pagination.setObjectList(articleMapper.selectByPage4User(params));
-        pagination.setTotalRecordNumber(articleMapper.selectCount4User(params));
+        pagination.setObjectList(articleMapper.selectByPage(params));
+        pagination.setTotalRecordNumber(articleMapper.selectCount(params));
         return pagination;
     }
 }

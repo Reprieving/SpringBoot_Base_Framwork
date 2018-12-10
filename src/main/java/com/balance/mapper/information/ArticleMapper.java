@@ -7,11 +7,7 @@ import java.util.Map;
 
 public interface ArticleMapper {
 
-    List<Article> selectByPage4Admin(Map<String, Object> param);
+    List<Article> selectByPage(Map<String, Object> param);
 
-    int selectCount4Admin(Map<String, Object> param);
-
-    List<Article> selectByPage4User(Map<String, Object> param);
-
-    int selectCount4User(Map<String, Object> param);
+    int selectCount(Map<String, Object> param);
 }

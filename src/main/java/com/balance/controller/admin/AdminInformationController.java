@@ -2,20 +2,16 @@ package com.balance.controller.admin;
 
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
+import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
-import com.balance.constance.InformationConst;
 import com.balance.entity.information.Article;
 import com.balance.service.information.ArticleService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * 资讯文章
@@ -30,19 +26,43 @@ public class AdminInformationController {
 
     @PostMapping("list")
     public Result<?> articleList(@RequestBody Map<String, Object> params) {
-        Object type = params.get("type");
-//        if(InformationConst.ARTICLE_TYPE_ANNOUNCE == Article.getArticleType() || InformationConst.ARTICLE_TYPE_ACTIVITY == Article.getArticleType()){
-//
-//        }
-        Pagination pagination = null;
-//        if (type == 1) {
-//            pagination = articleService.getByPage4Admin(params);
-//        } else {
-            pagination = articleService.getByPage4User(params);
-//        }
+        Pagination pagination = articleService.getByPage(params);
         return ResultUtils.success(pagination.getObjectList(), pagination.getTotalRecordNumber());
     }
 
+    @GetMapping("get/{id}")
+    public Result<?> get(@PathVariable String id) {
+        return ResultUtils.success(articleService.selectOneById(id, Article.class));
+    }
 
+    @GetMapping("delete/{id}")
+    public Result<?> delete(@PathVariable String id) {
+        Article article = new Article();
+        article.setId(id);
+        int result = articleService.delete(article);
+        if (result > 0) {
+            return ResultUtils.success();
+        } else {
+            return ResultUtils.error("操作失败");
+        }
+    }
+
+
+    @PostMapping("save/{id}")
+    public Result<?> save(Article article, HttpServletRequest request, @PathVariable String id) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        int result = 0;
+        if ("0".equals(id)) {
+            article.setCreateBy(userId);
+            result = articleService.insertIfNotNull(article);
+        } else {
+            result = articleService.updateIfNotNull(article);
+        }
+        if (result > 0) {
+            return ResultUtils.success();
+        } else {
+            return ResultUtils.error("操作失败");
+        }
+    }
 
 }

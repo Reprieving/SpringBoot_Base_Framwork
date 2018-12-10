@@ -44,7 +44,6 @@ public class Article implements Serializable{
     private Integer ifLike; //是否点赞
     private Integer likeAmount; //点赞数
     private Integer ifCollect; //是否收藏
-    private String userName;
 
     //DB Column name
     public static final String Id = "id";
