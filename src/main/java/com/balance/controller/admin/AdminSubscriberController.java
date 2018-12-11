@@ -11,6 +11,7 @@ import com.balance.service.sys.RoleService;
 import com.balance.service.sys.SubscriberService;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("admin/subscriber")
@@ -39,22 +42,33 @@ public class AdminSubscriberController {
     }
 
     @RequestMapping("list")
-    public Result<?> list(@RequestBody Subscriber subscriber) throws Exception{
+    public Result<?> list(@RequestBody Subscriber subscriber) throws Exception {
         Pagination pagination = subscriber.getPagination();
-        List<Subscriber> subscriberList;
+        Map<String, Object> whereMap = new HashMap<>();
         if (StringUtils.isNoneBlank(subscriber.getUserName())) {
-            subscriberList = subscriberService.selectListByWhereString(Subscriber.User_name + " like ", "%" + subscriber.getUserName() + "%", pagination, Subscriber.class);
-        } else {
-            subscriberList = subscriberService.selectAll(pagination, Subscriber.class);
+            whereMap = ImmutableMap.of(Subscriber.User_name + " like ", "%" + subscriber.getUserName() + "%");
         }
+        List<Subscriber> subscriberList = subscriberService.selectListByWhereMap(whereMap, pagination, Subscriber.class);
+
         Integer count = pagination == null ? subscriberList.size() : pagination.getTotalRecordNumber();
-        return ResultUtils.success(subscriberList,count);
+        return ResultUtils.success(subscriberList, count);
     }
 
     @RequestMapping("login")
-    public Result<?> login(@RequestBody Subscriber subscriber) throws Exception {
-        Subscriber subscriberPo = subscriberService.getSubscriberByLogin(subscriber.getUserName(),subscriber.getPassword());
-        if(subscriberPo == null){
+    public Result<?> login(HttpServletRequest request, @RequestBody Subscriber subscriber) throws Exception {
+        String subscriberId=null;
+        if(StringUtils.isNoneBlank(subscriber.getLoginToken())){
+            subscriberId = JwtUtils.getSubscriberByToken(subscriber.getLoginToken()).getId();
+        }
+
+        Subscriber subscriberPo;
+        if (StringUtils.isNoneBlank(subscriberId)) {
+            subscriberPo = subscriberService.selectOneById(subscriberId, Subscriber.class);
+        } else {
+            subscriberPo = subscriberService.getSubscriberByLogin(subscriber.getUserName(), subscriber.getPassword());
+        }
+
+        if (subscriberPo == null) {
             return ResultUtils.error("用户名或密码错误");
         }
         subscriberPo.setFuncTreeNode(functionService.queryFuncTree(subscriberPo.getId()));

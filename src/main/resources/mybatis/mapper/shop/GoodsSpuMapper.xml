@@ -4,22 +4,59 @@
 <mapper namespace="com.balance.mapper.shop.GoodsSpuMapper">
     <resultMap id="goodsSpuSimpleMap" type="GoodsSpu">
         <id property="id" column="id"></id>
+        <result property="spuNo" column="spu_no"></result>
         <result property="goodsName" column="goods_name"></result>
         <result property="lowPrice" column="low_price"></result>
+        <result property="settlementId" column="settlement_id"></result>
+        <result property="categoryId" column="category_id"></result>
         <result property="categoryName" column="category_name"></result>
         <result property="brandName" column="brand_name"></result>
+        <result property="brandId" column="brand_id"></result>
         <result property="defaultImgUrl" column="default_img_url"></result>
         <result property="createTime" column="create_time"></result>
         <result property="status" column="status"></result>
+        <result property="spuType" column="spu_type"></result>
     </resultMap>
 
+    <resultMap id="goodsSpuDetailMap" type="GoodsSpu" extends="goodsSpuSimpleMap">
+        <collection property="defaultImg" ofType="GoodsImg">
+            <id property="id" column="spu_id"></id>
+            <result property="name" column="spu_id"></result>
+            <result property="imgUrl" column="default_img_url"></result>
+            <result property="url" column="default_img_url"></result>
+        </collection>
+        <collection property="allImg" ofType="GoodsImg">
+            <id property="id" column="img_id"></id>
+            <result property="name" column="img_id"></result>
+            <result property="imgUrl" column="img_url"></result>
+            <result property="imgType" column="img_type"></result>
+            <result property="url" column="img_url"></result>
+        </collection>
+    </resultMap>
+
+    <resultMap id="spuNameMap" type="GoodsSpecName">
+        <id property="id" column="spec_name_id"></id>
+        <result property="specName" column="spec_name"></result>
+        <result property="specNo" column="spec_no"></result>
+        <result property="label" column="spec_name"></result>
+    </resultMap>
+    
+    <delete id="deleteSpuImg">
+        DELETE FROM goods_img WHERE spu_id = #{spuId}
+    </delete>
+
+    <delete id="deleteSpuSpecName">
+        DELETE FROM goods_spu_spec WHERE spu_id = #{spuId}
+    </delete>
+
     <select id="listGoodsSpu" resultMap="goodsSpuSimpleMap">
-        SELECT a.id,a.goods_name,a.low_price,c.category_name,d.brand_name,a.default_img_url,a.create_time,a.status
+        SELECT
+        a.id,a.spu_no,a.goods_name,a.low_price,a.settlement_id,c.category_name,d.brand_name,a.default_img_url,a.create_time,a.status
         FROM goods_spu a
         LEFT JOIN goods_category c on a.category_id = c.id
         LEFT JOIN goods_brand d on a.brand_id = d.id
         WHERE
-        status = #{status}
+        a.is_valid = 1
         <if test="goodsName!=null">
             AND a.goods_name LIKE CONCAT('%',#{goodsName},'%')
         </if>
@@ -30,8 +67,41 @@
             AND d.id = #{brandId}
         </if>
         <if test="spuType!=null">
-            AND a.spuType = #{spuType}
+            AND a.spu_type = #{spuType}
         </if>
+        <if test="status != null">
+            AND a.status = #{status}
+        </if>
+        <if test="startTime!=null">
+            AND a.create_time &gt;= #{startTime}
+        </if>
+        <if test="endTime!=null">
+            AND a.create_time &lt;= #{startTime}
+        </if>
+    </select>
+
+    <select id="getGoodsSpu" resultMap="goodsSpuDetailMap">
+        SELECT
+          a.id,a.id AS spu_id,a.spu_no,a.goods_name,a.low_price,a.settlement_id,a.default_img_url,a.create_time,a.spu_type,a.status,b.img_url,b.img_type,b.id AS img_id
+        FROM goods_spu a
+        LEFT JOIN goods_img b on a.id = b.spu_id
+        WHERE a.id = #{spuId}
+    </select>
+
+    <select id="listSpuSpec" resultMap="spuNameMap">
+      SELECT
+        a.id,b.id as spec_name_id,b.spec_name,b.spec_no
+      FROM goods_spu_spec a
+      LEFT JOIN goods_spec_name b ON a.spec_id = b.id
+      WHERE
+        1=1
+        <if test="spuId!=null">
+            AND a.spu_id = #{spuId}
+        </if>
+    </select>
+
+    <select id="allSpuSpec" resultMap="spuNameMap">
+      SELECT a.id as spec_name_id,a.spec_no,a.spec_name FROM goods_spec_name a
     </select>
 
 

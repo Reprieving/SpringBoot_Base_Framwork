@@ -37,6 +37,12 @@ public class GoodsImg implements Serializable {
     @Column(name = Create_time)
     private String createTime;//创建时间
 
+    //扩展属性
+    private String name;
+    private String url;
+
+    public GoodsImg(){}
+
     public GoodsImg(String spuId, String imgUrl, int imgType) {
         this.spuId = spuId;
         this.imgUrl = imgUrl;

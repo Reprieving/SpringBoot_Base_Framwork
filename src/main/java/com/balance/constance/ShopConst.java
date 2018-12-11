@@ -9,7 +9,17 @@ public class ShopConst {
     //商品状态
     public static final int GOODS_STATUS_OUTSALE = 0;//下架
     public static final int GOODS_STATUS_INSALE = 1;//上架
-    public static final int GOODS_STATUS_OUTLINE = -1;//违规
+    public static final int GOODS_STATUS_FROZEN = 99;//冻结
+
+
+    //商品操作类型
+    public static final int OPERATOR_TYPE_INSERT = 1;//新增
+    public static final int OPERATOR_TYPE_DELETE = 2;//删除
+    public static final int OPERATOR_TYPE_UPDATE = 3;//更新
+    public static final int OPERATOR_TYPE_QUERY_LIST = 4;//查询列表
+    public static final int OPERATOR_TYPE_QUERY_ONE = 5;//查询单个
+    public static final int OPERATOR_TYPE_FROZEN = 6;//冻结/解冻
+    public static final int OPERATOR_TYPE_SHELF = 7;//上架/下架
 
 
     //商品图片类型

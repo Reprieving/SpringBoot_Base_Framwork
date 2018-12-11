@@ -6,8 +6,11 @@ import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
+import org.bouncycastle.util.Times;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -60,17 +63,30 @@ public class GoodsSpu implements Serializable{
     private Boolean isValid;//是否有效
 
     //扩展属性
-    private String categoryName;//类目名
-    private String brandName;//品牌名
-
+    //类目名
+    private String categoryName;
+    //品牌名
+    private String brandName;
     //分页
     private Pagination pagination;
-
-    //默认图Url
-    private String defaultImg;
+    //所有图片集合
+    private List<GoodsImg> allImg;
+    //默认图对象
+    private  List<GoodsImg> defaultImg;
     //详情图url
-    private List<String> detailImg;
-
+    private List<String> detailImgUrl;
+    //详情图对象列表
+    private List<GoodsImg> detailImg;
+    //介绍图url
+    private List<String> introduceImgUrl;
+    //介绍图对象列表
+    private List<GoodsImg> introduceImg;
+    //条件查询开始时间
+    private Timestamp startTime;
+    //条件查询结束时间
+    private Timestamp endTime;
+    //规格名Id
+    private List<String> specNameIdList;
 
     //DB Column name
     public static final String Id = "id";

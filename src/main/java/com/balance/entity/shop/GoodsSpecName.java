@@ -11,6 +11,8 @@ import org.apache.ibatis.type.Alias;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Alias("GoodsSpecName")
@@ -34,6 +36,12 @@ public class GoodsSpecName implements Serializable{
 
     @Column(name = Update_time)
     private Timestamp updateTime;
+
+
+    //扩展属性
+    private String label;
+    private List children = new ArrayList();
+    private List<GoodsSpecValue> goodsSpecValueList;
 
     //DB Column name
     public static final String Id = "id";

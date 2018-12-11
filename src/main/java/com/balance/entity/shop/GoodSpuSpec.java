@@ -34,10 +34,19 @@ public class GoodSpuSpec implements Serializable{
     @Column(name = Update_time)
     private Timestamp updateTime;//更新时间
 
+    //
+
     //DB Column name
     public static final String Id = "id";
     public static final String Spu_id = "spu_id";
     public static final String Spec_id = "spec_id";
     public static final String Create_time = "create_time";
     public static final String Update_time = "update_time";
+
+    public GoodSpuSpec(){}
+
+    public GoodSpuSpec(String spuId, String specNameId) {
+        this.spuId = spuId;
+        this.specId = specNameId;
+    }
 }

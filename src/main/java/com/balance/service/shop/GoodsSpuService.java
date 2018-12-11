@@ -5,18 +5,16 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
-import com.balance.constance.CommonConst;
+import com.balance.constance.ShopConst;
 import com.balance.constance.ShopConst;
 import com.balance.entity.shop.*;
-import com.balance.entity.user.UserArticleCollection;
 import com.balance.mapper.shop.GoodsSpuMapper;
 import com.balance.service.common.AliOSSBusiness;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -41,49 +39,72 @@ public class GoodsSpuService extends BaseService {
      * @param defaultImgUrl 商品默认图片url
      * @param detailImgUrls 商品详情图片urls
      */
-    public Integer createGoodsSpu(GoodsSpu goodsSpu,String defaultImgUrl,List<String> detailImgUrls) {
-        ValueCheckUtils.notEmpty(goodsSpu.getGoodsName(),"商品名不能为空");
-        ValueCheckUtils.notEmpty(goodsSpu.getLowPrice(),"商品最低价格不能为空");
-        if(goodsSpu.getLowPrice().compareTo(new BigDecimal(0))==-1){
+    public Integer saveGoodsSpu(GoodsSpu goodsSpu, String defaultImgUrl, List<String> introduceImgUrls, List<String> detailImgUrls) {
+        ValueCheckUtils.notEmpty(goodsSpu.getGoodsName(), "商品名不能为空");
+        ValueCheckUtils.notEmpty(goodsSpu.getLowPrice(), "商品最低价格不能为空");
+        if (goodsSpu.getLowPrice().compareTo(new BigDecimal(0)) == -1) {
             throw new BusinessException("商品最低价格不能少0");
         }
-        ValueCheckUtils.notEmpty(goodsSpu.getSettlementId(),"商品支付方式不能为空");
-        ValueCheckUtils.notEmpty(goodsSpu.getSpuType(),"商品类型不能为空");
+        ValueCheckUtils.notEmpty(goodsSpu.getSettlementId(), "商品支付方式不能为空");
+        ValueCheckUtils.notEmpty(goodsSpu.getSpuType(), "商品类型不能为空");
+        ValueCheckUtils.notEmpty(defaultImgUrl, "商品默认图片不能为空");
+        ValueCheckUtils.notEmpty(introduceImgUrls, "商品介绍图片不能为空");
+        ValueCheckUtils.notEmpty(detailImgUrls, "商品详情图片不能为空");
 
-        ValueCheckUtils.notEmpty(defaultImgUrl,"商品默认图片不能为空");
-        ValueCheckUtils.notEmpty(detailImgUrls,"商品详情图片不能为空");
+        String spuId = goodsSpu.getId();
+        Integer a;
+        if (StringUtils.isNoneBlank(spuId)) {
+            GoodsSpu goodsSpuPo = selectOneById(spuId, GoodsSpu.class);
+            ValueCheckUtils.notEmpty(goodsSpuPo, "未找到商品记录");
+            //更新商品
+            a = updateIfNotNull(goodsSpu);
+            a = goodsSpuMapper.deleteSpuImg(spuId);
+        } else {
+            //新增商品
+            String spuNo = System.currentTimeMillis() + "" + (int) ((Math.random() * 9 + 1) * 1000);
+            goodsSpu.setDefaultImgUrl(defaultImgUrl);
+            goodsSpu.setSpuNo(spuNo);
+            a = insertIfNotNull(goodsSpu);
+        }
 
-        //上传文件
-        String spuNo = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
-        goodsSpu.setDefaultImgUrl(defaultImgUrl);
-        goodsSpu.setSpuNo(spuNo);
+        //介绍图
+        List<GoodsImg> goodsImgList = new ArrayList<>();
+        for (String introduceImg : introduceImgUrls) {
+            GoodsImg goodsIntroduceImg = new GoodsImg(goodsSpu.getId(), introduceImg, ShopConst.GOODS_IMG_TYPE_INTRODUCE);
+            goodsImgList.add(goodsIntroduceImg);
+        }
+        Integer b = insertBatch(goodsImgList, false);
 
-        insertIfNotNull(goodsSpu);
-
-        List<GoodsImg> goodsDetailImgList = new ArrayList<>();
+        //详情图
+        goodsImgList = new ArrayList<>();
         for (String detailImgUrl : detailImgUrls) {
             GoodsImg goodsDetailImg = new GoodsImg(goodsSpu.getId(), detailImgUrl, ShopConst.GOODS_IMG_TYPE_DETAIL);
-            goodsDetailImgList.add(goodsDetailImg);
+            goodsImgList.add(goodsDetailImg);
         }
-        insertBatch(goodsDetailImgList, false);
+        Integer c = insertBatch(goodsImgList, false);
 
-        return 1;
+        return (a == 0 || b == 0 || c == 0) ? 0 : 1;
     }
 
     /**
      * 商品基本信息列表
      *
-     * @param goodsName  商品名称
-     * @param categoryId 类目id
-     * @param brandId    品牌id
-     * @param supType    商品类型
-     * @param status     商品状态
+     * @param goodsSpu   spu查询条件尸体
      * @param pagination 分页实体
      * @return
      */
-    public List<GoodsSpu> listGoodsSpu(String goodsName, String categoryId, String brandId, Integer supType, Integer status, Pagination pagination) {
-        List<GoodsSpu> goodsSpuList = goodsSpuMapper.listGoodsSpu(goodsName, categoryId, brandId, supType, status, pagination);
-        return goodsSpuList;
+    public List<GoodsSpu> listGoodsSpu(GoodsSpu goodsSpu, Pagination pagination) {
+        return goodsSpuMapper.listGoodsSpu(goodsSpu.getGoodsName(), goodsSpu.getCategoryId(), goodsSpu.getBrandId(), goodsSpu.getSpuType(), goodsSpu.getStatus(), goodsSpu.getStartTime(), goodsSpu.getEndTime(), pagination);
+    }
+
+    /**
+     * 查询单个spu
+     *
+     * @param spuId
+     * @return
+     */
+    public GoodsSpu getGoodsSpu(String spuId) {
+        return goodsSpuMapper.getGoodsSpu(spuId);
     }
 
     /**
@@ -212,39 +233,133 @@ public class GoodsSpuService extends BaseService {
 
     /**
      * 增删改查Spu
+     *
      * @param goodsSpu
      * @param operatorType
      * @return
      */
-    public Object operator(GoodsSpu goodsSpu, Integer operatorType,String defaultImg,List<String> detailImgs, Pagination pagination) {
+    public Object operator(GoodsSpu goodsSpu, Integer operatorType, String defaultImgUrl, List<String> introduceImgUrl, List<String> detailImgUrl, Pagination pagination) {
         Object o = null;
         switch (operatorType) {
-            case CommonConst.OPERATOR_TYPE_INSERT: //添加
-                o = "上传商品成功";
-                if(createGoodsSpu(goodsSpu,defaultImg,detailImgs) == 0){
-                    throw new BusinessException("上传商品失败");
+            case ShopConst.OPERATOR_TYPE_INSERT: //添加
+                String msgType = goodsSpu.getId() == null ? "上传" : "更新";
+                o = msgType + "商品成功";
+                if (saveGoodsSpu(goodsSpu, defaultImgUrl, introduceImgUrl, detailImgUrl) == 0) {
+                    throw new BusinessException(o + "商品失败");
                 }
                 break;
 
-            case CommonConst.OPERATOR_TYPE_DELETE: //删除
+            case ShopConst.OPERATOR_TYPE_DELETE: //删除
                 goodsSpu.setIsValid(false);
                 o = "删除商品成功";
-                if(delete(goodsSpu) == 0){
+                if (delete(goodsSpu) == 0) {
                     throw new BusinessException("删除商品失败");
                 }
                 break;
 
-            case CommonConst.OPERATOR_TYPE_UPDATE: //更新
+            case ShopConst.OPERATOR_TYPE_UPDATE: //更新
                 o = "更新商品成功";
-                if(updateIfNotNull(goodsSpu) == 0){
+                if (saveGoodsSpu(goodsSpu, defaultImgUrl, introduceImgUrl, detailImgUrl) == 0) {
                     throw new BusinessException("更新商品失败");
                 }
                 break;
 
-            case CommonConst.OPERATOR_TYPE_QUERY: //查询
-                o = listGoodsSpu(goodsSpu.getGoodsName(),goodsSpu.getCategoryId(),goodsSpu.getBrandId(),goodsSpu.getSpuType(),goodsSpu.getStatus(),pagination);
+            case ShopConst.OPERATOR_TYPE_QUERY_LIST: //查询列表
+                o = listGoodsSpu(goodsSpu, pagination);
+                break;
+
+            case ShopConst.OPERATOR_TYPE_QUERY_ONE: //查询单个
+                GoodsSpu goodsSpuPo = getGoodsSpu(goodsSpu.getId());
+                List<GoodsImg> introduceImg = new ArrayList<>();
+                introduceImgUrl = new ArrayList<>();
+                List<GoodsImg> detailImg = new ArrayList<>();
+                detailImgUrl = new ArrayList<>();
+                for (GoodsImg goodsImg : goodsSpuPo.getAllImg()) {
+                    Integer imgType = goodsImg.getImgType();
+                    if (ShopConst.GOODS_IMG_TYPE_INTRODUCE == imgType) {
+                        introduceImg.add(goodsImg);
+                        introduceImgUrl.add(goodsImg.getImgUrl());
+                    } else if (ShopConst.GOODS_IMG_TYPE_DETAIL == imgType) {
+                        detailImg.add(goodsImg);
+                        detailImgUrl.add(goodsImg.getImgUrl());
+                    }
+                }
+
+                goodsSpuPo.setIntroduceImg(introduceImg);
+                goodsSpuPo.setIntroduceImgUrl(introduceImgUrl);
+                goodsSpuPo.setDetailImg(detailImg);
+                goodsSpuPo.setDetailImgUrl(detailImgUrl);
+                o = goodsSpuPo;
+                break;
+
+            case ShopConst.OPERATOR_TYPE_FROZEN://冻结/解冻商品
+                GoodsSpu frozenGoodsSpu = new GoodsSpu();
+                frozenGoodsSpu.setId(goodsSpu.getId());
+                if (ShopConst.GOODS_STATUS_FROZEN == goodsSpu.getStatus()) {
+                    o = "解冻商品";
+                    frozenGoodsSpu.setStatus(ShopConst.GOODS_STATUS_OUTSALE);
+                } else {
+                    o = "冻结商品";
+                    frozenGoodsSpu.setStatus(ShopConst.GOODS_STATUS_FROZEN);
+                }
+                if (updateIfNotNull(frozenGoodsSpu) == 0) {
+                    throw new BusinessException(o + "失败");
+                }
+                o += "成功";
+                break;
+
+            case ShopConst.OPERATOR_TYPE_SHELF://上架/下架
+                GoodsSpu shelfGoodsSpu = new GoodsSpu();
+                shelfGoodsSpu.setId(goodsSpu.getId());
+                if (ShopConst.GOODS_STATUS_OUTSALE == goodsSpu.getStatus()) {
+                    o = "上架商品";
+                    shelfGoodsSpu.setStatus(ShopConst.GOODS_STATUS_INSALE);
+                } else {
+                    o = "下架商品";
+                    shelfGoodsSpu.setStatus(ShopConst.GOODS_STATUS_OUTSALE);
+                }
+                if (updateIfNotNull(shelfGoodsSpu) == 0) {
+                    throw new BusinessException(o + "失败");
+                }
+                o += "成功";
                 break;
         }
         return o;
+    }
+
+    /**
+     * 根据spuId查询规格名
+     *
+     * @param spuId
+     * @return
+     */
+    public List<GoodsSpecName> listSpecName(String spuId) {
+        return goodsSpuMapper.listSpuSpec(spuId);
+    }
+
+    /**
+     * 查询全部规格名
+     *
+     * @return
+     */
+    public List<GoodsSpecName> allSpecName() {
+        return goodsSpuMapper.allSpuSpec();
+    }
+
+    /**
+     * 更新规格名列表
+     *
+     * @param goodsSpu
+     */
+    public void updateSpuName(GoodsSpu goodsSpu) {
+        String spuId = goodsSpu.getId();
+        List<String> specNameIdList = goodsSpu.getSpecNameIdList();
+        goodsSpuMapper.deleteSpuSpecName(spuId);
+
+        List<GoodSpuSpec> goodSpuSpecs = new ArrayList<>();
+        for (String specNameId : specNameIdList) {
+            goodSpuSpecs.add(new GoodSpuSpec(spuId, specNameId));
+        }
+        insertBatch(goodSpuSpecs, false);
     }
 }

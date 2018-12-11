@@ -18,7 +18,7 @@ public class JwtUtils {
     /**
      * 过期时间15分钟
      */
-    public static final long EXPIRE_TIME = 60*60*1000*24*50;
+    public static final long EXPIRE_TIME = 60 * 60 * 1000 * 24 * 50;
 
     /**
      * token私钥
@@ -38,6 +38,7 @@ public class JwtUtils {
 
     /**
      * 创建token
+     *
      * @param subscriber
      * @return
      * @throws IllegalArgumentException
@@ -53,13 +54,14 @@ public class JwtUtils {
         String token = JWT.create().withHeader(map)
                 .withClaim(TOKEN_CLAIM_USERNAME, userName)
                 .withClaim(TOKEN_CLAIM_USERID, userId)
-                .withExpiresAt(new Date(System.currentTimeMillis()+EXPIRE_TIME))
+                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME))
                 .sign(algorithm);
         return token;
     }
 
     /**
      * 创建token
+     *
      * @param user
      * @return
      * @throws IllegalArgumentException
@@ -75,24 +77,25 @@ public class JwtUtils {
         String token = JWT.create().withHeader(map)
                 .withClaim(TOKEN_CLAIM_USERNAME, userName)
                 .withClaim(TOKEN_CLAIM_USERID, userId)
-                .withExpiresAt(new Date(System.currentTimeMillis()+EXPIRE_TIME))
+                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME))
                 .sign(algorithm);
         return token;
     }
 
     /**
      * 验证token
+     *
      * @param token
      * @return
      */
-    public static Boolean verifyJwt(String token){
+    public static Boolean verifyJwt(String token) {
         DecodedJWT decodedJWT = null;
-        try{
+        try {
             Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
             JWTVerifier jwtVerifier = JWT.require(algorithm).build();
             decodedJWT = jwtVerifier.verify(token);
             return true;
-        }catch(Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
@@ -105,9 +108,9 @@ public class JwtUtils {
         JWTVerifier jwtVerifier = JWT.require(algorithm).build();
 
         DecodedJWT decodedJWT = null;
-        try{
-            decodedJWT= jwtVerifier.verify(token);
-        }catch (Exception e){
+        try {
+            decodedJWT = jwtVerifier.verify(token);
+        } catch (Exception e) {
             throw new LoginException();
         }
 
@@ -116,6 +119,29 @@ public class JwtUtils {
         user.setId(decodedJWT.getClaim(TOKEN_CLAIM_USERID).asString());
         user.setUserName(decodedJWT.getClaim(TOKEN_CLAIM_USERNAME).asString());
         return user;
+    }
+
+    /**
+     * 获取pc端 toke信息
+     *
+     * @param token
+     */
+    public static Subscriber getSubscriberByToken(String token) throws UnsupportedEncodingException {
+        Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
+        JWTVerifier jwtVerifier = JWT.require(algorithm).build();
+
+        DecodedJWT decodedJWT = null;
+        try {
+            decodedJWT = jwtVerifier.verify(token);
+        } catch (Exception e) {
+            throw new LoginException();
+        }
+
+
+        Subscriber subscriber = new Subscriber();
+        subscriber.setId(decodedJWT.getClaim(TOKEN_CLAIM_USERID).asString());
+        subscriber.setUserName(decodedJWT.getClaim(TOKEN_CLAIM_USERNAME).asString());
+        return subscriber;
     }
 
     public static void main(String[] args) {
