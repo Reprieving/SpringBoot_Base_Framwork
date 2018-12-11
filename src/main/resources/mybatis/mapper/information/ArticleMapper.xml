@@ -29,6 +29,10 @@
         <if test="endTime != null">
             and t.create_time &lt;= #{endTime}
         </if>
+
+        <if test="isValid != null">
+            and t.is_valid = #{isValid}
+        </if>
         <if test="articleType != null">
             and t.article_type = #{articleType}
         </if>
