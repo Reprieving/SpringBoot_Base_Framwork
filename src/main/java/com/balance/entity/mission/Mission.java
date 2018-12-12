@@ -60,6 +60,9 @@ public class Mission implements Serializable {
     @Column(name = Redirect_type)
     private Integer redirectType; //跳转类型
 
+    @Column(name = Task_type)
+    private Integer taskType; //任务类型
+
     @Column(name = Is_valid)
     private Integer isValid; //是否有效
 
@@ -80,4 +83,5 @@ public class Mission implements Serializable {
     public static final String Action_name = "action_name";
     public static final String Redirect_type = "redirect_type";
     public static final String Is_valid = "is_valid";
+    public static final String Task_type = "task_type";
 }
