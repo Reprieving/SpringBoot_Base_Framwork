@@ -27,9 +27,6 @@ import java.util.List;
 public class AppGoodsController {
 
     @Autowired
-    private GoodsSpecService goodsSpecService;
-
-    @Autowired
     private GoodsSpuService goodsSpuService;
 
     @Autowired
@@ -37,15 +34,12 @@ public class AppGoodsController {
 
     /**
      * 查询商品
-     *
-     * @param request
      * @param goodsSpu
      * @return
      */
     @RequestMapping("spuList")
-    public Result<?> spuList(HttpServletRequest request, GoodsSpu goodsSpu) {
-        List<GoodsSpu> goodsSpuList = goodsSpuService.listGoodsSpu(goodsSpu.getGoodsName(), goodsSpu.getCategoryId(), goodsSpu.getBrandId(),
-                goodsSpu.getSpuType(), goodsSpu.getStatus(), goodsSpu.getPagination());
+    public Result<?> spuList( GoodsSpu goodsSpu) {
+        List<GoodsSpu> goodsSpuList = goodsSpuService.listGoodsSpu(goodsSpu, goodsSpu.getPagination());
         return ResultUtils.success(goodsSpuList);
     }
 
@@ -71,7 +65,7 @@ public class AppGoodsController {
      * @return
      */
     @RequestMapping("skuChoose")
-    public Result<?> skuChoose(ShopOrderSkuReq shopOrderSkuReq){
+    public Result<?> skuChoose(ShopOrderSkuReq shopOrderSkuReq) {
         GoodsSku goodsSku = goodsSkuService.chooseGoodsSku(shopOrderSkuReq.getSpuId(), shopOrderSkuReq.getSpecIdStr());
         return ResultUtils.success(goodsSku);
     }

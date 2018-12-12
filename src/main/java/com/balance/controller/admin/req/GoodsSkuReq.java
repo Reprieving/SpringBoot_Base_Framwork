@@ -7,10 +7,11 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class GoodsSpuReq implements Serializable{
+public class GoodsSkuReq implements Serializable{
     private static final long serialVersionUID = -1981205737684074925L;
 
-    public String dataStr;
-    public Object defaultImg;
-    public Object detailImg;
+    //spuId
+    public String spuId;
+    //规格名规格值字符串 格式:['1':'2','1','2']
+    public String specNameValueStr;
 }

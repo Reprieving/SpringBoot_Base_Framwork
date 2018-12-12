@@ -55,8 +55,8 @@ public class GoodsSpecService {
      * @param specId 规格id
      * @return
      */
-    public List<GoodsSpecValue> listGoodsSpecValue(String specId, Class<GoodsSpecValue> tClazz) {
-        return baseService.selectListByWhereString(GoodsSpecValue.Spec_id + " = ", specId, null, tClazz);
+    public List<GoodsSpecValue> listGoodsSpecValue(String specId) {
+        return baseService.selectListByWhereString(GoodsSpecValue.Spec_id + " = ", specId, null, GoodsSpecValue.class);
     }
 
     /**

@@ -43,7 +43,7 @@ public class GoodsSku implements Serializable{
     private Integer settlementId;//支付方式id
 
     @Column(name = Spec_json)
-    private String specJson;//规格名称和值组合json 格式：["规格名:规格值","规格名:规格值"]
+    private String specJson;//规格json 格式：["规格名id:规格值id","规格名id:规格值id"]
 
     @Column(name = Shop_id)
     private String shopId;//店铺id
@@ -62,7 +62,17 @@ public class GoodsSku implements Serializable{
     private Boolean isValid;//是否有效
 
     //扩展属性
-    private List<String> imgUrl; //介绍图
+    private List<String> imgUrl;
+    //所有图片集合
+    private List<GoodsImg> allImg;
+    //详情图url
+    private List<String> detailImgUrl;
+    //详情图对象列表
+    private List<GoodsImg> detailImg;
+    //介绍图url
+    private List<String> introduceImgUrl;
+    //介绍图对象列表
+    private List<GoodsImg> introduceImg;
 
     //DB Column name
     public static final String Id = "id";
