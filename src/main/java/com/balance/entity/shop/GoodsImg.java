@@ -43,11 +43,13 @@ public class GoodsImg implements Serializable {
 
     public GoodsImg(){}
 
-    public GoodsImg(String spuId, String imgUrl, int imgType) {
+    public GoodsImg(String spuId,String skuId, String imgUrl, int imgType) {
         this.spuId = spuId;
+        this.skuId = skuId;
         this.imgUrl = imgUrl;
         this.imgType = imgType;
     }
+
 
     //DB Column name
     public static final String Id = "id";

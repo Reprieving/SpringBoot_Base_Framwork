@@ -4,6 +4,7 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.utils.ResultUtils;
 import com.balance.entity.shop.*;
+import com.balance.service.shop.GoodsSkuService;
 import com.balance.service.shop.GoodsSpecService;
 import com.balance.service.shop.GoodsSpuService;
 import com.google.common.collect.ImmutableMap;
@@ -25,10 +26,14 @@ public class AdminGoodsController {
     private GoodsSpuService goodsSpuService;
 
     @Autowired
+    private GoodsSkuService goodsSkuService;
+
+    @Autowired
     private GoodsSpecService goodsSpecService;
 
+
     /**
-     * 查询商品
+     * spu操作
      *
      * @return
      */
@@ -57,13 +62,13 @@ public class AdminGoodsController {
         List<GoodsSpecName> specNameList = goodsSpuService.listSpecName(spuId);
         List<String> specNameIdList = new ArrayList<>();
         specNameList.stream().forEach(goodsSpecName -> specNameIdList.add(goodsSpecName.getId()));
-
         Map<String, List<?>> specNameMap = ImmutableMap.of("allSpecName", allSpecName, "specNameIdList", specNameIdList);
         return ResultUtils.success(specNameMap);
     }
 
     /**
      * 获取spu的specValue
+     *
      * @param spuId
      * @return
      */
@@ -91,14 +96,50 @@ public class AdminGoodsController {
 
     /**
      * sku操作
+     *
      * @param goodsSku
      * @return
      */
     @RequestMapping("sku/operator/{operatorType}")
-    public Result<?> skuOperator(@RequestBody GoodsSku goodsSku,@PathVariable String operatorType){
-        Object o = null;
+    public Result<?> skuOperator(@RequestBody GoodsSku goodsSku, @PathVariable Integer operatorType) {
+        Object object = goodsSkuService.operator(goodsSku, operatorType, goodsSku.getIntroduceImgUrl(), goodsSku.getDetailImgUrl());
+        if (object instanceof String) {
+            String message = String.valueOf(object);
+            return ResultUtils.success(message);
+        }
+        return ResultUtils.success(object);
+    }
 
 
-        return ResultUtils.success(o);
+    /**
+     * 规格名操作
+     * @param goodsSpecName
+     * @param operatorType
+     * @return
+     */
+    @RequestMapping("specName/operator/{operatorType}")
+    public Result<?> operatorSpecName(@RequestBody GoodsSpecName goodsSpecName,@PathVariable Integer operatorType){
+        Object object = goodsSpecService.operatorSpecName(goodsSpecName, operatorType);
+        if (object instanceof String) {
+            String message = String.valueOf(object);
+            return ResultUtils.success(message);
+        }
+        return ResultUtils.success(object);
+    }
+
+    /**
+     * 规格值操作
+     * @param goodsSpecValue
+     * @param operatorType
+     * @return
+     */
+    @RequestMapping("specValue/operator/{operatorType}")
+    public Result<?> operatorSpecValue(@RequestBody GoodsSpecValue goodsSpecValue,@PathVariable Integer operatorType){
+        Object object = goodsSpecService.operatorSpecValue(goodsSpecValue, operatorType);
+        if (object instanceof String) {
+            String message = String.valueOf(object);
+            return ResultUtils.success(message);
+        }
+        return ResultUtils.success(object);
     }
 }

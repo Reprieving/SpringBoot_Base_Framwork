@@ -6,14 +6,11 @@ import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.ShopConst;
-import com.balance.constance.ShopConst;
 import com.balance.entity.shop.*;
 import com.balance.mapper.shop.GoodsSpuMapper;
-import com.balance.service.common.AliOSSBusiness;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,14 +20,13 @@ import java.util.*;
 public class GoodsSpuService extends BaseService {
 
     @Autowired
-    private AliOSSBusiness aliOSSBusiness;
-
-    @Autowired
     private GoodsSpecService goodsSpecService;
 
     @Autowired
     private GoodsSpuMapper goodsSpuMapper;
 
+    @Autowired
+    private GoodsImgService goodsImgService;
 
     /**
      * 新增商品基本信息
@@ -56,7 +52,7 @@ public class GoodsSpuService extends BaseService {
         if (StringUtils.isNoneBlank(spuId)) {
             GoodsSpu goodsSpuPo = selectOneById(spuId, GoodsSpu.class);
             ValueCheckUtils.notEmpty(goodsSpuPo, "未找到商品记录");
-            //更新商品
+            //更新spu
             a = updateIfNotNull(goodsSpu);
             a = goodsSpuMapper.deleteSpuImg(spuId);
         } else {
@@ -67,23 +63,9 @@ public class GoodsSpuService extends BaseService {
             a = insertIfNotNull(goodsSpu);
         }
 
-        //介绍图
-        List<GoodsImg> goodsImgList = new ArrayList<>();
-        for (String introduceImg : introduceImgUrls) {
-            GoodsImg goodsIntroduceImg = new GoodsImg(goodsSpu.getId(), introduceImg, ShopConst.GOODS_IMG_TYPE_INTRODUCE);
-            goodsImgList.add(goodsIntroduceImg);
-        }
-        Integer b = insertBatch(goodsImgList, false);
+        a = goodsImgService.createGoodsImg(goodsSpu.getId(), null, introduceImgUrls, detailImgUrls);
 
-        //详情图
-        goodsImgList = new ArrayList<>();
-        for (String detailImgUrl : detailImgUrls) {
-            GoodsImg goodsDetailImg = new GoodsImg(goodsSpu.getId(), detailImgUrl, ShopConst.GOODS_IMG_TYPE_DETAIL);
-            goodsImgList.add(goodsDetailImg);
-        }
-        Integer c = insertBatch(goodsImgList, false);
-
-        return (a == 0 || b == 0 || c == 0) ? 0 : 1;
+        return a;
     }
 
     /**
@@ -104,7 +86,9 @@ public class GoodsSpuService extends BaseService {
      * @return
      */
     public GoodsSpu getGoodsSpu(String spuId) {
-        return goodsSpuMapper.getGoodsSpu(spuId);
+        GoodsSpu goodsSpuPo = goodsSpuMapper.getGoodsSpu(spuId);
+        goodsImgService.buildImgList(goodsSpuPo);
+        return goodsSpuPo;
     }
 
     /**
@@ -231,6 +215,7 @@ public class GoodsSpuService extends BaseService {
         return selectListByWhereString(GoodsCollection.User_id, userId, pagination, GoodsCollection.class);
     }
 
+
     /**
      * 增删改查Spu
      *
@@ -250,9 +235,11 @@ public class GoodsSpuService extends BaseService {
                 break;
 
             case ShopConst.OPERATOR_TYPE_DELETE: //删除
-                goodsSpu.setIsValid(false);
+                GoodsSpu delGoodsSpu = new GoodsSpu();
+                delGoodsSpu.setId(goodsSpu.getId());
+                delGoodsSpu.setIsValid(false);
                 o = "删除商品成功";
-                if (delete(goodsSpu) == 0) {
+                if (updateIfNotNull(delGoodsSpu) == 0) {
                     throw new BusinessException("删除商品失败");
                 }
                 break;
@@ -268,28 +255,8 @@ public class GoodsSpuService extends BaseService {
                 o = listGoodsSpu(goodsSpu, pagination);
                 break;
 
-            case ShopConst.OPERATOR_TYPE_QUERY_ONE: //查询单个
-                GoodsSpu goodsSpuPo = getGoodsSpu(goodsSpu.getId());
-                List<GoodsImg> introduceImg = new ArrayList<>();
-                introduceImgUrl = new ArrayList<>();
-                List<GoodsImg> detailImg = new ArrayList<>();
-                detailImgUrl = new ArrayList<>();
-                for (GoodsImg goodsImg : goodsSpuPo.getAllImg()) {
-                    Integer imgType = goodsImg.getImgType();
-                    if (ShopConst.GOODS_IMG_TYPE_INTRODUCE == imgType) {
-                        introduceImg.add(goodsImg);
-                        introduceImgUrl.add(goodsImg.getImgUrl());
-                    } else if (ShopConst.GOODS_IMG_TYPE_DETAIL == imgType) {
-                        detailImg.add(goodsImg);
-                        detailImgUrl.add(goodsImg.getImgUrl());
-                    }
-                }
-
-                goodsSpuPo.setIntroduceImg(introduceImg);
-                goodsSpuPo.setIntroduceImgUrl(introduceImgUrl);
-                goodsSpuPo.setDetailImg(detailImg);
-                goodsSpuPo.setDetailImgUrl(detailImgUrl);
-                o = goodsSpuPo;
+            case ShopConst.OPERATOR_TYPE_QUERY_DETAIL: //查询单个
+                o = getGoodsSpu(goodsSpu.getId());
                 break;
 
             case ShopConst.OPERATOR_TYPE_FROZEN://冻结/解冻商品
