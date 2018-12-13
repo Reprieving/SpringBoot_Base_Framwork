@@ -8,6 +8,8 @@ import com.balance.entity.mission.Mission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 配置相关
  */
@@ -25,7 +27,8 @@ public class AdminConfigController {
      */
     @GetMapping("globalList")
     public Result<?> globalList() {
-        return ResultUtils.success(baseService.selectAll(null, GlobalConfig.class));
+        List<GlobalConfig> data = baseService.selectAll(null, GlobalConfig.class);
+        return ResultUtils.success(data, data.size());
     }
 
     /**
@@ -53,7 +56,8 @@ public class AdminConfigController {
      */
     @GetMapping("missionList")
     public Result<?> missionList() {
-        return ResultUtils.success(baseService.selectAll(null, Mission.class));
+        List<Mission> data = baseService.selectAll(null, Mission.class);
+        return ResultUtils.success(data, data.size());
     }
 
     /**
