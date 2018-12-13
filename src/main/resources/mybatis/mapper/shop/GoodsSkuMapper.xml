@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.balance.mapper.shop.GoodsSkuMapper">
+    <resultMap id="goodsSkuSimpleMap" type="GoodsSku">
+        <id property="id" column="id"></id>
+        <result property="skuNo" column="sku_no"></result>
+        <result property="price" column="price"></result>
+        <result property="stock" column="stock"></result>
+        <result property="specJson" column="spec_json"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="status" column="status"></result>
+    </resultMap>
+
+    <resultMap id="goodsSkuDetailMap" type="GoodsSku" extends="goodsSkuSimpleMap">
+        <collection property="allImg" ofType="GoodsImg">
+            <id property="id" column="img_id"></id>
+            <result property="name" column="img_id"></result>
+            <result property="imgUrl" column="img_url"></result>
+            <result property="imgType" column="img_type"></result>
+            <result property="url" column="img_url"></result>
+        </collection>
+    </resultMap>
+
+
+    <delete id="deleteSkuImg">
+      DELETE FROM goods_img WHERE spu_id = #{spuId} AND sku_id = #{skuId}
+    </delete>
+
+    <select id="getGoodsSku" resultMap="goodsSkuDetailMap">
+        SELECT
+          a.id,a.sku_no,a.price,a.stock,a.spec_json,a.create_time,a.status,b.img_url,b.img_type,b.id AS img_id
+        FROM goods_sku a
+        LEFT JOIN goods_img b on a.id = b.sku_id
+        WHERE a.id = #{skuId}
+    </select>
+
+
+</mapper>

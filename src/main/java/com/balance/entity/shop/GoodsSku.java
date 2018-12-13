@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Alias("GoodsSku")
@@ -62,6 +63,9 @@ public class GoodsSku implements Serializable{
     private Boolean isValid;//是否有效
 
     //扩展属性
+    //规格map
+    private Map<String,Object> specJsonMap;
+
     private List<String> imgUrl;
     //所有图片集合
     private List<GoodsImg> allImg;

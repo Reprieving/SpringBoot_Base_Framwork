@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.balance.mapper.shop.GoodsSpecMapper">
+    <resultMap id="goodsSpecNameSimpleMap" type="GoodsSpecName">
+        <id property="id" column="id"></id>
+        <result property="specName" column="spec_name"></result>
+        <result property="createTime" column="create_time"></result>
+    </resultMap>
+
+    <resultMap id="goodsSpecNameDetailMap" type="GoodsSpecName" extends="goodsSpecNameSimpleMap">
+        <collection property="specValueList" ofType="GoodsSpecValue">
+            <id property="id" column="spec_value_id"></id>
+            <result property="label" column="spec_value"></result>
+            <result property="specValue" column="spec_value"></result>
+        </collection>
+    </resultMap>
+
+
+    <select id="getGoodsSpecName" resultMap="goodsSpecNameDetailMap">
+      SELECT
+        a.id,a.spec_name,a.create_time,b.id as spec_value_id,b.spec_value
+      FROM goods_spec_name a
+      LEFT JOIN goods_spec_value b on a.id = b.spec_id
+      WHERE a.id = #{specNameId}
+    </select>
+
+
+
+
+</mapper>

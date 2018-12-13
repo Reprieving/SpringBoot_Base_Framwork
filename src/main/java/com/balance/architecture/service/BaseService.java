@@ -131,6 +131,7 @@ public class BaseService {
 
     public <T> List<T> selectListByWhereString(String whereStr, Object whereValue, Pagination pagination, Class<T> tClass) {
         try {
+            ValueCheckUtils.notEmpty(whereValue,"参数有误");
             Map<String,Object> whereMap = ImmutableMap.of(whereStr,whereValue);
             T o = baseMapper.selectListByWhere(whereMap,tClass, pagination,null).get(0);
             if(!(o instanceof List)){
@@ -138,12 +139,14 @@ public class BaseService {
             }
             return (List<T>) o;
         } catch (NullPointerException e) {
+            e.printStackTrace();
             return new ArrayList<>();
         }
     }
 
     public <T> List<T> selectListByWhereString(String whereStr, Object whereValue, Pagination pagination, Class<T> tClass,Map<String,Object> orderMap) {
         try {
+            ValueCheckUtils.notEmpty(whereValue,"参数有误");
             Map<String,Object> whereMap = ImmutableMap.of(whereStr,whereValue);
             T o = baseMapper.selectListByWhere(whereMap,tClass, pagination,orderMap).get(0);
             if(!(o instanceof List)){
