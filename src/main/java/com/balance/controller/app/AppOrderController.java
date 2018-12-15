@@ -7,12 +7,10 @@ import com.balance.architecture.utils.ResultUtils;
 import com.balance.controller.app.req.PaginationReq;
 import com.balance.controller.app.req.ShopOrderPayReq;
 import com.balance.entity.shop.OrderGoodsInfo;
-import com.balance.entity.shop.OrderInfo;
+import com.balance.entity.user.User;
 import com.balance.service.shop.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -35,7 +33,7 @@ public class AppOrderController {
     public Result<?> list(HttpServletRequest request, @PathVariable("orderStatus")Integer orderStatus, @RequestBody PaginationReq paginationReq) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         Pagination pagination = paginationReq.getPagination();
-        List<OrderGoodsInfo> orderInfoList = orderService.listOrderGoodsInfo(userId,orderStatus,pagination);
+        List<OrderGoodsInfo> orderInfoList = orderService.listAppOrderGoodsInfo(userId,orderStatus,pagination);
         return ResultUtils.success(orderInfoList);
     }
 
@@ -47,7 +45,7 @@ public class AppOrderController {
      */
     @RequestMapping("detail/{orderId}")
     public Result<?> detail(HttpServletRequest request, @PathVariable("orderId")String orderId){
-        OrderGoodsInfo orderGoodsInfo = orderService.getOrderGoodsInfo(orderId);
+        OrderGoodsInfo orderGoodsInfo = orderService.getAppOrderGoodsInfo(orderId);
         return ResultUtils.success(orderGoodsInfo);
     }
 
@@ -60,8 +58,8 @@ public class AppOrderController {
      */
     @RequestMapping("create")
     public Result<?> create(HttpServletRequest request,ShopOrderPayReq shopOrderPayReq) throws UnsupportedEncodingException {
-        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        orderService.createOrder(shopOrderPayReq.getOrderSkuReqList(),userId,shopOrderPayReq.getAddressId(),shopOrderPayReq.getSettlementId());
+        User user = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME));
+        orderService.createOrder(shopOrderPayReq.getOrderSkuReqList(),user,shopOrderPayReq.getAddressId(),shopOrderPayReq.getSettlementId());
         return ResultUtils.success();
     }
 }

@@ -137,7 +137,7 @@ public class GoodsSkuService extends BaseService {
                 String msgType = goodsSku.getId() == null ? "上传" : "更新";
                 o = msgType + "商品属性成功";
                 if (saveGoodsSku(goodsSku, introduceImgUrl, detailImgUrl) == 0) {
-                    throw new BusinessException(o + "商品属性失败");
+                    throw new BusinessException(msgType + "商品属性失败");
                 }
                 break;
 
@@ -159,7 +159,6 @@ public class GoodsSkuService extends BaseService {
                 o = getGoodsSku(goodsSku.getId());
                 break;
         }
-
         return o;
     }
 }
