@@ -53,6 +53,7 @@
                                     a.id = ${subscriberId}
                             )
                     ) AND d.is_valid = 1
+                    ORDER BY d.icon_code
             </otherwise>
         </choose>
     </select>

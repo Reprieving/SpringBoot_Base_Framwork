@@ -5,6 +5,7 @@ import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
+import org.springframework.core.annotation.Order;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -36,6 +37,8 @@ public class OrderItem implements Serializable{
 
     @Column(name = Total_price)
     private BigDecimal totalPrice;//总价
+
+    public OrderItem(){}
 
     public OrderItem(String goodsSpuId, String goodsSkuId, Integer number, BigDecimal price, BigDecimal totalPrice) {
         this.goodsSpuId = goodsSpuId;

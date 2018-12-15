@@ -2,12 +2,11 @@ package com.balance.service.shop;
 
 import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.dto.Pagination;
+import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.ShopConst;
-import com.balance.entity.shop.GoodsSpec;
-import com.balance.entity.shop.GoodsSpecName;
-import com.balance.entity.shop.GoodsSpecNameValue;
-import com.balance.entity.shop.GoodsSpecValue;
+import com.balance.entity.shop.*;
 import com.balance.mapper.shop.GoodsSpecMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class GoodsSpecService extends BaseService {
@@ -28,23 +26,37 @@ public class GoodsSpecService extends BaseService {
      *
      * @param goodsSpecName
      */
-    public Integer createGoodsSpecName(GoodsSpecName goodsSpecName) {
-        return insertIfNotNull(goodsSpecName);
+    public Integer saveGoodsSpecName(GoodsSpecName goodsSpecName) {
+        ValueCheckUtils.notEmpty(goodsSpecName.getSpecName(), "规格名不能为空");
+        String specNameId = goodsSpecName.getId();
+        if(StringUtils.isNoneBlank(specNameId)){
+            ValueCheckUtils.notEmpty(selectOneById(specNameId, GoodsSpecName.class), "未找到商品规格名记录");
+            return updateIfNotNull(goodsSpecName);
+        }else {
+            return insertIfNotNull(goodsSpecName);
+        }
+//        Integer a;
+//        a = insertIfNotNull(goodsSpecName);
+//        List<GoodsSpecNameValue> goodsSpecNameValueList = new ArrayList<>();
+//        goodsSpecName.getSpecValueIdList().forEach(specSpecValueId -> goodsSpecNameValueList.add(new GoodsSpecNameValue(goodsSpecName.getId(), specSpecValueId)));
+//        a = insertBatch(goodsSpecNameValueList, false);
+//        return a;
+
     }
 
 
     /**
      * 查询商品规格名字
      *
-     * @param name 规格名字
+     * @param specName 规格名字
      * @return
      */
-    public List<GoodsSpecName> listGoodsSpecName(String name, Pagination pagination) {
+    public List<GoodsSpecName> listGoodsSpecName(String specName, Pagination pagination) {
         Class clazz = GoodsSpecName.class;
-        if (StringUtils.isNoneBlank(name)) {
-            return selectAll(pagination, clazz);
+        if (StringUtils.isNoneBlank(specName)) {
+            return selectListByWhereString(GoodsSpecName.Spec_name + " = ", specName, pagination, clazz);
         } else {
-            return selectListByWhereString(GoodsSpecName.Spec_name + " = ", name, pagination, clazz);
+            return selectAll(pagination, clazz);
         }
     }
 
@@ -65,10 +77,7 @@ public class GoodsSpecService extends BaseService {
      * @return
      */
     private GoodsSpecName getGoodsSpecName(String specNameId) {
-        GoodsSpecName goodsSpecName = goodsSpecMapper.getGoodsSpecName(specNameId);
-        List<String> specValueIdList = new ArrayList();
-        goodsSpecName.getGoodsSpecValueList().forEach(specValue -> specValueIdList.add(specValue.getId()));
-        return goodsSpecName;
+        return goodsSpecMapper.getGoodsSpecName(specNameId);
     }
 
     /**
@@ -109,12 +118,14 @@ public class GoodsSpecService extends BaseService {
         String specStr = "";
         String specName;
         String specValue;
-        for (String specIdStr : specIdStrList) {
-            String[] specIdArr = specIdStr.split(":");
-            specName = getGoodSpecNameById(specIdArr[0]).getSpecName();
-            specValue = getGoodsSpecValueById(specIdArr[1]).getSpecValue();
-            if (specName != null && specValue != null) {
-                specStr += " " + specName + ":" + specValue;
+        if(specIdStrList!=null){
+            for (String specIdStr : specIdStrList) {
+                String[] specIdArr = specIdStr.split(":");
+                specName = getGoodSpecNameById(specIdArr[0]).getSpecName();
+                specValue = getGoodsSpecValueById(specIdArr[1]).getSpecValue();
+                if (specName != null && specValue != null) {
+                    specStr += " " + specName + ":" + specValue;
+                }
             }
         }
         return specStr;
@@ -131,9 +142,10 @@ public class GoodsSpecService extends BaseService {
         Object o = null;
         switch (operatorType) {
             case ShopConst.OPERATOR_TYPE_INSERT: //添加
-                o = "创建规格名成功";
-                if (createGoodsSpecName(goodsSpecName) == 0) {
-                    o = "创建规格名失败";
+                String msgType = goodsSpecName.getId() == null ? "创建" : "更新";
+                o = msgType + "规格名成功";
+                if (saveGoodsSpecName(goodsSpecName) == 0) {
+                    throw new BusinessException(msgType + "规格名失败");
                 }
                 break;
 
@@ -156,36 +168,54 @@ public class GoodsSpecService extends BaseService {
     }
 
     /**
+     * 获取所有规格名id
+     * @return
+     */
+    public List<String> listAllSpecName(){
+        List<GoodsSpecName> goodsSpecNames = selectAll(null,GoodsSpecName.class);
+        List<String> ids = new ArrayList<>(goodsSpecNames.size());
+        goodsSpecNames.forEach(e->ids.add(e.getId()));
+        return ids;
+    }
+
+    /**
      * 新增商品规格值
      *
      * @param goodsSpecValue
      */
-    public Integer createGoodsSpecValue(GoodsSpecValue goodsSpecValue) {
-        return insertIfNotNull(goodsSpecValue);
+    public Integer saveGoodsSpecValue(GoodsSpecValue goodsSpecValue) {
+        ValueCheckUtils.notEmpty(goodsSpecValue.getSpecValue(), "规格值不能为空");
+        String specValueId = goodsSpecValue.getId();
+        if(StringUtils.isNoneBlank(specValueId)){
+            ValueCheckUtils.notEmpty(selectOneById(goodsSpecValue.getSpecId(), GoodsSpecName.class), "未找到商品规格名记录");
+            ValueCheckUtils.notEmpty(selectOneById(specValueId, GoodsSpecValue.class), "未找到商品规格值记录");
+            return updateIfNotNull(goodsSpecValue);
+        }else {
+            return insertIfNotNull(goodsSpecValue);
+        }
     }
-
 
     /**
      * 规格值列表
      */
-    public List<GoodsSpecValue> listGoodsSpecValue(String specNameId,Pagination pagination){
+    public List listGoodsSpecValue(String specNameId, Pagination pagination) {
         Class clazz = GoodsSpecValue.class;
         if (StringUtils.isNoneBlank(specNameId)) {
-            return selectAll(pagination,clazz);
-        } else {
             return selectListByWhereString(GoodsSpecValue.Spec_id + " = ", specNameId, pagination, clazz);
+        } else {
+            return selectAll(pagination, clazz);
         }
     }
 
     /**
      * 规格名详情
      */
-    public GoodsSpecValue getGoodsSpecValue(String specValueId){
-        return selectOneById(specValueId,GoodsSpecValue.class);
+    public GoodsSpecValue getGoodsSpecValue(String specValueId) {
+        return selectOneById(specValueId, GoodsSpecValue.class);
     }
 
     /**
-     * 规格名操作
+     * 规格值操作
      *
      * @param goodsSpecValue
      * @param operatorType
@@ -196,7 +226,7 @@ public class GoodsSpecService extends BaseService {
         switch (operatorType) {
             case ShopConst.OPERATOR_TYPE_INSERT: //添加
                 o = "创建规格名成功";
-                if (createGoodsSpecValue(goodsSpecValue) == 0) {
+                if (saveGoodsSpecValue(goodsSpecValue) == 0) {
                     o = "创建规格名失败";
                 }
                 break;
@@ -218,5 +248,7 @@ public class GoodsSpecService extends BaseService {
         }
         return o;
     }
+
+
 
 }

@@ -20,7 +20,7 @@ public class InterceptorConfig extends WebMvcConfigurationSupport {
     public void addInterceptors(InterceptorRegistry registry) {
         // addPathPatterns 用于添加拦截规则
         // excludePathPatterns 用户排除拦截
-//        registry.addInterceptor(authorityInterceptor).addPathPatterns("/**");
+        registry.addInterceptor(authorityInterceptor).addPathPatterns("/**");
         super.addInterceptors(registry);
     }
 }

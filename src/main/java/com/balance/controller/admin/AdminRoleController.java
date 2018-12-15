@@ -30,7 +30,7 @@ public class AdminRoleController {
     @RequestMapping("create")
     public Result<?> createRole(@RequestBody Role role) {
         roleService.insertRole(role);
-        return ResultUtils.success("创建角色成功");
+        return ResultUtils.success("编辑角色成功");
     }
 
     @RequestMapping("list")

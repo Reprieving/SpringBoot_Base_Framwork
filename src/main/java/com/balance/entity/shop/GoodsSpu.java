@@ -42,6 +42,9 @@ public class GoodsSpu implements Serializable{
     @Column(name = Brand_id)
     private String brandId;//品牌id（goods_brand表id）
 
+    @Column(name = Shop_id)
+    private String shopId;//商铺id
+
     @Column(name = Default_img_url)
     private String defaultImgUrl;//spu 默认图片
 
@@ -96,6 +99,7 @@ public class GoodsSpu implements Serializable{
     public static final String Settlement_id = "settlement_id";
     public static final String Category_id = "category_id";
     public static final String Brand_id = "brand_id";
+    public static final String Shop_id = "shop_id";
     public static final String Default_img_url = "default_img_url";
     public static final String Create_time = "create_time";
     public static final String Update_time = "update_time";

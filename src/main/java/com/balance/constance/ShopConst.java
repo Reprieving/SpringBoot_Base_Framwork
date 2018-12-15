@@ -36,10 +36,11 @@ public class ShopConst {
 
     //订单状态
     public static final int ORDER_STATUS_NONE = 0;//未发货
-    public static final int ORDER_STATUS_CANCEL = -1;//已取消
     public static final int ORDER_STATUS_DELIVERY = 1;//已发货
     public static final int ORDER_STATUS_RECEIVE = 2;//已收货
-    public static final int ORDER_STATUS_RETURN_APPLY = 3;//申请退货
-    public static final int ORDER_STATUS_RETURN_SUCCESS = 30;//退货成功
-    public static final int ORDER_STATUS_RETURN_FAIL= 31;//退货失败
+    public static final int ORDER_STATUS_CANCEL = 3;//已取消
+    public static final int ORDER_STATUS_RETURN_APPLY = 4;//申请退货
+    public static final int ORDER_STATUS_RETURN_SUCCESS = 40;//退货成功
+    public static final int ORDER_STATUS_RETURN_FAIL= 41;//退货失败
+
 }

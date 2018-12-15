@@ -17,11 +17,20 @@ public class RoleService extends BaseService {
     @Autowired
     private RoleMapper roleMapper;
 
+    /**
+     * 删除角色接口权限
+     * @param roleId
+     * @return
+     */
     public Integer deleteFunction(String roleId) {
         return roleMapper.deleteFunction(roleId);
     }
 
-
+    /**
+     * 查询角色接口权限
+     * @param roleId
+     * @return
+     */
     public Role listFunction(String roleId) {
         return roleMapper.listFunction(roleId);
     }
@@ -31,6 +40,7 @@ public class RoleService extends BaseService {
         if (rolePo == null) { //新增
             insertIfNotNull(role);
         } else { //编辑
+            updateIfNotNull(role);
             deleteFunction(rolePo.getId());
         }
         List<RoleFunction> rolesList = new ArrayList<>(50);
