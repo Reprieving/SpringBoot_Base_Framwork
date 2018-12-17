@@ -349,7 +349,7 @@ public class UserService extends BaseService {
             Integer distance = Integer.parseInt(new java.text.DecimalFormat("0").format(geoResult.getDistance().getValue()));
             RedisGeoCommands.GeoLocation<Object> geoLocation = geoResult.getContent();
 
-            //[userId],[userName],[headImgPic],[computePower],[distance]
+            //[sampleName],[userName],[headImgPic],[computePower]
             String[] nearByUserInfo = String.valueOf(geoLocation.getName()).split(":");
             NearByUser nearByUser = new NearByUser(nearByUserInfo[0], nearByUserInfo[1], nearByUserInfo[2], nearByUserInfo[3], distance);
             nearByUsers.add(nearByUser);

@@ -55,6 +55,9 @@ public class User implements Serializable{ //用户信息
     @Column(name = Level)
     private Integer level;//等级
 
+    @Column(name = Wx_open_id)
+    private String wxOpenId;//微信OpenId
+
     //扩展属性
     private String accessToken; //访问token
     private String msgCode; //短信验证码
@@ -81,6 +84,7 @@ public class User implements Serializable{ //用户信息
     public static final String Status = "status";
     public static final String Type = "type";
     public static final String Level = "level";
+    public static final String Wx_open_id = "wx_open_id";
 
     public User(List<User> directUserList, List<User> inDirectUserList) {
         this.directUserList = directUserList;

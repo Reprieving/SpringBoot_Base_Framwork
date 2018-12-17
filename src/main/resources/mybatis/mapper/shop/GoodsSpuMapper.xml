@@ -12,6 +12,7 @@
         <result property="categoryName" column="category_name"></result>
         <result property="brandName" column="brand_name"></result>
         <result property="brandId" column="brand_id"></result>
+        <result property="shopId" column="shop_id"></result>
         <result property="defaultImgUrl" column="default_img_url"></result>
         <result property="createTime" column="create_time"></result>
         <result property="status" column="status"></result>
@@ -51,7 +52,7 @@
 
     <select id="listGoodsSpu" resultMap="goodsSpuSimpleMap">
         SELECT
-        a.id,a.spu_no,a.goods_name,a.low_price,a.settlement_id,c.category_name,d.brand_name,a.default_img_url,a.create_time,a.status
+        a.id,a.spu_no,a.goods_name,a.low_price,a.settlement_id,c.category_name,d.brand_name,a.default_img_url,a.create_time,a.status,a.spu_type
         FROM goods_spu a
         LEFT JOIN goods_category c on a.category_id = c.id
         LEFT JOIN goods_brand d on a.brand_id = d.id
@@ -82,7 +83,9 @@
 
     <select id="getGoodsSpu" resultMap="goodsSpuDetailMap">
         SELECT
-          a.id,a.id AS spu_id,a.spu_no,a.goods_name,a.low_price,a.settlement_id,a.default_img_url,a.create_time,a.spu_type,a.status,b.img_url,b.img_type,b.id AS img_id
+          a.id,a.id AS spu_id,a.spu_no,a.goods_name,a.low_price,a.settlement_id,a.default_img_url,
+          a.create_time,a.spu_type,a.status,a.category_id,a.brand_id,a.shop_id,
+          b.img_url,b.img_type,b.id AS img_id
         FROM goods_spu a
         LEFT JOIN goods_img b on a.id = b.spu_id
         WHERE a.id = #{spuId}

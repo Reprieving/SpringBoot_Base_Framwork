@@ -21,14 +21,6 @@ public class NearByUser implements Serializable{
 
     }
 
-    public NearByUser(String userId, String userName, String headImgPic, BigDecimal computePower, Integer distance) {
-        this.userId = userId;
-        this.userName = userName;
-        this.headImgPic = headImgPic;
-        this.computePower = computePower;
-        this.distance = distance;
-    }
-
     public NearByUser(String userId, String userName, String headImgPic, String computePower, Integer distance) {
         this.userId = userId;
         this.userName = userName;

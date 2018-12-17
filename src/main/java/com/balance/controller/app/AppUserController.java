@@ -9,8 +9,10 @@ import com.balance.client.RedisClient;
 import com.balance.constance.RedisKeyConst;
 import com.balance.constance.UserConst;
 import com.balance.controller.app.req.UserLocation;
+import com.balance.entity.shop.SampleMachineLocation;
 import com.balance.entity.user.*;
 import com.balance.service.common.WjSmsService;
+import com.balance.service.shop.SampleMachineService;
 import com.balance.service.user.CertificationService;
 import com.balance.service.user.UserAssetsService;
 import com.balance.service.user.UserSendService;
@@ -43,6 +45,9 @@ public class AppUserController {
 
     @Autowired
     private CertificationService certificationService;
+
+    @Autowired
+    private SampleMachineService sampleMachineService;
 
     @Autowired
     private RedisClient redisClient;
@@ -265,7 +270,7 @@ public class AppUserController {
      * @throws UnsupportedEncodingException
      */
     @ResponseBody
-    @RequestMapping(value = "nearByUserList", method = RequestMethod.POST)
+    @RequestMapping(value = "nearByUserList")
     public Result<?> nearByUserList(HttpServletRequest request, UserLocation userLocation) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         UserAssets userAssets = userAssetsServices.getAssetsByUserId(userId);
@@ -273,5 +278,19 @@ public class AppUserController {
         return ResultUtils.success(userService.nearUserList(userId, userLocation.getProvinceCode(),
                 userLocation.getCityCode(), userLocation.getRegionCode(), userLocation.getStreetCode(),
                 userLocation.getCoordinateX(), userLocation.getCoordinateY(), userAssets.getComputePower()));
+    }
+
+    /**
+     * 市内小样机
+     * @param request
+     * @param sl
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @ResponseBody
+    @RequestMapping(value = "citySampleMachine")
+    public Result<?> citySampleMachine(HttpServletRequest request, SampleMachineLocation sl) throws UnsupportedEncodingException {
+        List<SampleMachineLocation> slList = sampleMachineService.listSampleMachineLocation(sl.getCityCode(),sl.getCoordinateX(),sl.getCoordinateY());
+        return ResultUtils.success(slList);
     }
 }
