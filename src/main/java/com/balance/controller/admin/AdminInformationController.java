@@ -5,12 +5,19 @@ import com.balance.architecture.dto.Result;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
 import com.balance.entity.information.Article;
+import com.balance.entity.information.Investigation;
 import com.balance.service.information.ArticleService;
+import com.balance.service.information.InvestigationService;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +29,9 @@ public class AdminInformationController {
 
     @Autowired
     private ArticleService articleService;
+
+    @Autowired
+    private InvestigationService investigationService;
 
 
     @PostMapping("list")
@@ -65,4 +75,29 @@ public class AdminInformationController {
         }
     }
 
+
+    @PostMapping("investigationSave/{id}")
+    public Result<?> saveInvestigation(@PathVariable String id, Investigation investigation) {
+        int result = 0;
+        if ("0".equals(id)) {
+            result = investigationService.insertIfNotNull(investigation);
+        } else {
+            result = investigationService.updateIfNotNull(investigation);
+        }
+        if (result > 0) {
+            return ResultUtils.success();
+        } else {
+            return ResultUtils.error("操作失败");
+        }
+    }
+
+    @GetMapping("investigationList")
+    public Result<?> list(Pagination pagination, String investigationTitle) {
+        ImmutableMap<String, Object> whereMap = null;
+        if(StringUtils.isNotBlank(investigationTitle)) {
+            whereMap = ImmutableMap.of(Investigation.Investigation_title + "=", investigationTitle);
+        }
+        List<Investigation> userList = investigationService.selectListByWhereMap(whereMap, pagination, Investigation.class);
+        return ResultUtils.success(userList, pagination.getTotalRecordNumber());
+    }
 }
