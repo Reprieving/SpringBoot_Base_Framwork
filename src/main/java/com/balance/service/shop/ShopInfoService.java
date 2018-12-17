@@ -1,6 +1,7 @@
 package com.balance.service.shop;
 
 import com.balance.architecture.dto.Pagination;
+import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.ShopConst;
@@ -44,8 +45,11 @@ public class ShopInfoService extends BaseService {
         Class clazz = ShopInfo.class;
         String shopName = shopInfo.getShopName();
         if (StringUtils.isNoneBlank(shopName)) {
-            Map<String, Object> whereMap = ImmutableMap.of(ShopInfo.Shop_name + " LIKE ", "%" + shopName + "%",
-                    ShopInfo.Subscriber_id + "=", shopInfo.getSubscriberId());
+            Map<String, Object> whereMap = ImmutableMap.of(
+                    ShopInfo.Shop_name + " LIKE ", "%" + shopName + "%",
+                    ShopInfo.Subscriber_id + "=", shopInfo.getSubscriberId(),
+                    ShopInfo.Is_valid + "=", true
+            );
             return selectListByWhereMap(whereMap, pagination, clazz);
         } else {
             Map<String, Object> whereMap = ImmutableMap.of(ShopInfo.Subscriber_id + "=", shopInfo.getSubscriberId());
@@ -56,6 +60,7 @@ public class ShopInfoService extends BaseService {
 
     /**
      * 商铺详情
+     *
      * @param shopInfoId 商铺id
      * @return
      */
@@ -77,7 +82,7 @@ public class ShopInfoService extends BaseService {
             case ShopConst.OPERATOR_TYPE_INSERT: //添加
                 o = "创建商铺成功";
                 if (saveShopInfo(shopInfo) == 0) {
-                    o = "创建商铺失败";
+                    throw new BusinessException("创建商铺失败");
                 }
                 break;
 
@@ -85,7 +90,7 @@ public class ShopInfoService extends BaseService {
                 shopInfo.setIsValid(false);
                 o = "删除商铺成功";
                 if (updateIfNotNull(shopInfo) == 0) {
-                    o = "删除商铺失败";
+                    throw new BusinessException("删除商铺失败");
                 }
                 break;
 

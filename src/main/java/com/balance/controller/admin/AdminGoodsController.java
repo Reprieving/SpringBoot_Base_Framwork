@@ -5,10 +5,7 @@ import com.balance.architecture.dto.Result;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
 import com.balance.entity.shop.*;
-import com.balance.service.shop.GoodsSkuService;
-import com.balance.service.shop.GoodsSpecService;
-import com.balance.service.shop.GoodsSpuService;
-import com.balance.service.shop.ShopInfoService;
+import com.balance.service.shop.*;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +34,12 @@ public class AdminGoodsController {
 
     @Autowired
     private ShopInfoService shopInfoService;
+
+    @Autowired
+    private GoodsCategoryService goodsCategoryService;
+
+    @Autowired
+    private GoodsBrandService goodsBrandService;
 
     /**
      * spu操作
@@ -117,12 +120,13 @@ public class AdminGoodsController {
 
     /**
      * 规格名操作
+     *
      * @param goodsSpecName
      * @param operatorType
      * @return
      */
     @RequestMapping("specName/operator/{operatorType}")
-    public Result<?> operatorSpecName(@RequestBody GoodsSpecName goodsSpecName,@PathVariable Integer operatorType){
+    public Result<?> operatorSpecName(@RequestBody GoodsSpecName goodsSpecName, @PathVariable Integer operatorType) {
         Pagination pagination = goodsSpecName.getPagination();
         Object object = goodsSpecService.operatorSpecName(goodsSpecName, operatorType);
         if (object instanceof String) {
@@ -130,26 +134,27 @@ public class AdminGoodsController {
             return ResultUtils.success(message);
         }
         Integer count = pagination == null ? 0 : pagination.getTotalRecordNumber();
-        return ResultUtils.success(object,count);
+        return ResultUtils.success(object, count);
     }
 
     /**
      * 获取所有规格名id
      */
     @RequestMapping("specName/all")
-    public Result<?> allSpecNameId(){
+    public Result<?> allSpecNameId() {
         return ResultUtils.success(goodsSpecService.listAllSpecName());
     }
 
 
     /**
      * 规格值操作
+     *
      * @param goodsSpecValue
      * @param operatorType
      * @return
      */
     @RequestMapping("specValue/operator/{operatorType}")
-    public Result<?> operatorSpecValue(@RequestBody GoodsSpecValue goodsSpecValue,@PathVariable Integer operatorType){
+    public Result<?> operatorSpecValue(@RequestBody GoodsSpecValue goodsSpecValue, @PathVariable Integer operatorType) {
         Pagination pagination = goodsSpecValue.getPagination();
         Object object = goodsSpecService.operatorSpecValue(goodsSpecValue, operatorType);
         if (object instanceof String) {
@@ -157,12 +162,13 @@ public class AdminGoodsController {
             return ResultUtils.success(message);
         }
         Integer count = pagination == null ? 0 : pagination.getTotalRecordNumber();
-        return ResultUtils.success(object,count);
+        return ResultUtils.success(object, count);
     }
 
 
     /**
      * 商铺信息操作
+     *
      * @param shopInfo
      * @param operatorType
      * @return
@@ -172,12 +178,59 @@ public class AdminGoodsController {
         Pagination pagination = shopInfo.getPagination();
         String subscriberId = JwtUtils.getSubscriberByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         shopInfo.setSubscriberId(subscriberId);
-        Object object = shopInfoService.operatorShopInfo(shopInfo,operatorType);
+        Object object = shopInfoService.operatorShopInfo(shopInfo, operatorType);
         if (object instanceof String) {
             String message = String.valueOf(object);
             return ResultUtils.success(message);
         }
         Integer count = pagination == null ? 0 : pagination.getTotalRecordNumber();
-        return ResultUtils.success(object,count);
+        return ResultUtils.success(object, count);
+    }
+
+    /**
+     * 类目信息操作
+     *
+     * @param goodsCategory
+     * @param operatorType
+     * @return
+     */
+    @RequestMapping("category/operator/{operatorType}")
+    public Result<?> operatorCategory(HttpServletRequest request, @RequestBody GoodsCategory goodsCategory, @PathVariable Integer operatorType) throws UnsupportedEncodingException {
+        Pagination pagination = goodsCategory.getPagination();
+        Object object = goodsCategoryService.operatorCategory(goodsCategory, operatorType);
+        if (object instanceof String) {
+            String message = String.valueOf(object);
+            return ResultUtils.success(message);
+        }
+        Integer count = pagination == null ? 0 : pagination.getTotalRecordNumber();
+        return ResultUtils.success(object, count);
+    }
+
+    /**
+     * 品牌操作
+     *
+     * @param goodsBrand
+     * @param operatorType
+     * @return
+     */
+    @RequestMapping("brand/operator/{operatorType}")
+    public Result<?> operatorBrand(HttpServletRequest request, @RequestBody GoodsBrand goodsBrand, @PathVariable Integer operatorType) throws UnsupportedEncodingException {
+        Pagination pagination = goodsBrand.getPagination();
+        String subscriberId = JwtUtils.getSubscriberByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        goodsBrand.setSubscriberId(subscriberId);
+        Object object = goodsBrandService.operatorBrand(goodsBrand, operatorType);
+        if (object instanceof String) {
+            String message = String.valueOf(object);
+            return ResultUtils.success(message);
+        }
+        Integer count = pagination == null ? 0 : pagination.getTotalRecordNumber();
+        return ResultUtils.success(object, count);
+    }
+
+
+    @RequestMapping("spu/selectData")
+    public Result<?> selectDataList(HttpServletRequest request) throws UnsupportedEncodingException {
+        String subscriberId = JwtUtils.getSubscriberByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        return ResultUtils.success(goodsSpuService.listSelectData(subscriberId));
     }
 }

@@ -49,7 +49,7 @@ public class Function implements Serializable{
 
     //图标代码
     @Column(name = "icon_code")
-    private String iconCode = "";
+    private String iconCode;
 
     //创建人
     @Column(name = "create_by")

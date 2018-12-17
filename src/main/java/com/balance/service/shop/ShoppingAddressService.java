@@ -1,5 +1,6 @@
 package com.balance.service.shop;
 
+import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.ShopConst;
@@ -48,7 +49,7 @@ public class ShoppingAddressService extends BaseService {
                 shoppingAddress.setIsDefault(false);
                 i = insertIfNotNull(shoppingAddress);
                 if(i == 0){
-                    o = "添加收货地址失败";
+                    throw new BusinessException("添加收货地址失败");
                 }
                 break;
 
@@ -56,7 +57,7 @@ public class ShoppingAddressService extends BaseService {
                 ValueCheckUtils.notEmpty(shoppingAddress.getId(),"收货地址id不能为空");
                 i = delete(shoppingAddress);
                 if(i == 0){
-                    o = "删除收货地址失败";
+                    throw new BusinessException("删除收货地址失败");
                 }
                 break;
 
@@ -64,7 +65,7 @@ public class ShoppingAddressService extends BaseService {
                 ValueCheckUtils.notEmpty(shoppingAddress.getId(),"收货地址id不能为空");
                 i = updateIfNotNull(shoppingAddress);
                 if(i == 0){
-                    o = "保存收货地址失败";
+                    throw new BusinessException("保存收货地址失败");
                 }
                 break;
 

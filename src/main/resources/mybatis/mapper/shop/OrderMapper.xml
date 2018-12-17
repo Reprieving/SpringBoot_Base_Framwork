@@ -61,7 +61,7 @@
         <include refid="listOrderGoodsInfo"/>
         WHERE 1=1
         <if test="orderNo!=null">
-            AND a.order_no = #{orderNo}
+            AND a.order_no LIKE CONCAT('%',#{orderNo},'%')
         </if>
         <if test="userName!=null">
             AND a.user_name = #{userName}

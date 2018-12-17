@@ -40,7 +40,7 @@
         <result property="specNo" column="spec_no"></result>
         <result property="label" column="spec_name"></result>
     </resultMap>
-    
+
     <delete id="deleteSpuImg">
         DELETE FROM goods_img WHERE spu_id = #{spuId}
     </delete>
@@ -57,25 +57,25 @@
         LEFT JOIN goods_brand d on a.brand_id = d.id
         WHERE
         a.is_valid = 1
-        <if test="goodsName!=null">
+        <if test="goodsName!=null and goodsName!=''">
             AND a.goods_name LIKE CONCAT('%',#{goodsName},'%')
         </if>
-        <if test="categoryId!=null">
+        <if test="categoryId!=null and categoryId!=''">
             AND c.id = #{categoryId}
         </if>
-        <if test="brandId!=null">
+        <if test="brandId!=null and brandId!=''">
             AND d.id = #{brandId}
         </if>
-        <if test="spuType!=null">
+        <if test="spuType!=null and spuType!=''">
             AND a.spu_type = #{spuType}
         </if>
-        <if test="status != null">
+        <if test="status != null and status!=''">
             AND a.status = #{status}
         </if>
-        <if test="startTime!=null">
+        <if test="startTime!=null and startTime!=''">
             AND a.create_time &gt;= #{startTime}
         </if>
-        <if test="endTime!=null">
+        <if test="endTime!=null and endTime!=''">
             AND a.create_time &lt;= #{startTime}
         </if>
     </select>
@@ -86,14 +86,15 @@
         FROM goods_spu a
         LEFT JOIN goods_img b on a.id = b.spu_id
         WHERE a.id = #{spuId}
+        AND b.sku_id IS NULL
     </select>
 
     <select id="listSpuSpec" resultMap="spuNameMap">
-      SELECT
+        SELECT
         a.id,b.id as spec_name_id,b.spec_name,b.spec_no
-      FROM goods_spu_spec a
-      LEFT JOIN goods_spec_name b ON a.spec_id = b.id
-      WHERE
+        FROM goods_spu_spec a
+        LEFT JOIN goods_spec_name b ON a.spec_id = b.id
+        WHERE
         1=1
         <if test="spuId!=null">
             AND a.spu_id = #{spuId}

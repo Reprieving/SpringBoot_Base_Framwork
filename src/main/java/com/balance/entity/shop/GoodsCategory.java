@@ -1,5 +1,6 @@
 package com.balance.entity.shop;
 
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
@@ -32,10 +33,17 @@ public class GoodsCategory implements Serializable{
     @Column(name = Update_time)
     private Timestamp updateTime;
 
+    @Column(name = Is_valid)
+    private Boolean isValid;
+
+
+    //扩展属性
+    private Pagination pagination;
 
     //DB Column name
     public static final String Id = "id";
     public static final String Category_name = "category_name";
     public static final String Create_time = "create_time";
     public static final String Update_time = "update_time";
+    public static final String Is_valid = "is_valid";
 }

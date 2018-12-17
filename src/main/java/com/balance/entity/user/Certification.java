@@ -1,5 +1,6 @@
 package com.balance.entity.user;
 
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
@@ -24,6 +25,9 @@ public class Certification implements Serializable { //用户认证
     @Column(name = User_id)
     private String userId; //用户id
 
+    @Column(name = Real_name)
+    private String realName; //真实姓名
+
     @Column(name = License_type)
     private Integer licenseType; //证件类型
 
@@ -46,9 +50,14 @@ public class Certification implements Serializable { //用户认证
     @Column(name = Status)
     private Integer status; //认证状态
 
+    //扩展属性
+    private String userName;
+    private Pagination pagination;
+
     //DB Column name
     public static final String Id = "id";
     public static final String User_id = "user_id";
+    public static final String Real_name = "real_name";
     public static final String License_type = "license_type";
     public static final String License_number = "license_number";
     public static final String Positive_photo_url = "positive_photo_url";
