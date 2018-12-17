@@ -3,6 +3,7 @@
 <mapper namespace="com.balance.mapper.information.ArticleMapper">
     <resultMap id="BaseResultMap" type="Article">
         <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="article_cover" property="articleCover" jdbcType="VARCHAR"/>
         <result column="article_title" property="articleTitle" jdbcType="VARCHAR"/>
         <result column="article_type" property="articleType" jdbcType="INTEGER"/>
         <result column="is_valid" property="isValid" jdbcType="BIT"/>
@@ -11,7 +12,7 @@
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
     </resultMap>
     <sql id="Base_Column_List">
-      t.id, t.article_title, t.article_type, t.is_valid, t.verify_status, t.create_by, t.create_time
+      t.id, t.article_title, t.article_type, t.is_valid, t.verify_status, t.create_by, t.create_time, article_cover
     </sql>
 
     <select id="selectByPage" resultMap="BaseResultMap" parameterType="map">

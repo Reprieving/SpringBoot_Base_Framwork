@@ -22,6 +22,9 @@ public class Article implements Serializable{
     @Column(name = Article_title)
     private String articleTitle; //标题
 
+    @Column(name = Article_cover)
+    private String articleCover; //封面
+
     @Column(name = Article_content)
     private String articleContent; //内容
 
@@ -48,6 +51,7 @@ public class Article implements Serializable{
     //DB Column name
     public static final String Id = "id";
     public static final String Article_title = "article_title";
+    public static final String Article_cover = "article_cover";
     public static final String Article_content = "article_content";
     public static final String Article_type = "article_type";
     public static final String IsValid = "is_valid";
