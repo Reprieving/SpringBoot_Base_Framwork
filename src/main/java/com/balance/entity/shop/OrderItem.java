@@ -38,6 +38,10 @@ public class OrderItem implements Serializable{
     @Column(name = Total_price)
     private BigDecimal totalPrice;//总价
 
+    @Column(name = Status)
+    private Integer status;
+
+
     public OrderItem(){}
 
     public OrderItem(String goodsSpuId, String goodsSkuId, Integer number, BigDecimal price, BigDecimal totalPrice) {
@@ -56,6 +60,7 @@ public class OrderItem implements Serializable{
     public static final String Number = "number";
     public static final String Price = "price";
     public static final String Total_price = "total_price";
+    public static final String Status = "status";
 
     //----扩展属性
     //spu id
@@ -72,4 +77,7 @@ public class OrderItem implements Serializable{
 
     //规格名规格值 json 格式："规格名:规格值 规格名:规格值 规格名:规格值"
     private String specStr;
+
+    private Integer settlementId;
+
 }

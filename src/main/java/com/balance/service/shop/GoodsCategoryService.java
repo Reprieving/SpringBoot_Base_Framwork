@@ -54,11 +54,11 @@ public class GoodsCategoryService extends BaseService {
     /**
      * 类目详情
      *
-     * @param entity 实体id
+     * @param entityId 实体id
      * @return
      */
-    public GoodsCategory detail(String entity) {
-        return selectOneById(entity, GoodsCategory.class);
+    public GoodsCategory detail(String entityId) {
+        return selectOneById(entityId, GoodsCategory.class);
     }
 
 
