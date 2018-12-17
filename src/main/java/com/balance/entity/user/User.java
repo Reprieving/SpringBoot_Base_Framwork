@@ -49,6 +49,12 @@ public class User implements Serializable{ //用户信息
     @Column(name = Status)
     private Integer status;//状态     //UserConst.USER_STATUS_*
 
+    @Column(name = Type)
+    private Integer type;//类型
+
+    @Column(name = Level)
+    private Integer level;//等级
+
     //扩展属性
     private String accessToken; //访问token
     private String msgCode; //短信验证码
@@ -73,6 +79,8 @@ public class User implements Serializable{ //用户信息
     public static final String Invite_code = "invite_code";
     public static final String Create_time = "create_time";
     public static final String Status = "status";
+    public static final String Type = "type";
+    public static final String Level = "level";
 
     public User(List<User> directUserList, List<User> inDirectUserList) {
         this.directUserList = directUserList;

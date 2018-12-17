@@ -43,13 +43,19 @@ public class AdminUserController {
      * @return
      */
     @GetMapping("list")
-    public Result<?> list(Pagination pagination, String userName, String phoneNumber) {
+    public Result<?> list(Pagination pagination, String userName, String phoneNumber, Integer type, Integer level) {
         HashMap<String, Object> whereMap = Maps.newHashMap();
         if(StringUtils.isNotBlank(userName)) {
             whereMap.put(User.User_name + " = ", userName);
         }
         if(StringUtils.isNotBlank(phoneNumber)) {
             whereMap.put(User.Phone_number + " = ", phoneNumber);
+        }
+        if(type != null) {
+            whereMap.put(User.Type + " = ", type);
+        }
+        if(level != null) {
+            whereMap.put(User.Level + " = ", level);
         }
         List<User> userList = baseService.selectListByWhereMap(whereMap, pagination, User.class);
         return ResultUtils.success(userList, pagination.getTotalRecordNumber());
