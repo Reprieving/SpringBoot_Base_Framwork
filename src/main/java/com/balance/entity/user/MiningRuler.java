@@ -1,6 +1,7 @@
 package com.balance.entity.user;
 
 
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
@@ -35,6 +36,9 @@ public class MiningRuler implements Serializable{ //挖矿规则
     @Column(name = Reward_type)
     private Integer rewardType; //奖励类型
 
+    //扩展属性
+    private Pagination pagination;
+
     //DB Column name
     public static final String Id = "id";
     public static final String Start_value = "start_value";
@@ -44,5 +48,7 @@ public class MiningRuler implements Serializable{ //挖矿规则
 
     public MiningRuler(){
     }
+
+
 
 }

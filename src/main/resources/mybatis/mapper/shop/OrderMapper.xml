@@ -8,16 +8,19 @@
         <result property="userName" column="user_name"></result>
         <result property="settlementId" column="settlement_id"></result>
         <result property="orderPrice" column="order_price"></result>
-        <result property="status" column="status"></result>
+        <result property="status" column="order_status"></result>
         <result property="logisticNumber" column="logistic_number"></result>
         <result property="createTime" column="create_time"></result>
         <collection property="orderItemList" ofType="OrderItem">
-            <id property="spuId" column="order_ite_id"></id>
+            <result property="goodsSpuId" column="spu_id"></result>
+            <result property="goodsSkuId" column="sku_id"></result>
+            <result property="settlementId" column="settlement_id"></result>
             <result property="number" column="number"></result>
             <result property="totalPrice" column="total_price"></result>
             <result property="spuName" column="spu_name"></result>
             <result property="imgUrl" column="default_img_url"></result>
             <result property="specJson" column="spec_json"></result>
+            <result property="status" column="order_item_status"></result>
         </collection>
     </resultMap>
     
@@ -30,12 +33,15 @@
             a.price as order_price,
             a.create_time,
             a.user_name,
-            a.status,
+            a.status as order_status,
             a.logistic_number,
             b.number,
             b.total_price,
+            b.status as order_item_status,
+            c.id as spu_id,
             c.goods_name as spu_name,
             c.default_img_url,
+            d.id as sku_id,
             d.spec_json
         FROM
             order_info a
@@ -79,7 +85,7 @@
             AND a.create_time &lt;= #{endTime}
         </if>
         <if test="status!=null">
-            AND a.status = #{status}
+            AND order_status = #{status}
         </if>
     </select>
 

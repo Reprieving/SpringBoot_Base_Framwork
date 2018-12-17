@@ -24,6 +24,7 @@ import com.balance.utils.BigDecimalUtils;
 import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -366,7 +367,10 @@ public class UserService extends BaseService {
         ValueCheckUtils.notEmpty(inviteCode,"邀请码不能为空");
         User inviteUser = selectOneByWhereString(User.Invite_code + " = ", inviteCode, User.class);
         String inviteId = inviteUser == null ? "" : inviteUser.getId();
-        User user = new User();
+        User user = selectOneById(userId,User.class);
+        if(user.getInviteId()!=null){
+            throw new BusinessException("该用户已设置邀请Id");
+        }
         user.setId(userId);
         user.setInviteId(inviteId);
         if(updateIfNotNull(user)==0){

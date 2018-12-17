@@ -228,6 +228,12 @@ public class AdminGoodsController {
     }
 
 
+    /**
+     * 获取新增spu的下拉选择数据
+     * @param request
+     * @return
+     * @throws UnsupportedEncodingException
+     */
     @RequestMapping("spu/selectData")
     public Result<?> selectDataList(HttpServletRequest request) throws UnsupportedEncodingException {
         String subscriberId = JwtUtils.getSubscriberByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
