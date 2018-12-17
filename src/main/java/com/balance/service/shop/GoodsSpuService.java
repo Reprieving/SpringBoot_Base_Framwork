@@ -28,6 +28,14 @@ public class GoodsSpuService extends BaseService {
     @Autowired
     private GoodsImgService goodsImgService;
 
+    @Autowired
+    private GoodsBrandService goodsBrandService;
+
+    @Autowired
+    private GoodsCategoryService goodsCategoryService;
+
+    @Autowired
+    private ShopInfoService shopInfoService;
     /**
      * 新增商品基本信息
      *
@@ -328,5 +336,26 @@ public class GoodsSpuService extends BaseService {
             goodSpuSpecs.add(new GoodSpuSpec(spuId, specNameId));
         }
         insertBatch(goodSpuSpecs, false);
+    }
+
+    /**
+     * 获取品牌，类目，商铺信息
+     * @param subscriberId
+     * @return
+     */
+    public GoodsSpuSelectData listSelectData(String subscriberId){
+        Map<String,Object> whereMap1 = ImmutableMap.of(
+                GoodsBrand.Subscriber_id + "=", subscriberId,
+                GoodsBrand.Is_valid + "=", true);
+
+        Map<String,Object> whereMap2 = ImmutableMap.of(GoodsCategory.Is_valid + "=", true);
+
+        Map<String,Object> whereMap3 = ImmutableMap.of(ShopInfo.Subscriber_id + "=", subscriberId);
+
+        return new GoodsSpuSelectData(
+                selectListByWhereMap(whereMap1,null,GoodsBrand.class),
+                selectListByWhereMap(whereMap2,null,GoodsCategory.class),
+                selectListByWhereMap(whereMap3,null,ShopInfo.class)
+        );
     }
 }

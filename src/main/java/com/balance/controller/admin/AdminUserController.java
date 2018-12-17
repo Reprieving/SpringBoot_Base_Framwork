@@ -9,6 +9,7 @@ import com.balance.entity.user.Certification;
 import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
 import com.balance.service.user.AssetsTurnoverService;
+import com.balance.service.user.CertificationService;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ public class AdminUserController {
     @Autowired
     private AssetsTurnoverService assetsTurnoverService;
 
+    @Autowired
+    private CertificationService certificationService;
 
     /**
      * 会员列表
@@ -70,37 +73,26 @@ public class AdminUserController {
 
     /**
      * 实名认证列表
-     * @param pagination
-     * @param licenseNumber
+     * @param certification
      * @return
      */
-    @GetMapping("certificationList")
-    public Result<?> certificationList(Pagination pagination, String licenseNumber) {
-        HashMap<String, Object> whereMap = Maps.newHashMap();
-        if(StringUtils.isNotBlank(licenseNumber)) {
-            whereMap.put(Certification.License_number, licenseNumber);
-        }
-        List<Certification> certificationList = baseService.selectListByWhereMap(whereMap, pagination, Certification.class);
-        return ResultUtils.success(certificationList);
+    @RequestMapping("cert/list")
+    public Result<?> certificationList(@RequestBody Certification certification) {
+        Pagination pagination = certification.getPagination();
+        List<Certification> certificationList = certificationService.listCertification(certification,pagination);
+        return ResultUtils.success(certificationList,pagination.getTotalRecordNumber());
     }
 
     /**
      * 实名审核
-     * @param id
+     * @param certId
      * @param status
      * @return
      */
-    @GetMapping("auth/{id}/{status}")
-    public Result<?> auth(@PathVariable String id, @PathVariable Integer status) {
-        Certification certification = baseService.selectOneById(id, Certification.class);
-        if (certification == null || certification.getStatus() != UserConst.USER_CERT_STATUS_NONE) {
-            return ResultUtils.error("数据状态异常");
-        }
-        Certification updateEntity = new Certification();
-        updateEntity.setId(id);
-        updateEntity.setStatus(status);
-        baseService.updateIfNotNull(updateEntity);
-        return ResultUtils.success();
+    @RequestMapping("cert/{certId}/{status}")
+    public Result<?> auth(@PathVariable String certId, @PathVariable Integer status) {
+        certificationService.updateCert(certId,status);
+        return ResultUtils.success("审核成功");
     }
 
     /**

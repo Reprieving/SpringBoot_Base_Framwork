@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.balance.mapper.user.CertificationMapper">
+    <resultMap id="certificationMap" type="Certification">
+        <id property="id" column="cert_id"></id>
+        <result property="licenseNumber" column="license_number"></result>
+        <result property="userName" column="user_name"></result>
+        <result property="realName" column="real_name"></result>
+        <result property="positivePhotoUrl" column="positive_photo_url"></result>
+        <result property="reversePhotoUrl" column="reverse_photo_url"></result>
+        <result property="handlePhotoUrl" column="handle_photo_url"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="status" column="status"></result>
+    </resultMap>
+
+    <select id="listCertification" resultMap="certificationMap">
+        SELECT
+          a.id as cert_id,a.license_number,a.license_type,a.positive_photo_url,a.reverse_photo_url,a.handle_photo_url,a.create_time,a.status
+        FROM user_certification a
+        LEFT JOIN user_info b ON a.user_id = b.id
+        WHERE 1=1
+        <if test="licenseNumber!=null and licenseNumber!='' ">
+            AND a.license_number LIKE CONCAT('%',#{licenseNumber},'%')
+        </if>
+        <if test="userName!=null and userName!='' ">
+          AND b.user_name LIKE CONCAT('%',#{userName},'%')
+        </if>
+        <if test="realName!=null and realName!='' ">
+          AND a.real_name LIKE CONCAT('%',#{realName},'%')
+        </if>
+    </select>
+</mapper>

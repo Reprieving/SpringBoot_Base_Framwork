@@ -42,13 +42,7 @@ public class AppUserController {
     private UserAssetsService userAssetsServices;
 
     @Autowired
-    private WjSmsService wjSmsService;
-
-    @Autowired
     private CertificationService certificationService;
-
-    @Autowired
-    private RedisTemplate<String, Serializable> redisCacheTemplate;
 
     @Autowired
     private RedisClient redisClient;
@@ -62,42 +56,10 @@ public class AppUserController {
      */
     @RequestMapping("msg/send")
     public Result<?> sendMsg4register(HttpServletRequest request, User userReq) throws BusinessException, UnsupportedEncodingException {
-        String msgCode = RandomUtil.randomNumber(6);
 
-        String userId;
-        Integer msgType = userReq.getMsgType();
-        if (UserConst.MSG_CODE_TYPE_RESET_LOGINPWD == msgType) { //重置登陆密码
-            User user = userService.selectOneByWhereString(User.Phone_number + "=", userReq.getPhoneNumber(), User.class);
-            ValueCheckUtils.notEmpty(user, "该手机号未注册");
-            userId = user.getId();
-        } else if (UserConst.MSG_CODE_TYPE_RESET_PAYPWD == msgType || UserConst.MSG_CODE_TYPE_SETTLE_PAYPWD == msgType) { //重置,设置支付密码
-            userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        } else {
-            userId = userReq.getId();
-        }
+        String msgCode = userSendService.createMsgRecord(request,userReq);
 
-        userSendService.createMsgRecord(userId, userReq.getPhoneNumber(), msgCode, userReq.getMsgType());
-
-        String msgTypeStr = "";
-        switch (userReq.getMsgType()) {
-            case UserConst.MSG_CODE_TYPE_REGISTER:
-                msgTypeStr = "[注册]";
-                break;
-            case UserConst.MSG_CODE_TYPE_RESET_LOGINPWD:
-                msgTypeStr = "[重置登录密码]";
-                break;
-            case UserConst.MSG_CODE_TYPE_SETTLE_PAYPWD:
-                msgTypeStr = "[设置支付密码]";
-                break;
-            case UserConst.MSG_CODE_TYPE_RESET_PAYPWD:
-                msgTypeStr = "[重置支付密码]";
-                break;
-        }
-
-        String content = "美妆连" + msgTypeStr + "验证码： " + msgCode + "，五分钟有效。【美妆连】";
-        wjSmsService.sendSms(userReq.getPhoneNumber(), content);
-
-        return ResultUtils.success("发送短信成功,验证码：" + msgCode);
+        return ResultUtils.success("发送短信成功："+msgCode);
 
 //        return ResultUtils.success("发送短信成功");
     }
@@ -111,7 +73,7 @@ public class AppUserController {
      */
     @RequestMapping("register")
     public Result<?> register(User user) throws BusinessException {
-        userSendService.validateMsgCode(user.getId(), user.getPhoneNumber(), user.getMsgCode(), UserConst.MSG_CODE_TYPE_REGISTER);
+        userSendService.validateMsgCode(user.getId(), user.getPhoneNumber(), user.getMsgCode(), UserConst.MSG_CODE_TYPE_LOGINANDREGISTER);
         userService.createUser(user);
         return ResultUtils.success("注册成功");
     }
@@ -157,6 +119,20 @@ public class AppUserController {
         UserAssets userAssets = userAssetsServices.getAssetsByUserId(userId);
         return ResultUtils.success(userAssets, "");
     }
+
+    /**
+     * 邀请码设置
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping("inviteCode/settle/{inviteCode}")
+    public Result<?> settleInviteCode(HttpServletRequest request,@PathVariable String inviteCode) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        userService.updateInviteCode(userId,inviteCode);
+        return ResultUtils.success();
+    }
+
 
     /**
      * 用户邀请记录

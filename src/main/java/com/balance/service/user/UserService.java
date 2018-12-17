@@ -26,6 +26,7 @@ import com.balance.utils.RandomUtil;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.GeoResult;
@@ -45,6 +46,9 @@ import java.util.*;
 
 @Service
 public class UserService extends BaseService {
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -67,6 +71,9 @@ public class UserService extends BaseService {
     @Autowired
     private RedisClient redisClient;
 
+    @Autowired
+    private UserSendService userSendService;
+
     /**
      * 注册用户
      *
@@ -82,14 +89,10 @@ public class UserService extends BaseService {
 
                 User user1 = selectOneByWhereString(User.Phone_number + " = ", user.getPhoneNumber(), User.class);
                 if (user1 != null) {
-                    throw new BusinessException("用户已存在");
+                    throw new BusinessException("手机号已被注册");
                 }
 
-                User inviteUser = selectOneByWhereString(User.Invite_code + " = ", user.getInviteCode(), User.class);
 
-                String inviteId = inviteUser == null ? "" : inviteUser.getId();
-
-                user.setInviteId(inviteId);
                 user.setUserName("");
                 user.setCreateTime(new Timestamp(System.currentTimeMillis()));
 
@@ -138,21 +141,26 @@ public class UserService extends BaseService {
      * @throws UnsupportedEncodingException
      */
     public User login(User user) throws UnsupportedEncodingException {
+        //验证码校验
+        userSendService.validateMsgCode(user.getId(), user.getPhoneNumber(), user.getMsgCode(), UserConst.MSG_CODE_TYPE_LOGINANDREGISTER);
+
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put(User.Phone_number + "=", user.getPhoneNumber());
-        paramMap.put(User.Password + "=", EncryptUtils.md5Password(user.getPassword()));
 
         User user1 = selectOneByWhereMap(paramMap, User.class);
+        User rspData = new User();
         if (user1 == null) {
-            throw new BusinessException("账号或密码有误");
+            rspData.setIsRegister(false);
+            userService.createUser(user);
+            user1 = selectOneById(user.getId(),User.class);
+        }else {
+            rspData.setIsRegister(true);
         }
+        rspData.setUserName(user1.getUserName());
+        rspData.setHeadPictureUrl(user1.getHeadPictureUrl());
+        rspData.setAccessToken(JwtUtils.createToken(user1));
 
-        User user2 = new User();
-        user2.setUserName(user1.getUserName());
-        user2.setHeadPictureUrl(user1.getHeadPictureUrl());
-        user2.setAccessToken(JwtUtils.createToken(user1));
-
-        return user2;
+        return rspData;
     }
 
 
@@ -195,6 +203,7 @@ public class UserService extends BaseService {
             throw new BusinessException("修改用户昵称失败");
         }
     }
+
 
 
     /**
@@ -349,4 +358,19 @@ public class UserService extends BaseService {
     }
 
 
+    /**
+     * 更新用户的邀请用户id
+     * @param userId
+     */
+    public void updateInviteCode(String userId,String inviteCode) {
+        ValueCheckUtils.notEmpty(inviteCode,"邀请码不能为空");
+        User inviteUser = selectOneByWhereString(User.Invite_code + " = ", inviteCode, User.class);
+        String inviteId = inviteUser == null ? "" : inviteUser.getId();
+        User user = new User();
+        user.setId(userId);
+        user.setInviteId(inviteId);
+        if(updateIfNotNull(user)==0){
+            throw new BusinessException("更新邀请用户ID失败");
+        }
+    }
 }
