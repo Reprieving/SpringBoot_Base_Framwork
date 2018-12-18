@@ -31,4 +31,11 @@ public interface UserMapper {
      * @return
      */
     User getUserToUpdatePwd(@Param("phoneNumber")String phoneNumber, @Param("updatePWDColumn")String updatePWDColumn, @Param("oldPassword") String oldPassword);
+
+    /**
+     * 获取用户信息
+     * @param userId
+     * @return
+     */
+    User getUserInfo(@Param("userId")String userId);
 }

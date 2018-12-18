@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.apache.ibatis.type.Alias;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -79,6 +80,10 @@ public class User implements Serializable{ //用户信息
     private Integer lockRepOrderCount; //锁仓订单数量
     private Boolean isRegister;
 
+    private BigDecimal computePower; //算力
+    private BigDecimal ih; //IH(美钻)
+    private BigDecimal eth; //ETH
+    private BigDecimal ore; //矿石
     //DB Column name
     public static final String Id = "id";
     public static final String User_id = "user_id";

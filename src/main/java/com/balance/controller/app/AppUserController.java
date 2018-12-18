@@ -61,9 +61,7 @@ public class AppUserController {
      */
     @RequestMapping("msg/send")
     public Result<?> sendMsg4register(HttpServletRequest request, User userReq) throws BusinessException, UnsupportedEncodingException {
-
         String msgCode = userSendService.createMsgRecord(request,userReq);
-
         return ResultUtils.success("发送短信成功："+msgCode);
 
 //        return ResultUtils.success("发送短信成功");
@@ -113,16 +111,16 @@ public class AppUserController {
     }
 
     /**
-     * 查询用户资产
+     * 查询用户信息
      *
      * @param request
      * @return
      */
-    @RequestMapping("assets")
+    @RequestMapping("info")
     public Result<?> assets(HttpServletRequest request) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        UserAssets userAssets = userAssetsServices.getAssetsByUserId(userId);
-        return ResultUtils.success(userAssets, "");
+        User userInfo = userService.allUserInfo(userId);
+        return ResultUtils.success(userInfo);
     }
 
     /**
@@ -163,8 +161,8 @@ public class AppUserController {
     @RequestMapping("headPic/settle")
     public Result<?> settleHeadPic(HttpServletRequest request, MultipartFile file) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        userService.updateHeadPic(userId, file);
-        return ResultUtils.success("设置头像成功");
+        Object o = userService.updateHeadPic(userId, file);
+        return ResultUtils.success(o,"设置头像成功");
     }
 
     /**

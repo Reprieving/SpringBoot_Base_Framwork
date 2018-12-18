@@ -85,14 +85,12 @@ public class UserService extends BaseService {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                ValueCheckUtils.notEmpty(user.getPassword(), "密码不能为空");
                 ValueCheckUtils.notEmpty(user.getPhoneNumber(), "手机号码不能为空");
 
                 User user1 = selectOneByWhereString(User.Phone_number + " = ", user.getPhoneNumber(), User.class);
                 if (user1 != null) {
                     throw new BusinessException("手机号已被注册");
                 }
-
 
                 user.setUserName("");
                 user.setCreateTime(new Timestamp(System.currentTimeMillis()));
@@ -103,7 +101,6 @@ public class UserService extends BaseService {
                 String newInviteCode = RandomUtil.randomInviteCode(userInviteCodeId.getId());
 
                 user.setInviteCode(newInviteCode);
-                user.setPassword(EncryptUtils.md5Password(user.getPassword()));
 
                 insertIfNotNull(user);
 
@@ -366,7 +363,10 @@ public class UserService extends BaseService {
     public void updateInviteCode(String userId,String inviteCode) {
         ValueCheckUtils.notEmpty(inviteCode,"邀请码不能为空");
         User inviteUser = selectOneByWhereString(User.Invite_code + " = ", inviteCode, User.class);
-        String inviteId = inviteUser == null ? "" : inviteUser.getId();
+        if(inviteUser==null){
+            throw new BusinessException("邀请码错误,请重新输入");
+        }
+        String inviteId = inviteUser.getId();
         User user = selectOneById(userId,User.class);
         if(user.getInviteId()!=null){
             throw new BusinessException("该用户已设置邀请Id");
@@ -376,5 +376,14 @@ public class UserService extends BaseService {
         if(updateIfNotNull(user)==0){
             throw new BusinessException("更新邀请用户ID失败");
         }
+    }
+
+    /**
+     * 获取用户所有信息
+     * @param userId
+     * @return
+     */
+    public User allUserInfo(String userId) {
+        return userMapper.getUserInfo(userId);
     }
 }

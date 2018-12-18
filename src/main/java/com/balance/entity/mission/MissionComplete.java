@@ -33,6 +33,8 @@ public class MissionComplete implements Serializable{
     @Column(name = Status)
     private Integer status; //领取状态
 
+    public MissionComplete(){}
+
     public MissionComplete(String missionId, String userId, BigDecimal rewardAmount, int status) {
         this.missionId = missionId;
         this.userId = userId;
