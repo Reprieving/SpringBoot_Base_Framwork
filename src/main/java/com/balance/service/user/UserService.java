@@ -186,16 +186,12 @@ public class UserService extends BaseService {
     /**
      * 修改用户名
      */
-    public void updateUserName(String userId, String userName) {
-        ValueCheckUtils.notEmpty(userName, "用户昵称不能为空");
-        Map<String, Object> whereMap = ImmutableMap.of(User.User_name + "=", userName, User.Id + "!=", userId);
+    public void updateUserName(User user) {
+        Map<String, Object> whereMap = ImmutableMap.of(User.User_name + "=", user.getUserName(), User.Id + "!=", user.getId());
         User userPo = selectOneByWhereMap(whereMap, User.class);
         if (userPo != null) {
             throw new BusinessException("用户昵称已存在");
         }
-        User user = new User();
-        user.setId(userId);
-        user.setUserName(userName);
         Integer i = updateIfNotNull(user);
         if (i == 0) {
             throw new BusinessException("修改用户昵称失败");

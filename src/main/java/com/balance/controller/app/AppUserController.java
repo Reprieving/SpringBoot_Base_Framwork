@@ -1,5 +1,6 @@
 package com.balance.controller.app;
 
+import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.utils.JwtUtils;
@@ -18,6 +19,7 @@ import com.balance.service.user.UserAssetsService;
 import com.balance.service.user.UserSendService;
 import com.balance.service.user.UserService;
 import com.balance.utils.RandomUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -26,8 +28,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.sql.Timestamp;
 import java.util.List;
 
 @RestController
@@ -104,10 +110,24 @@ public class AppUserController {
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("info/update")
-    public Result<?> updateInfo(HttpServletRequest request, User user) throws BusinessException, UnsupportedEncodingException {
+    public Result<?> updateInfo(HttpServletRequest request, String userName, Integer sex, String location, Timestamp birthday) throws BusinessException, UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        userService.updateUserName(userId, user.getUserName());
-        return ResultUtils.success("修改用户昵称成功");
+        User user = new User();
+        user.setId(userId);
+        if (StringUtils.isNotBlank(userName)) {
+            user.setUserName(userName);
+            userService.updateUserName(user);
+        } else if(sex != null && (sex == 1 || sex == 2)){
+            user.setSex(sex);
+        } else if(StringUtils.isNotBlank(location)) {
+            user.setLocation(location);
+        } else if(birthday != null) {
+            user.setBirthday(birthday);
+        } else {
+            return ResultUtils.error("缺少更新数据");
+        }
+        userService.updateIfNotNull(user);
+        return ResultUtils.success("修改成功");
     }
 
     /**
@@ -290,5 +310,89 @@ public class AppUserController {
     public Result<?> citySampleMachine(HttpServletRequest request, SampleMachineLocation sl) throws UnsupportedEncodingException {
         List<SampleMachineLocation> slList = sampleMachineService.listSampleMachineLocation(sl.getCityCode(),sl.getCoordinateX(),sl.getCoordinateY());
         return ResultUtils.success(slList);
+    }
+
+    /**
+     * 获取省市联动数据
+     * @return
+     * @throws Exception
+     */
+    @GetMapping("area")
+    public Result<?> area() throws Exception {
+        URL resource = this.getClass().getResource("/data/area.json");
+        BufferedReader reader = null;
+        StringBuilder sb = null;
+        try {
+            reader = new BufferedReader(new FileReader(resource.getFile()));
+            sb = new StringBuilder();
+            String s;
+            while ((s = reader.readLine()) != null) {
+                sb.append(s);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            reader.close();
+        }
+        return ResultUtils.success(JSONObject.parseObject(sb.toString()));
+    }
+
+    /**
+     * 绑定第三方
+     * @param type
+     * @param openId
+     * @return
+     */
+    @GetMapping("binding/{type}/{openId}")
+    public Result<?> binding(@PathVariable String type, @PathVariable String openId, HttpServletRequest request) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        User user = userService.selectOneById(userId, User.class);
+        int result = 0;
+        switch (type) {
+            case "wx" :
+                if(StringUtils.isNotBlank(user.getWxOpenId())) {
+                    return ResultUtils.error("您已经绑定了微信");
+                }
+                if(userService.selectOneByWhereString(User.Wx_open_id + " = ", openId, User.class) != null) {
+                    return ResultUtils.error("该微信已经绑定其它账号");
+                }
+                User update = new User();
+                update.setId(userId);
+                update.setWxOpenId(openId);
+                result = userService.updateIfNotNull(update);
+                break;
+        }
+        if (result > 0) {
+            return ResultUtils.success();
+        } else {
+            return ResultUtils.error("绑定失败");
+        }
+    }
+
+    /**
+     * 解绑第三方
+     * @param type
+     * @return
+     */
+    @RequestMapping("unbind/{type}")
+    public Result<?> unbind(@PathVariable String type, HttpServletRequest request) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        User user = userService.selectOneById(userId, User.class);
+        int result = 0;
+        switch (type) {
+            case "wx" :
+                if (StringUtils.isBlank(user.getWxOpenId())) {
+                    return ResultUtils.error("您还绑定微信");
+                }
+                User update = new User();
+                update.setWxOpenId(StringUtils.EMPTY);
+                userService.updateIfNotNull(update);
+                break;
+        }
+        if (result > 0) {
+            return ResultUtils.success();
+        } else {
+            return ResultUtils.error("解绑成功");
+        }
     }
 }
