@@ -68,10 +68,11 @@ public class User implements Serializable{ //用户信息
     @Column(name = Birthday)
     private Timestamp birthday;//生日时间戳
 
-    @Column(name = Is_member)
-    private Boolean isMember;//是否为会员
+    @Column(name = Member_type)
+    private Integer memberType;//是否为会员
 
     //扩展属性
+    private String userId;
     private String accessToken; //访问token
     private String msgCode; //短信验证码
     private Integer msgType; //UserConst.MSG_CODE_TYPE_* 短信验证码类型
@@ -81,7 +82,7 @@ public class User implements Serializable{ //用户信息
     private String oldPassword; //旧密码
     private Integer updatePwdType; //UserConst.UPDATE_PWD_TYPE_* 修改密码类型
     private Integer lockRepOrderCount; //锁仓订单数量
-    private Boolean isRegister;
+    private Boolean ifRegister;
     private BigDecimal computePower; //算力
     private BigDecimal ih; //IH(美钻)
     private BigDecimal eth; //ETH
@@ -105,7 +106,7 @@ public class User implements Serializable{ //用户信息
     public static final String Sex = "sex";
     public static final String Location = "location";
     public static final String Birthday = "birthday";
-    public static final String Is_member = "is_member";
+    public static final String Member_type = "member_type";
 
     public User(List<User> directUserList, List<User> inDirectUserList) {
         this.directUserList = directUserList;

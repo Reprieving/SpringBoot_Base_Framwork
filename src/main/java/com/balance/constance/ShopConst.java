@@ -1,6 +1,8 @@
 package com.balance.constance;
 
 public class ShopConst {
+    public static final int SHOP_OFFICIAL = 0;//    //自营店铺id
+
     //spu类型
     public static final int SPU_TYPE_GOODS = 1;//商城商品
     public static final int SPU_TYPE_BEAUTY = 2;//美妆商品
@@ -42,5 +44,8 @@ public class ShopConst {
     public static final int ORDER_STATUS_RETURN_APPLY = 4;//申请退货
     public static final int ORDER_STATUS_RETURN_SUCCESS = 40;//退货成功
     public static final int ORDER_STATUS_RETURN_FAIL= 41;//退货失败
+
+    //礼券类型
+    public static final int VOUCHER_TYPE_PACKAGE = 1; //礼包兑换券
 
 }

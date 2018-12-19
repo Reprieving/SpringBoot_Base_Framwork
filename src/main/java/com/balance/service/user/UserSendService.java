@@ -47,14 +47,16 @@ public class UserSendService extends BaseService {
         if (UserConst.MSG_CODE_TYPE_RESET_LOGINPWD == msgType) { //重置登陆密码
             User user = userService.selectOneByWhereString(User.Phone_number + "=", phoneNumber, User.class);
             ValueCheckUtils.notEmpty(user, "该手机号未注册");
-            userId = user.getId();
+            userId = user.getUserId();
         } else if (UserConst.MSG_CODE_TYPE_RESET_PAYPWD == msgType || UserConst.MSG_CODE_TYPE_SETTLE_PAYPWD == msgType) { //重置,设置支付密码
             userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         } else {
-            userId = userReq.getId();
+            userId = userReq.getUserId();
         }
 
-        User user = null;
+        ValueCheckUtils.notEmpty(userId,"用户id不能为空");
+
+        User user;
         String msgTypeStr = "";
         switch (msgType) {
             case UserConst.MSG_CODE_TYPE_LOGINANDREGISTER:

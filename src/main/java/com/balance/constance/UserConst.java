@@ -43,4 +43,9 @@ public class UserConst {
 
     //偷取收益比例
     public static final BigDecimal MINING_REWARD_STOLEN_RATE = new BigDecimal(0.016);
+
+    //会员类型
+    public static final Integer USER_MEMBER_TYPE_NONE = 0;//非会员
+    public static final Integer USER_MEMBER_TYPE_COMMON = 1;//普通会员
+    public static final Integer USER_MEMBER_TYPE_SUPER = 2;//超级会员
 }

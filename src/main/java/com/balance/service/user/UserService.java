@@ -1,12 +1,10 @@
 package com.balance.service.user;
 
-import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.client.RedisClient;
-import com.balance.constance.AssetTurnoverConst;
 import com.balance.constance.MissionConst;
 import com.balance.constance.RedisKeyConst;
 import com.balance.constance.UserConst;
@@ -15,19 +13,16 @@ import com.balance.entity.common.UserInviteCodeId;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.user.*;
 import com.balance.mapper.common.AutoIncreaseIdMapper;
-import com.balance.mapper.user.MiningRewardMapper;
 import com.balance.mapper.user.UserMapper;
 import com.balance.service.common.AliOSSBusiness;
 import com.balance.service.mission.MissionCompleteService;
 import com.balance.service.mission.MissionService;
-import com.balance.utils.BigDecimalUtils;
 import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.GeoResult;
@@ -140,25 +135,25 @@ public class UserService extends BaseService {
      */
     public User login(User user) throws UnsupportedEncodingException {
         //验证码校验
-        userSendService.validateMsgCode(user.getId(), user.getPhoneNumber(), user.getMsgCode(), UserConst.MSG_CODE_TYPE_LOGINANDREGISTER);
-
+        String userId = user.getUserId();
+        ValueCheckUtils.notEmpty(userId,"用户id不能为空");
+        userSendService.validateMsgCode(userId, user.getPhoneNumber(), user.getMsgCode(), UserConst.MSG_CODE_TYPE_LOGINANDREGISTER);
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put(User.Phone_number + "=", user.getPhoneNumber());
 
         User user1 = selectOneByWhereMap(paramMap, User.class);
-        User rspData = new User();
+        Boolean ifRegister = true;
         if (user1 == null) {
-            rspData.setIsRegister(false);
+            ifRegister = false;
             userService.createUser(user);
-            user1 = selectOneById(user.getId(),User.class);
-        }else {
-            rspData.setIsRegister(true);
+            user1 = selectOneById(userId,User.class);
         }
-        rspData.setUserName(user1.getUserName());
-        rspData.setHeadPictureUrl(user1.getHeadPictureUrl());
-        rspData.setAccessToken(JwtUtils.createToken(user1));
+        user1.setPassword("");
+        user1.setPayPassword("");
+        user1.setAccessToken(JwtUtils.createToken(user1));
+        user1.setIfRegister(ifRegister);
 
-        return rspData;
+        return user1;
     }
 
 
@@ -380,4 +375,6 @@ public class UserService extends BaseService {
     public User allUserInfo(String userId) {
         return userMapper.getUserInfo(userId);
     }
+
+
 }

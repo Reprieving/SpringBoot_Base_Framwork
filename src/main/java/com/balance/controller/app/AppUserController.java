@@ -82,7 +82,7 @@ public class AppUserController {
      */
     @RequestMapping("register")
     public Result<?> register(User user) throws BusinessException {
-        userSendService.validateMsgCode(user.getId(), user.getPhoneNumber(), user.getMsgCode(), UserConst.MSG_CODE_TYPE_LOGINANDREGISTER);
+        userSendService.validateMsgCode(user.getUserId(), user.getPhoneNumber(), user.getMsgCode(), UserConst.MSG_CODE_TYPE_LOGINANDREGISTER);
         userService.createUser(user);
         return ResultUtils.success("注册成功");
     }
@@ -214,7 +214,7 @@ public class AppUserController {
         if (UserConst.MSG_CODE_TYPE_RESET_LOGINPWD == msgType) {
             User user = userService.selectOneByWhereString(User.Phone_number + "=", userReq.getPhoneNumber(), User.class);
             ValueCheckUtils.notEmpty(user, "该手机号未注册");
-            userId = user.getId();
+            userId = user.getUserId();
         } else if (UserConst.MSG_CODE_TYPE_RESET_PAYPWD == msgType || UserConst.MSG_CODE_TYPE_SETTLE_PAYPWD == msgType) {
             userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         } else {
@@ -293,9 +293,11 @@ public class AppUserController {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         UserAssets userAssets = userAssetsServices.getAssetsByUserId(userId);
         ValueCheckUtils.notEmpty(userAssets, "未找到用户资产");
-        return ResultUtils.success(userService.nearUserList(userId, userLocation.getProvinceCode(),
+        return ResultUtils.success(userService.nearUserList(
+                userId, userLocation.getProvinceCode(),
                 userLocation.getCityCode(), userLocation.getRegionCode(), userLocation.getStreetCode(),
-                userLocation.getCoordinateX(), userLocation.getCoordinateY(), userAssets.getComputePower()));
+                userLocation.getCoordinateX(), userLocation.getCoordinateY(), userAssets.getComputePower())
+        );
     }
 
     /**
@@ -444,4 +446,5 @@ public class AppUserController {
         userService.updateIfNotNull(update);
         return ResultUtils.success();
     }
+
 }

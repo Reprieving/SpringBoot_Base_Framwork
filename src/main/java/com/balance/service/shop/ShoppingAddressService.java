@@ -22,6 +22,7 @@ public class ShoppingAddressService extends BaseService {
 
     /**
      * 设置默认收货地址
+     *
      * @param addressId 收货地址id
      * @return
      */
@@ -34,37 +35,40 @@ public class ShoppingAddressService extends BaseService {
 
     /**
      * 操作收货地址
-     * @param userId 用户id
-     * @param operatorType 操作类型
+     *
+     * @param userId          用户id
+     * @param operatorType    操作类型
      * @param shoppingAddress 收货地址实体
      * @return
      */
-    public Object operatorAddress(String userId, Integer operatorType,ShoppingAddress shoppingAddress) {
+    public Object operatorAddress(String userId, Integer operatorType, ShoppingAddress shoppingAddress) {
         Object o = null;
         Class clazz = ShoppingAddress.class;
         Integer i;
+        String shoperAddressId = shoppingAddress.getShoperAddressId();
         switch (operatorType) {
             case ShopConst.SHOPPING_ADDRESS_OPERATOR_TYPE_INSERT: //添加
                 shoppingAddress.setUserId(userId);
                 shoppingAddress.setIsDefault(false);
                 i = insertIfNotNull(shoppingAddress);
-                if(i == 0){
+                if (i == 0) {
                     throw new BusinessException("添加收货地址失败");
                 }
                 break;
 
             case ShopConst.SHOPPING_ADDRESS_OPERATOR_TYPE_DELETE: //删除
-                ValueCheckUtils.notEmpty(shoppingAddress.getId(),"收货地址id不能为空");
+                ValueCheckUtils.notEmpty(shoppingAddress.getId(), "收货地址id不能为空");
                 i = delete(shoppingAddress);
-                if(i == 0){
+                if (i == 0) {
                     throw new BusinessException("删除收货地址失败");
                 }
                 break;
 
             case ShopConst.SHOPPING_ADDRESS_OPERATOR_TYPE_UPDATE: //编辑
-                ValueCheckUtils.notEmpty(shoppingAddress.getId(),"收货地址id不能为空");
+                ValueCheckUtils.notEmpty(shoperAddressId, "收货地址id不能为空");
+                shoppingAddress.setId(shoperAddressId);
                 i = updateIfNotNull(shoppingAddress);
-                if(i == 0){
+                if (i == 0) {
                     throw new BusinessException("保存收货地址失败");
                 }
                 break;
@@ -74,9 +78,10 @@ public class ShoppingAddressService extends BaseService {
                 break;
 
             case ShopConst.SHOPPING_ADDRESS_OPERATOR_TYPE_DEFAULT: //设置默认
-                ValueCheckUtils.notEmpty(shoppingAddress.getId(),"收货地址id不能为空");
-                i = updateDefaultAddress(shoppingAddress.getId());
-                if(i == 0){
+                ValueCheckUtils.notEmpty(shoperAddressId, "收货地址id不能为空");
+                shoppingAddress.setId(shoperAddressId);
+                i = updateDefaultAddress(shoperAddressId);
+                if (i == 0) {
                     o = "设置收货地址失败";
                 }
                 break;
@@ -86,12 +91,12 @@ public class ShoppingAddressService extends BaseService {
 
     /**
      * 查询用户默认收获地址
+     *
      * @param userId
      * @return
      */
-    public ShoppingAddress getDefaultShoppingAddress(String userId){
-        userId = "123";
-        Map<String,Object> whereMap = ImmutableMap.of(ShoppingAddress.User_id+"=",userId,ShoppingAddress.Is_default+"=",true);
-        return selectOneByWhereMap(whereMap,ShoppingAddress.class);
+    public ShoppingAddress getDefaultShoppingAddress(String userId) {
+        Map<String, Object> whereMap = ImmutableMap.of(ShoppingAddress.User_id + "=", userId, ShoppingAddress.Is_default + "=", true);
+        return selectOneByWhereMap(whereMap, ShoppingAddress.class);
     }
 }

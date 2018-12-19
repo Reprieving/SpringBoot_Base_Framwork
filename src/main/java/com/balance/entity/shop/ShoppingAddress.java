@@ -43,6 +43,9 @@ public class ShoppingAddress {
     @Column(name = Create_time)
     private Timestamp createTime; //
 
+    //扩展属性
+    private String shoperAddressId;
+
     //DB Column name
     public static final String Id = "id";
     public static final String User_id = "user_id";
@@ -54,6 +57,8 @@ public class ShoppingAddress {
     public static final String Post_number = "post_number";
     public static final String Is_default = "is_default";
     public static final String Create_time = "create_time";
+
+
 
     public ShoppingAddress(){
 

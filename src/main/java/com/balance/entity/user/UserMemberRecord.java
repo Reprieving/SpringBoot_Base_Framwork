@@ -10,9 +10,9 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
-@Alias("UserMember")
-@Table(name = "user_member")
-public class UserMember implements Serializable{
+@Alias("UserMemberRecord")
+@Table(name = "user_member_record")
+public class UserMemberRecord implements Serializable{
     private static final long serialVersionUID = -8051628499759637028L;
 
     @Id
