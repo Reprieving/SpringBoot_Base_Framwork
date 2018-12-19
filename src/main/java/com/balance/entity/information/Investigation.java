@@ -37,6 +37,9 @@ public class Investigation implements Serializable{
     @Column(name = Template_id)
     private String templateId; //模板ID, 0为模板
 
+    @Column(name = Depict)
+    private String depict; //问卷描述
+
     @Column(name = CreateTime)
     private Timestamp createTime; //提交时间
 
@@ -47,6 +50,7 @@ public class Investigation implements Serializable{
     public static final String Beauty_id = "beauty_id";
     public static final String Order_id = "order_id";
     public static final String Investigation_title = "investigation_title";
+    public static final String Depict = "depict";
     public static final String Investigation_content = "investigation_content";
     public static final String Template_id = "template_id";
     public static final String CreateTime = "create_time";
