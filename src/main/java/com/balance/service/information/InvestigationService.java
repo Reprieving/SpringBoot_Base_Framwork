@@ -37,7 +37,7 @@ public class InvestigationService extends BaseService{
      * @return
      */
     public List<Investigation> listInvestigationTemplate(String beautyId, Pagination pagination){
-        Map<String,Object> whereMap = ImmutableMap.of(Investigation.Beauty_id+"=",beautyId,Investigation.Is_template+"=",true);
+        Map<String,Object> whereMap = ImmutableMap.of(Investigation.Template_id+"=","0", Investigation.Beauty_id+"=",beautyId);
         List<Investigation> investigationTemplates = selectListByWhereMap(whereMap,pagination,Investigation.class);
         return investigationTemplates;
     }
@@ -52,7 +52,8 @@ public class InvestigationService extends BaseService{
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                 investigation.setUserId(userId);
-                investigation.setIsTemplate(false);
+                // TODO 问卷模板ID
+//                investigation.setIsTemplate(false);
                 Integer i = insertIfNotNull(investigation);
                 if (i == 0) {
                     throw new BusinessException("提交问卷失败");

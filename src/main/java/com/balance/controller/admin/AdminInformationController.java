@@ -91,11 +91,12 @@ public class AdminInformationController {
         }
     }
 
-    @GetMapping("investigationList")
-    public Result<?> list(Pagination pagination, String investigationTitle) {
-        ImmutableMap<String, Object> whereMap = null;
+    @GetMapping("investigationList/{templateId}")
+    public Result<?> list(Pagination pagination, String investigationTitle, @PathVariable String templateId) {
+        HashMap<String, Object> whereMap = Maps.newHashMap();
+        whereMap.put(Investigation.Template_id + "=", templateId);
         if(StringUtils.isNotBlank(investigationTitle)) {
-            whereMap = ImmutableMap.of(Investigation.Investigation_title + "=", investigationTitle);
+            whereMap.put(Investigation.Investigation_title + "=", investigationTitle);
         }
         List<Investigation> userList = investigationService.selectListByWhereMap(whereMap, pagination, Investigation.class);
         return ResultUtils.success(userList, pagination.getTotalRecordNumber());

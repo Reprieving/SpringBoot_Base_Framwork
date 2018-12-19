@@ -25,14 +25,17 @@ public class Investigation implements Serializable{
     @Column(name = Beauty_id)
     private String beautyId; //美妆品id
 
+    @Column(name = Order_id)
+    private String orderId; //美妆品id
+
     @Column(name = Investigation_title)
     private String investigationTitle; //标题
 
     @Column(name = Investigation_content)
     private String investigationContent; //内容
 
-    @Column(name = Is_template)
-    private Boolean isTemplate; //是否属于模板
+    @Column(name = Template_id)
+    private String templateId; //模板ID, 0为模板
 
     @Column(name = CreateTime)
     private Timestamp createTime; //提交时间
@@ -42,9 +45,10 @@ public class Investigation implements Serializable{
     public static final String Id = "id";
     public static final String User_id = "user_id";
     public static final String Beauty_id = "beauty_id";
+    public static final String Order_id = "order_id";
     public static final String Investigation_title = "investigation_title";
     public static final String Investigation_content = "investigation_content";
-    public static final String Is_template = "is_template";
+    public static final String Template_id = "template_id";
     public static final String CreateTime = "create_time";
 
 }
