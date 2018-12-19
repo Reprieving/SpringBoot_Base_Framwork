@@ -352,16 +352,17 @@ public class AppUserController {
         int result = 0;
         switch (type) {
             case "wx" :
-                if(StringUtils.isNotBlank(user.getWxOpenId())) {
-                    return ResultUtils.error("您已经绑定了微信");
+                String oldOpenId = user.getWxOpenId();
+                if(StringUtils.isNotBlank(oldOpenId) && oldOpenId.equals(openId)) {
+                    return ResultUtils.error("不能绑定同一个微信");
                 }
                 if(userService.selectOneByWhereString(User.Wx_open_id + " = ", openId, User.class) != null) {
                     return ResultUtils.error("该微信已经绑定其它账号");
                 }
-                User update = new User();
-                update.setId(userId);
-                update.setWxOpenId(openId);
-                result = userService.updateIfNotNull(update);
+                user = new User();
+                user.setId(userId);
+                user.setWxOpenId(openId);
+                result = userService.updateIfNotNull(user);
                 break;
         }
         if (result > 0) {
