@@ -17,7 +17,7 @@
         <result property="url" column="url"></result>
         <result property="reqParamContent" column="req_param_content"></result>
         <result property="rspParamContent" column="rsp_param_content"></result>
-        <result property="isValid" column="is_valid"></result>
+        <result property="ifValid" column="if_valid"></result>
         <collection property="reqParamStatement" ofType="com.balance.entity.work.ParamStatement">
             <id property="id" column="ps_id"></id>
             <result property="appInterfaceId" column="appInterface_id"/>
@@ -44,10 +44,10 @@
     <insert id="insertAppInterface" parameterType="com.balance.entity.work.AppInterface">
       INSERT INTO work_api (id, parent_id, project_id, version_no, interface_name, http_type, url,
        req_param_content, rsp_param_content, create_by, create_time,
-       is_project_root, is_directory, is_valid)
+       is_project_root, is_directory, if_valid)
       VALUES (#{appInterface.id},#{appInterface.parentId},#{appInterface.projectsId},#{appInterface.versionNo},#{appInterface.interfaceName},
       #{appInterface.httpType},#{appInterface.url},#{appInterface.reqParamContent},#{appInterface.rspParamContent},#{appInterface.createBy},
-      #{appInterface.createTime},#{appInterface.isProjectRoot},#{appInterface.isDirectory}, #{appInterface.isValid}
+      #{appInterface.createTime},#{appInterface.isProjectRoot},#{appInterface.isDirectory}, #{appInterface.ifValid}
       )
     </insert>
 
@@ -59,7 +59,7 @@
     </insert>
 
     <select id="selectInterfaceById" resultMap="interfaceInfoMap">
-        SELECT a.id AS api_id,a.version_no,a.interface_name,a.http_type,a.url,a.req_param_content,a.rsp_param_content,a.is_valid,
+        SELECT a.id AS api_id,a.version_no,a.interface_name,a.http_type,a.url,a.req_param_content,a.rsp_param_content,a.if_valid,
                 p.id AS ps_id,p.appInterface_id,p.data_key,p.data_type,p.remark,p.req_rsp_type
           FROM work_api a
           LEFT JOIN work_param_statement p ON a.id = p.appInterface_id

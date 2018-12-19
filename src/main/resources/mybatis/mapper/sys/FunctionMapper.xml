@@ -23,7 +23,7 @@
         <result property="iconCode" column="icon_code"></result>
         <result property="url" column="url"></result>
         <result property="isLeaf" column="is_leaf"></result>
-        <result property="isValid" column="is_valid"></result>
+        <result property="ifValid" column="if_valid"></result>
     </resultMap>
 
     <select id="selectFuncList" resultMap="funcTreeMap">
@@ -52,16 +52,16 @@
                                 WHERE
                                     a.id = ${subscriberId}
                             )
-                    ) AND d.is_valid = 1
+                    ) AND d.if_valid = 1
                     ORDER BY d.icon_code
             </otherwise>
         </choose>
     </select>
     
     <insert id="insertFuc" parameterType="com.balance.entity.sys.Function">
-        INSERT INTO sys_function(id,parent_id,module_name,function_name,url,is_leaf,component,icon_code,create_by,create_time,is_valid)
+        INSERT INTO sys_function(id,parent_id,module_name,function_name,url,is_leaf,component,icon_code,create_by,create_time,if_valid)
         VALUES (#{function.id},#{function.parentId},#{function.moduleName},#{function.functionName},#{function.url},#{function.isMenu},#{function.component},
-                #{function.iconCode},#{function.createBy},#{function.createTime},#{function.isValid})
+                #{function.iconCode},#{function.createBy},#{function.createTime},#{function.ifValid})
     </insert>
 
     <select id="selectFunc" resultMap="functionMap">

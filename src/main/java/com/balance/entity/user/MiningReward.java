@@ -38,8 +38,8 @@ public class MiningReward implements Serializable{
     @Column(name = Create_time)
     private Timestamp createTime; //创建时间
 
-    @Column(name = Is_valid)
-    private Boolean isValid; //是否有效
+    @Column(name = If_valid)
+    private Boolean ifValid; //是否有效
 
     @Column(name = Version)
     private Boolean version; //版本号
@@ -61,7 +61,7 @@ public class MiningReward implements Serializable{
     public static final String Reward_amount = "reward_amount";
     public static final String Reward_type = "reward_type";
     public static final String Create_time = "create_time";
-    public static final String Is_valid = "is_valid";
+    public static final String If_valid = "if_valid";
     public static final String Version = "version";
 
 

@@ -92,7 +92,7 @@ public class MiningRewardService extends BaseService {
                 Map<String, Object> whereMap = ImmutableMap.of(MiningReward.Id + "=", miningRewardId, MiningReward.User_id + "=", userId);
                 MiningReward miningReward = selectOneByWhereMap(whereMap, MiningReward.class);
                 ValueCheckUtils.notEmpty(miningReward, "未找到收益记录");
-                if (!miningReward.getIsValid()) {
+                if (!miningReward.getIfValid()) {
                     throw new BusinessException("收益已失效");
                 }
 

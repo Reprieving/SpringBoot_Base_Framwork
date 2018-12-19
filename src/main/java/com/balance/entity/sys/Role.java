@@ -42,8 +42,8 @@ public class Role implements Serializable{
     private Timestamp createTime;
 
     //是否有效
-    @Column(name = "is_valid")
-    private Boolean isValid = true;
+    @Column(name = "if_valid")
+    private Boolean ifValid = true;
 
     private List<String> functionIdList;
 

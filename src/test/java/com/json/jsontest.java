@@ -161,7 +161,7 @@ public class jsontest {
 
 
 //    public static void main(String[] args) {
-//        String s = "{\"isProjectRoot'\":false,\"isValid\":true,\"reqParamStatement\":[],\"rspParamStatement\":[]}";
+//        String s = "{\"isProjectRoot'\":false,\"ifValid\":true,\"reqParamStatement\":[],\"rspParamStatement\":[]}";
 //        String inj_str = "'|and|exec|insert|select|delete|update|" +
 //                "count|*|%|chr|mid|master|truncate|char|declare|;|or|-|+|,";
 //        System.out.println(s.indexOf("'"));

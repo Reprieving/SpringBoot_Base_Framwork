@@ -60,8 +60,8 @@ public class Function implements Serializable{
     private Timestamp createTime = new Timestamp(System.currentTimeMillis());
 
     //是否有效
-    @Column(name = "is_valid")
-    private Boolean isValid = true;
+    @Column(name = "if_valid")
+    private Boolean ifValid = true;
 
 
 

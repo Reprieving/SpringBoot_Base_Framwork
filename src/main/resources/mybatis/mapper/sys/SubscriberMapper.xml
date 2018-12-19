@@ -12,7 +12,7 @@
         <result property="workNumber" column="work_number"></result>
         <result property="createBy" column="create_by"></result>
         <result property="createTime" column="create_time"></result>
-        <result property="isValid" column="is_valid"></result>
+        <result property="ifValid" column="if_valid"></result>
     </resultMap>
 
     <resultMap id="subRoleMap" type="Subscriber" extends="subscriberMap">
@@ -34,7 +34,7 @@
 
     <select id="listRole" resultMap="subRoleMap">
       SELECT
-        a.id,a.user_name,a.real_name,a.password,a.is_valid,b.role_id
+        a.id,a.user_name,a.real_name,a.password,a.if_valid,b.role_id
       FROM sys_subscriber a
       LEFT JOIN sys_subscriber_role b on a.id = b.subscriber_id
       WHERE

@@ -34,20 +34,20 @@ public class MsgRecord implements Serializable{
     @Column(name = Create_time)
     private Timestamp createTime; //
 
-    @Column(name = Is_valid)
-    private Boolean isValid; //
+    @Column(name = If_valid)
+    private Boolean ifValid; //
 
     public MsgRecord(){
     }
 
 
-    public MsgRecord(String userId, String phoneNumber, String msgCode, Integer msgType, Timestamp timestamp,Boolean isValid) {
+    public MsgRecord(String userId, String phoneNumber, String msgCode, Integer msgType, Timestamp timestamp,Boolean ifValid) {
         this.userId = userId;
         this.phoneNumber = phoneNumber;
         this.msgCode = msgCode;
         this.msgType = msgType;
         this.createTime = timestamp;
-        this.isValid = isValid;
+        this.ifValid = ifValid;
     }
 
     //DB Column name
@@ -57,5 +57,5 @@ public class MsgRecord implements Serializable{
     public static final String Msg_code = "msg_code";
     public static final String Msg_type = "msg_type";
     public static final String Create_time = "create_time";
-    public static final String Is_valid = "is_valid";
+    public static final String If_valid = "if_valid";
 }

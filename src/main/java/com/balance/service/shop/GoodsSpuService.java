@@ -109,7 +109,7 @@ public class GoodsSpuService extends BaseService {
         GoodsDetail goodsDetail = new GoodsDetail();
 
         GoodsSpu goodsSpu = selectOneById(spuId, GoodsSpu.class);
-        if (goodsSpu == null || !goodsSpu.getIsValid()) {
+        if (goodsSpu == null || !goodsSpu.getIfValid()) {
             throw new BusinessException("商品不存在");
         }
 
@@ -245,7 +245,7 @@ public class GoodsSpuService extends BaseService {
             case ShopConst.OPERATOR_TYPE_DELETE: //删除
                 GoodsSpu delGoodsSpu = new GoodsSpu();
                 delGoodsSpu.setId(goodsSpu.getId());
-                delGoodsSpu.setIsValid(false);
+                delGoodsSpu.setIfValid(false);
                 o = "删除商品成功";
                 if (updateIfNotNull(delGoodsSpu) == 0) {
                     throw new BusinessException("删除商品失败");
@@ -346,9 +346,9 @@ public class GoodsSpuService extends BaseService {
     public GoodsSpuSelectData listSelectData(String subscriberId){
         Map<String,Object> whereMap1 = ImmutableMap.of(
                 GoodsBrand.Subscriber_id + "=", subscriberId,
-                GoodsBrand.Is_valid + "=", true);
+                GoodsBrand.If_valid + "=", true);
 
-        Map<String,Object> whereMap2 = ImmutableMap.of(GoodsCategory.Is_valid + "=", true);
+        Map<String,Object> whereMap2 = ImmutableMap.of(GoodsCategory.If_valid + "=", true);
 
         Map<String,Object> whereMap3 = ImmutableMap.of(ShopInfo.Subscriber_id + "=", subscriberId);
 

@@ -31,8 +31,8 @@ public class Article implements Serializable{
     @Column(name = Article_type)
     private Integer articleType;//文章类型InformationConst.ARTICLE_TYPE_*
 
-    @Column(name = IsValid)
-    private Boolean isValid; //有效性
+    @Column(name = IfValid)
+    private Boolean ifValid; //有效性
 
     @Column(name = VerifyStatus)
     private Integer verifyStatus; //审核状态
@@ -54,7 +54,7 @@ public class Article implements Serializable{
     public static final String Article_cover = "article_cover";
     public static final String Article_content = "article_content";
     public static final String Article_type = "article_type";
-    public static final String IsValid = "is_valid";
+    public static final String IfValid = "if_valid";
     public static final String VerifyStatus = "verify_status";
     public static final String CreateBy = "create_by";
     public static final String CreateTime = "create_time";

@@ -57,7 +57,7 @@
         LEFT JOIN goods_category c on a.category_id = c.id
         LEFT JOIN goods_brand d on a.brand_id = d.id
         WHERE
-        a.is_valid = 1
+        a.if_valid = 1
         <if test="goodsName!=null and goodsName!=''">
             AND a.goods_name LIKE CONCAT('%',#{goodsName},'%')
         </if>

@@ -8,8 +8,8 @@
     </resultMap>
 
     <insert id="insertProject" parameterType="com.balance.entity.work.Project">
-      INSERT INTO work_project (id,project_name,remark,create_by,create_time,is_valid) VALUES
-      (#{project.id},#{project.projectName},#{project.remark},#{project.createBy},#{project.createTime},#{project.isValid})
+      INSERT INTO work_project (id,project_name,remark,create_by,create_time,if_valid) VALUES
+      (#{project.id},#{project.projectName},#{project.remark},#{project.createBy},#{project.createTime},#{project.ifValid})
     </insert>
     
     <select id="selectSubProjects" resultMap="projectMap">

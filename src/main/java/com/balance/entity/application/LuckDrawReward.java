@@ -42,8 +42,8 @@ public class LuckDrawReward {
 //    @Column(name = Index)
 //    private Integer index; // 奖品索引
 
-    @Column(name = Is_valid)
-    private Boolean isValid; //有效性
+    @Column(name = If_valid)
+    private Boolean ifValid; //有效性
 
     //DB Column name
     public static final String Id = "id";
@@ -55,5 +55,5 @@ public class LuckDrawReward {
     public static final String Is_price = "is_price";
     public static final String Luck_type = "luck_type";
     public static final String Index = "index";
-    public static final String Is_valid = "is_valid";
+    public static final String If_valid = "if_valid";
 }
