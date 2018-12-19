@@ -6,6 +6,7 @@ import com.balance.architecture.service.BaseService;
 import com.balance.constance.MissionConst;
 import com.balance.entity.information.Investigation;
 import com.balance.entity.mission.Mission;
+import com.balance.mapper.information.InvestigationMapper;
 import com.balance.service.mission.MissionCompleteService;
 import com.balance.service.mission.MissionService;
 import com.google.common.collect.ImmutableMap;
@@ -30,6 +31,10 @@ public class InvestigationService extends BaseService{
 
     @Autowired
     private TransactionTemplate transactionTemplate;
+
+    @Autowired
+    private InvestigationMapper investigationMapper;
+
 
     /**
      * 按美妆品id查询调查模板
@@ -67,4 +72,20 @@ public class InvestigationService extends BaseService{
 
     }
 
+    public Pagination getByPage(Map<String, Object> params) {
+        Object templateId = params.get("templateId");
+        List<Investigation> investigationList;
+        int total;
+        if ("0".equals(templateId)) {
+            investigationList = investigationMapper.selectPageWithGoods(params);
+            total = investigationMapper.selectCountWithGoods(params);
+        } else {
+            investigationList = investigationMapper.selectPageWithUser(params);
+            total = investigationMapper.selectCountWithUser(params);
+        }
+        Pagination pagination = new Pagination();
+        pagination.setObjectList(investigationList);
+        pagination.setTotalRecordNumber(total);
+        return pagination;
+    }
 }

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.balance.mapper.information.InvestigationMapper" >
+  <resultMap id="BaseResultMap" type="com.balance.entity.information.Investigation" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="beauty_id" property="beautyId" jdbcType="VARCHAR" />
+    <result column="order_id" property="orderId" jdbcType="VARCHAR" />
+    <result column="investigation_title" property="investigationTitle" jdbcType="VARCHAR" />
+    <result column="depict" property="depict" jdbcType="VARCHAR" />
+    <result column="template_id" property="templateId" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="investigation_content" property="investigationContent" jdbcType="LONGVARCHAR" />
+    <!-- 扩展 -->
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="goods_name" property="goodsName" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    t.id, t.user_id, t.beauty_id, t.order_id, t.investigation_title, t.depict, t.template_id, t.create_time, t.investigation_content
+  </sql>
+
+  <select id="selectPageWithGoods" resultMap="BaseResultMap" parameterType="map" >
+    select 
+      <include refid="Base_Column_List" />, gs.goods_name
+    <include refid="pageSqlWithGoods"/>
+    order by t.create_time desc
+    LIMIT #{startRow,jdbcType=INTEGER}, #{pageSize,jdbcType=INTEGER}
+  </select>
+  <sql id="pageSqlWithGoods">
+    from information_investigation t
+    join goods_spu gs on gs.id = t.beauty_id
+    where t.template_id = '0'
+    <if test="investigationTitle != null">
+      and t.investigation_title = #{investigationTitle}
+    </if>
+  </sql>
+  <select id="selectCountWithGoods" parameterType="map" resultType="int">
+    select count(*)
+    <include refid="pageSqlWithGoods"/>
+  </select>
+
+  <select id="selectPageWithUser" resultMap="BaseResultMap" parameterType="map" >
+    select
+    <include refid="Base_Column_List" />, u.user_name
+    <include refid="pageSqlWithUser"/>
+    order by t.create_time desc
+    LIMIT #{startRow,jdbcType=INTEGER}, #{pageSize,jdbcType=INTEGER}
+  </select>
+  <sql id="pageSqlWithUser">
+    from information_investigation t
+    join user_info u on u.id = t.user_id
+    where t.template_id = #{templateId}
+  </sql>
+  <select id="selectCountWithUser" parameterType="map" resultType="int">
+    select count(*)
+    <include refid="pageSqlWithUser"/>
+  </select>
+
+</mapper>

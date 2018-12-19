@@ -91,14 +91,9 @@ public class AdminInformationController {
         }
     }
 
-    @GetMapping("investigationList/{templateId}")
-    public Result<?> list(Pagination pagination, String investigationTitle, @PathVariable String templateId) {
-        HashMap<String, Object> whereMap = Maps.newHashMap();
-        whereMap.put(Investigation.Template_id + "=", templateId);
-        if(StringUtils.isNotBlank(investigationTitle)) {
-            whereMap.put(Investigation.Investigation_title + "=", investigationTitle);
-        }
-        List<Investigation> userList = investigationService.selectListByWhereMap(whereMap, pagination, Investigation.class);
-        return ResultUtils.success(userList, pagination.getTotalRecordNumber());
+    @PostMapping("investigationList")
+    public Result<?> list(@RequestBody Map<String, Object> params) {
+        Pagination pagination = investigationService.getByPage(params);
+        return ResultUtils.success(pagination.getObjectList(), pagination.getTotalRecordNumber());
     }
 }

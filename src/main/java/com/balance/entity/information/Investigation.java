@@ -43,6 +43,12 @@ public class Investigation implements Serializable{
     @Column(name = CreateTime)
     private Timestamp createTime; //提交时间
 
+    // 扩展
+    /** 商品名称  */
+    private String goodsName;
+
+    /** 用户昵称  */
+    private String userName;
 
     //DB Column name
     public static final String Id = "id";
