@@ -1,6 +1,5 @@
 package com.balance.constance;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
 
 import java.math.BigDecimal;
 
@@ -24,6 +23,8 @@ public class UserConst {
     public static final int MSG_CODE_TYPE_RESET_LOGINPWD = 2;//重置登录密码
     public static final int MSG_CODE_TYPE_SETTLE_PAYPWD = 3;//设置支付密码
     public static final int MSG_CODE_TYPE_RESET_PAYPWD = 4;//重置支付密码
+    public static final int MSG_CODE_TYPE_UNBIND_PHONE = 5;//解绑手机号码
+    public static final int MSG_CODE_TYPE_BIND_PHONE = 6;//绑定手机号码
 
     //提交实名认证图片类型
     public static final String APPLY_CERT_PIC_TYPE_FRONT = "front";//注册

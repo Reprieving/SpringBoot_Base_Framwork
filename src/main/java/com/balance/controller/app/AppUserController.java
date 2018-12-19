@@ -374,7 +374,7 @@ public class AppUserController {
      * @param type
      * @return
      */
-    @RequestMapping("unbind/{type}")
+    @GetMapping("unbind/{type}")
     public Result<?> unbind(@PathVariable String type, HttpServletRequest request) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         User user = userService.selectOneById(userId, User.class);
@@ -394,5 +394,54 @@ public class AppUserController {
         } else {
             return ResultUtils.error("解绑成功");
         }
+    }
+
+    /**
+     * 检查短信验证码有效性
+     * @param request
+     * @param type
+     * @param msgCode
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @GetMapping("checkMsgCode")
+    public Result<?> checkMsgCode(HttpServletRequest request, Integer type, String msgCode) throws UnsupportedEncodingException {
+        if(type == UserConst.MSG_CODE_TYPE_UNBIND_PHONE) {
+            String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+            User user = userService.selectOneById(userId, User.class);
+            String phoneNumber = user.getPhoneNumber();
+            if (StringUtils.isBlank(phoneNumber)) {
+                return ResultUtils.error("您还没有绑定手机号码");
+            }
+            userSendService.validateMsgCode(userId, phoneNumber, msgCode, UserConst.MSG_CODE_TYPE_UNBIND_PHONE);
+            return ResultUtils.success();
+        }
+        return ResultUtils.error("短信验证错误");
+    }
+
+    /**
+     * 绑定新手机号码
+     * @param request
+     * @param msgCode
+     * @param phoneNumber
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @PostMapping("bindPhone")
+    public Result<?> bindPhone(HttpServletRequest request, String msgCode, String phoneNumber) throws UnsupportedEncodingException {
+        if (StringUtils.isBlank(msgCode) || StringUtils.isBlank(phoneNumber)) {
+            return ResultUtils.error("缺少必要参数");
+        }
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        User user = userService.selectOneByWhereString(User.Phone_number + " = ", phoneNumber, User.class);
+        if (user != null) {
+            return ResultUtils.error("该手机号码已经绑定其它账号");
+        }
+        userSendService.validateMsgCode(userId, phoneNumber, msgCode, UserConst.MSG_CODE_TYPE_BIND_PHONE);
+        User update = new User();
+        update.setId(userId);
+        update.setPhoneNumber(phoneNumber);
+        userService.updateIfNotNull(update);
+        return ResultUtils.success();
     }
 }

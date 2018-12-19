@@ -14,6 +14,7 @@ import com.balance.mapper.user.UserMapper;
 import com.balance.service.common.WjSmsService;
 import com.balance.utils.RandomUtil;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,10 +22,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UserSendService extends BaseService {
@@ -56,18 +54,9 @@ public class UserSendService extends BaseService {
             userId = userReq.getId();
         }
 
-
-        //验证发送短信次数
-        List<MsgRecord> msgRecords = selectListByWhereString(MsgRecord.User_id + "=", userId, new Pagination(), MsgRecord.class);
-//        if (msgRecords.size() > 0) {
-//            Integer result = userFreeCountMapper.updateUserSendMsgCount(userId);
-//            if (result == 0) {
-//                throw new BusinessException("当天发送短信次数已到达上限3条");
-//            }
-//        }
-
+        User user = null;
         String msgTypeStr = "";
-        switch (userReq.getMsgType()) {
+        switch (msgType) {
             case UserConst.MSG_CODE_TYPE_LOGINANDREGISTER:
                 msgTypeStr = "[注册/登陆]";
                 break;
@@ -80,11 +69,34 @@ public class UserSendService extends BaseService {
             case UserConst.MSG_CODE_TYPE_RESET_PAYPWD:
                 msgTypeStr = "[重置支付密码]";
                 break;
+            case UserConst.MSG_CODE_TYPE_UNBIND_PHONE:
+                userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+                user = userService.selectOneById(userId, User.class);
+                if (user == null || !phoneNumber.equals(user.getPhoneNumber())) {
+                    throw new BusinessException("解绑手机号码和已绑定手机号码不一致");
+                }
+                msgTypeStr = "[解绑手机号码]";
+                break;
+            case UserConst.MSG_CODE_TYPE_BIND_PHONE:
+                userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+                user = userService.selectOneByWhereString(User.Phone_number + " = ", phoneNumber, User.class);
+                if (user != null) {
+                    throw new BusinessException("该手机号码已经绑定其它账号");
+                }
+                msgTypeStr = "[绑定手机号码]";
+                break;
         }
 
+        //验证发送短信次数
+        List<MsgRecord> msgRecords = selectListByWhereString(MsgRecord.User_id + "=", userId, new Pagination(), MsgRecord.class);
+//        if (msgRecords.size() > 0) {
+//            Integer result = userFreeCountMapper.updateUserSendMsgCount(userId);
+//            if (result == 0) {
+//                throw new BusinessException("当天发送短信次数已到达上限3条");
+//            }
+//        }
         String content = "美妆连" + msgTypeStr + "验证码： " + msgCode + "，十五分钟内有效。【美妆连】";
         wjSmsService.sendSms(userReq.getPhoneNumber(), content);
-
         MsgRecord msgRecord = new MsgRecord(userId, phoneNumber, msgCode, msgType, new Timestamp(System.currentTimeMillis()), true);
         if(insertIfNotNull(msgRecord)==0){
             throw new BusinessException("发送短信验证码失败");
