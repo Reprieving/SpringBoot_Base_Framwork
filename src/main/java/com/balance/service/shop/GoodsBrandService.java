@@ -6,7 +6,6 @@ import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.ShopConst;
 import com.balance.entity.shop.GoodsBrand;
-import com.balance.entity.shop.GoodsCategory;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -37,11 +36,11 @@ public class GoodsBrandService extends BaseService {
             whereMap = ImmutableMap.of(
                     GoodsBrand.Brand_name + " LIKE ", "%" + brandName + "%",
                     GoodsBrand.Subscriber_id + "=", goodsBrand.getSubscriberId(),
-                    GoodsBrand.Is_valid + "=", true);
+                    GoodsBrand.If_valid + "=", true);
         } else {
             whereMap = ImmutableMap.of(
                     GoodsBrand.Subscriber_id + "=", goodsBrand.getSubscriberId(),
-                    GoodsBrand.Is_valid + "=", true);
+                    GoodsBrand.If_valid + "=", true);
         }
         return selectListByWhereMap(whereMap, pagination, clazz);
     }
@@ -61,7 +60,7 @@ public class GoodsBrandService extends BaseService {
                 break;
 
             case ShopConst.OPERATOR_TYPE_DELETE: //删除
-                goodsBrand.setIsValid(false);
+                goodsBrand.setIfValid(false);
                 o = "删除品牌成功";
                 if (updateIfNotNull(goodsBrand) == 0) {
                     throw new BusinessException("删除品牌失败");

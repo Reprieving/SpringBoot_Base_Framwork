@@ -1,23 +1,18 @@
 package com.balance.service.shop;
 
 import com.alibaba.fastjson.JSONObject;
-import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.ShopConst;
 import com.balance.entity.shop.GoodsImg;
 import com.balance.entity.shop.GoodsSku;
-import com.balance.entity.shop.GoodsSpu;
 import com.balance.mapper.shop.GoodsSkuMapper;
-import com.balance.service.common.AliOSSBusiness;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -55,7 +50,7 @@ public class GoodsSkuService extends BaseService {
         if (StringUtils.isNoneBlank(skuId)) {
             ValueCheckUtils.notEmpty(selectOneById(skuId, GoodsSku.class), "未找到商品属性记录");
             GoodsSku goodsSkuParam = new GoodsSku();
-            BeanUtils.copyProperties(goodsSku, goodsSkuParam, GoodsSku.Sku_no, GoodsSku.Create_time, GoodsSku.Status, GoodsSku.Is_valid);
+            BeanUtils.copyProperties(goodsSku, goodsSkuParam, GoodsSku.Sku_no, GoodsSku.Create_time, GoodsSku.Status, GoodsSku.If_valid);
             a = updateIfNotNull(goodsSkuParam);
             a = goodsSkuMapper.deleteSkuImg(goodsSku.getSpuId(), skuId);
         } else {
@@ -144,7 +139,7 @@ public class GoodsSkuService extends BaseService {
             case ShopConst.OPERATOR_TYPE_DELETE: //删除
                 GoodsSku delGoodsSku = new GoodsSku();
                 delGoodsSku.setId(goodsSku.getId());
-                delGoodsSku.setIsValid(false);
+                delGoodsSku.setIfValid(false);
                 o = "删除商品属性成功";
                 if (updateIfNotNull(delGoodsSku) == 0) {
                     throw new BusinessException("删除商品属性失败");

@@ -113,7 +113,7 @@ public class UserSendService extends BaseService {
         MsgRecord msgRecord = selectOneByWhereMap(whereMap, MsgRecord.class);
         ValueCheckUtils.notEmpty(msgRecord, "短信验证码有误");
 
-        if (!msgRecord.getIsValid()) {
+        if (!msgRecord.getIfValid()) {
             throw new BusinessException("短信验证码已经失效");
         }
 

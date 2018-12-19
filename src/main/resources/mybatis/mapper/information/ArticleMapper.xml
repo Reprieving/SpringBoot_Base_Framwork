@@ -6,13 +6,13 @@
         <result column="article_cover" property="articleCover" jdbcType="VARCHAR"/>
         <result column="article_title" property="articleTitle" jdbcType="VARCHAR"/>
         <result column="article_type" property="articleType" jdbcType="INTEGER"/>
-        <result column="is_valid" property="isValid" jdbcType="BIT"/>
+        <result column="if_valid" property="ifValid" jdbcType="BIT"/>
         <result column="verify_status" property="verifyStatus" jdbcType="INTEGER"/>
         <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
     </resultMap>
     <sql id="Base_Column_List">
-      t.id, t.article_title, t.article_type, t.is_valid, t.verify_status, t.create_by, t.create_time, article_cover
+      t.id, t.article_title, t.article_type, t.if_valid, t.verify_status, t.create_by, t.create_time, article_cover
     </sql>
 
     <select id="selectByPage" resultMap="BaseResultMap" parameterType="map">
@@ -31,8 +31,8 @@
             and t.create_time &lt;= #{endTime}
         </if>
 
-        <if test="isValid != null">
-            and t.is_valid = #{isValid}
+        <if test="ifValid != null">
+            and t.if_valid = #{ifValid}
         </if>
         <if test="articleType != null">
             and t.article_type = #{articleType}

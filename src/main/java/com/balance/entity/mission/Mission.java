@@ -63,8 +63,8 @@ public class Mission implements Serializable {
     @Column(name = Task_type)
     private Integer taskType; //任务类型
 
-    @Column(name = Is_valid)
-    private Integer isValid; //是否有效
+    @Column(name = If_valid)
+    private Integer ifValid; //是否有效
 
 
     //---扩展
@@ -82,6 +82,6 @@ public class Mission implements Serializable {
     public static final String Description = "description";
     public static final String Action_name = "action_name";
     public static final String Redirect_type = "redirect_type";
-    public static final String Is_valid = "is_valid";
+    public static final String If_valid = "if_valid";
     public static final String Task_type = "task_type";
 }

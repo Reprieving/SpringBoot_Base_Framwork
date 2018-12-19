@@ -8,7 +8,7 @@
         <result property="roleName" column="role_name"></result>
         <result property="createBy" column="create_by"></result>
         <result property="createTime" column="create_time"></result>
-        <result property="isValid" column="is_valid"></result>
+        <result property="ifValid" column="if_valid"></result>
         <collection property="functionIdList" ofType="string">
             <result column="function_id"></result>
         </collection>
@@ -19,7 +19,7 @@
     </delete>
 
     <select id="listFunction" resultMap="roleMap">
-      SELECT a.id,a.role_name,a.create_by,a.create_time,a.is_valid,b.function_id
+      SELECT a.id,a.role_name,a.create_by,a.create_time,a.if_valid,b.function_id
        FROM sys_role a LEFT JOIN sys_role_function b on a.id = b.role_id
        WHERE a.id = #{roleId}
     </select>

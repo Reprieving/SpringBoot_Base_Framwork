@@ -5,12 +5,9 @@ import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.ibatis.type.Alias;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.sql.Timestamp;
 
 @Data
@@ -36,8 +33,8 @@ public class ShopInfo implements Serializable{
     @Column(name = Update_time)
     private Timestamp updateTime;
 
-    @Column(name = Is_valid)
-    private Boolean isValid;
+    @Column(name = If_valid)
+    private Boolean ifValid;
 
     //扩展属性
     private Pagination pagination;
@@ -48,7 +45,7 @@ public class ShopInfo implements Serializable{
     public static final String Shop_name = "shop_name";
     public static final String Create_time = "create_time";
     public static final String Update_time = "update_time";
-    public static final String Is_valid = "is_valid";
+    public static final String If_valid = "if_valid";
 
     public ShopInfo(){}
 }

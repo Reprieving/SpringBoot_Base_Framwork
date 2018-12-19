@@ -34,6 +34,6 @@ public class Project implements Serializable{
     @Column(name = "create_time")
     private Timestamp createTime;
 
-    @Column(name = "is_valid")
-    private Boolean isValid;
+    @Column(name = "if_valid")
+    private Boolean ifValid;
 }

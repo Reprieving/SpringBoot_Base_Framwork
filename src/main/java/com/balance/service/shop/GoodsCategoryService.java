@@ -43,9 +43,9 @@ public class GoodsCategoryService extends BaseService {
         String categoryName = goodsCategory.getCategoryName();
         Map<String, Object> whereMap;
         if (StringUtils.isNoneBlank(categoryName)) {
-            whereMap = ImmutableMap.of(GoodsCategory.Category_name + " LIKE ", "%" + categoryName + "%", GoodsCategory.Is_valid + "=", true);
+            whereMap = ImmutableMap.of(GoodsCategory.Category_name + " LIKE ", "%" + categoryName + "%", GoodsCategory.If_valid + "=", true);
         } else {
-            whereMap = ImmutableMap.of(GoodsCategory.Is_valid + "=", true);
+            whereMap = ImmutableMap.of(GoodsCategory.If_valid + "=", true);
         }
         return selectListByWhereMap(whereMap, pagination, clazz);
     }
@@ -80,7 +80,7 @@ public class GoodsCategoryService extends BaseService {
                 break;
 
             case ShopConst.OPERATOR_TYPE_DELETE: //删除
-                goodsCategory.setIsValid(false);
+                goodsCategory.setIfValid(false);
                 o = "删除类目成功";
                 if (updateIfNotNull(goodsCategory) == 0) {
                     throw new BusinessException("删除类目失败");

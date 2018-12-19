@@ -5,7 +5,6 @@ import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.ShopConst;
-import com.balance.entity.shop.GoodsSpecValue;
 import com.balance.entity.shop.ShopInfo;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
@@ -48,7 +47,7 @@ public class ShopInfoService extends BaseService {
             Map<String, Object> whereMap = ImmutableMap.of(
                     ShopInfo.Shop_name + " LIKE ", "%" + shopName + "%",
                     ShopInfo.Subscriber_id + "=", shopInfo.getSubscriberId(),
-                    ShopInfo.Is_valid + "=", true
+                    ShopInfo.If_valid + "=", true
             );
             return selectListByWhereMap(whereMap, pagination, clazz);
         } else {
@@ -87,7 +86,7 @@ public class ShopInfoService extends BaseService {
                 break;
 
             case ShopConst.OPERATOR_TYPE_DELETE: //删除
-                shopInfo.setIsValid(false);
+                shopInfo.setIfValid(false);
                 o = "删除商铺成功";
                 if (updateIfNotNull(shopInfo) == 0) {
                     throw new BusinessException("删除商铺失败");

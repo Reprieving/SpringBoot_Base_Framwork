@@ -41,7 +41,7 @@ public class Department implements Serializable {
     @Column(name = "create_time")
     private Timestamp createTime;
 
-    @Column(name = "is_valid")
-    private Boolean isValid = true;
+    @Column(name = "if_valid")
+    private Boolean ifValid = true;
 
 }

@@ -57,8 +57,8 @@ public class AppInterface implements Serializable {
     @Column(name="is_directory")
     private Boolean isDirectory;
 
-    @Column(name="is_valid")
-    private Boolean isValid;
+    @Column(name="if_valid")
+    private Boolean ifValid;
 
     @Column(name="create_by")
     private String createBy;

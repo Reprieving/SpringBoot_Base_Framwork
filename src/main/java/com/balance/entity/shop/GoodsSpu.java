@@ -6,11 +6,9 @@ import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
-import org.bouncycastle.util.Times;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -62,8 +60,8 @@ public class GoodsSpu implements Serializable{
     @Column(name = Status)
     private Integer status;//sku状态
 
-    @Column(name = Is_valid)
-    private Boolean isValid;//是否有效
+    @Column(name = If_valid)
+    private Boolean ifValid;//是否有效
 
     //扩展属性
     //类目名
@@ -105,5 +103,5 @@ public class GoodsSpu implements Serializable{
     public static final String Update_time = "update_time";
     public static final String Spu_type = "spu_type";
     public static final String Status = "status";
-    public static final String Is_valid = "is_valid";
+    public static final String If_valid = "if_valid";
 }
