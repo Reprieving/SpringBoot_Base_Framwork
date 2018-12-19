@@ -146,8 +146,9 @@ public class UserService extends BaseService {
         if (user1 == null) {
             ifRegister = false;
             userService.createUser(user);
-            user1 = selectOneById(userId,User.class);
+            user1 = selectOneById(user.getId(),User.class);
         }
+
         user1.setPassword("");
         user1.setPayPassword("");
         user1.setAccessToken(JwtUtils.createToken(user1));
