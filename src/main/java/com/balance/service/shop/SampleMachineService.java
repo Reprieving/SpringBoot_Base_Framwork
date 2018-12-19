@@ -42,6 +42,12 @@ public class SampleMachineService {
         return machineLocation;
     }
 
+
+    /**
+     * 更新市内小样机坐标
+     * @param cityCode
+     * @param sampleMachineLocations
+     */
     public void updateSampleMachineLocation(String cityCode,List<SampleMachineLocation> sampleMachineLocations){
         String redisKey = RedisKeyConst.buildSampleMachineId(cityCode);
         sampleMachineLocations.forEach(sl -> {
