@@ -42,7 +42,7 @@ public class MiningReward implements Serializable{
     private Boolean ifValid; //是否有效
 
     @Column(name = Version)
-    private Boolean version; //版本号
+    private Integer version; //版本号
 
     public MiningReward(){}
 
