@@ -6,8 +6,11 @@ import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.ShopConst;
+import com.balance.constance.UserConst;
 import com.balance.entity.shop.*;
+import com.balance.entity.user.User;
 import com.balance.mapper.shop.GoodsSpuMapper;
+import com.balance.utils.BigDecimalUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,8 +116,19 @@ public class GoodsSpuService extends BaseService {
             throw new BusinessException("商品不存在");
         }
 
+        User user = selectOneById(userId,User.class);
+
         goodsDetail.setGoodsName(goodsSpu.getGoodsName());
+        goodsDetail.setGoodsDescription(goodsSpu.getGoodsDescription());
         goodsDetail.setPrice(goodsSpu.getLowPrice());
+        goodsDetail.setPackageUnit(goodsSpu.getPackageUnit());
+        goodsDetail.setFreight(goodsSpu.getFreight());
+
+        //会员享有折扣运费
+        if(user.getMemberType() == UserConst.USER_MEMBER_TYPE_COMMON){
+            goodsDetail.setDiscountFreight(BigDecimalUtils.multiply(goodsSpu.getFreight(),new BigDecimal(0.95)));
+        }
+
 
         //检查用户是否有收藏商品
         Map<String, Object> whereMap_ = ImmutableMap.of(GoodsCollection.User_id + "=", userId, GoodsCollection.Spu_id + "=", spuId);

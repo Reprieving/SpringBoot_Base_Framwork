@@ -139,7 +139,6 @@ public class BaseService {
             }
             return (List<T>) o;
         } catch (NullPointerException e) {
-            e.printStackTrace();
             return new ArrayList<>();
         }
     }

@@ -21,5 +21,7 @@ public class OrderGoodsInfo {//用户订单列表信息
     private BigDecimal orderPrice;
     private Timestamp createTime;
     private List<OrderItem> orderItemList;
+    private Boolean ifInvestigation;
+    private Boolean ifScan;
 
 }

@@ -33,7 +33,7 @@ public class GoodsDetail {//商品详情实体
     private String goodsName;
 
     //商品描述
-    private String goodsDesc;
+    private String goodsDescription;
 
     //库存
     private Integer stock;
@@ -55,4 +55,16 @@ public class GoodsDetail {//商品详情实体
 
     //是否有收藏
     private Integer isCollect;
+
+    //包装单位
+    private String packageUnit;
+
+    //背景色
+    private String backgroundColor;
+
+    //运费
+    private BigDecimal freight;
+
+    //折扣运费
+    private BigDecimal discountFreight;
 }

@@ -9,11 +9,14 @@ import com.balance.controller.app.req.ShopOrderSkuReq;
 import com.balance.entity.shop.*;
 import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
+import com.balance.entity.user.UserVoucherRecord;
 import com.balance.mapper.shop.OrderMapper;
+import com.balance.mapper.user.UserMapper;
 import com.balance.service.user.AssetsTurnoverService;
 import com.balance.service.user.UserAssetsService;
 import com.balance.utils.BigDecimalUtils;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,8 +50,13 @@ public class OrderService extends BaseService {
     private GoodsSpecService goodsSpecService;
 
     @Autowired
+    private ShopVoucherService shopVoucherService;
+
+    @Autowired
     private OrderMapper orderMapper;
 
+    @Autowired
+    private UserMapper userMapper;
     /**
      * 商城下单
      *
@@ -77,17 +85,27 @@ public class OrderService extends BaseService {
                     ValueCheckUtils.notEmpty(goodsSpu, "商品不支持该支付方式");
 
                     //2.计算订单总价格
-                    Map<String, Object> skuWhereMap = ImmutableMap.of(GoodsSku.Spu_id + " = ", spuId, GoodsSku.Spec_json + " = ", orderSkuReq.getSpecIdStr());
-                    GoodsSku goodsSku = selectOneByWhereMap(skuWhereMap, GoodsSku.class);
-                    ValueCheckUtils.notEmpty(goodsSku, "未找到商品");
+                    String skuOrSpuId;
+                    BigDecimal skuOrSpuPrice;
 
-                    if (orderSkuReq.getNumber() > goodsSku.getStock()) {
-                        throw new BusinessException("商品编号" + goodsSku.getSkuNo() + "库存不足");
+                    if(StringUtils.isNotBlank(orderSkuReq.getSpecIdStr())){//有sku的商品计算价格
+                        Map<String, Object> skuWhereMap = ImmutableMap.of(GoodsSku.Spu_id + " = ", spuId, GoodsSku.Spec_json + " = ", orderSkuReq.getSpecIdStr());
+                        GoodsSku goodsSku = selectOneByWhereMap(skuWhereMap, GoodsSku.class);
+                        ValueCheckUtils.notEmpty(goodsSku, "未找到商品");
+
+                        if (orderSkuReq.getNumber() > goodsSku.getStock()) {
+                            throw new BusinessException("商品编号" + goodsSku.getSkuNo() + "库存不足");
+                        }
+                        skuOrSpuId = goodsSku.getId();
+                        skuOrSpuPrice = goodsSku.getPrice();
+                    }else {//没有sku的商品计算价格
+                        skuOrSpuId = spuId;
+                        skuOrSpuPrice = goodsSpu.getLowPrice();
                     }
-
-                    BigDecimal spuTotalPrice = BigDecimalUtils.multiply(goodsSku.getPrice(), skuNumber);
+                    BigDecimal spuTotalPrice = BigDecimalUtils.multiply(skuOrSpuPrice, skuNumber);
                     orderTotalPrice = BigDecimalUtils.add(orderTotalPrice, spuTotalPrice);
 
+                    //获取商铺信息
                     String shopId = goodsSpu.getShopId();
                     ShopInfo shopInfo = selectOneById(goodsSpu.getShopId(), ShopInfo.class);
                     ValueCheckUtils.notEmpty(shopInfo, "未找到商铺信息");
@@ -96,10 +114,10 @@ public class OrderService extends BaseService {
                     List<OrderItem> orderItemsList;
                     if (shopOrderItemMap.containsKey(shopId)) {
                         orderItemsList = shopOrderItemMap.get(shopId);
-                        orderItemsList.add(new OrderItem(spuId, goodsSku.getId(), orderSkuReq.getNumber(), goodsSku.getPrice(), spuTotalPrice));
+                        orderItemsList.add(new OrderItem(spuId, skuOrSpuId, orderSkuReq.getNumber(), skuOrSpuPrice, spuTotalPrice));
                     } else {
                         orderItemsList = new ArrayList<>();
-                        orderItemsList.add(new OrderItem(spuId, goodsSku.getId(), orderSkuReq.getNumber(), goodsSku.getPrice(), spuTotalPrice));
+                        orderItemsList.add(new OrderItem(spuId, skuOrSpuId, orderSkuReq.getNumber(), skuOrSpuPrice, spuTotalPrice));
                         shopOrderItemMap.put(shopId, orderItemsList);
                     }
                 }
@@ -140,6 +158,40 @@ public class OrderService extends BaseService {
             }
         });
     }
+
+
+    /**
+     * 扫码领取小样
+     * @param userId 用户id
+     * @param spuId 商品id
+     * @param aisleCode 小样编码
+     * @param machineCode 小样机器编码
+     */
+    public void obtainBeautyOnScan(String userId,String spuId,String aisleCode,String machineCode){
+
+    }
+
+
+    /**
+     * 卡券兑换礼包
+     * @param userId 用户id
+     * @param spuId 商品id
+     */
+    public void exchangeSpuPackage(String userId,String voucherId,String spuId){
+        UserVoucherRecord userVoucherRecord = userMapper.getUserVoucher(userId,voucherId);
+        if(shopVoucherService.checkIfPackageVoucher(userVoucherRecord.getVoucherType())){
+            //创建订单
+
+
+            //扣除用户优惠券数量
+
+
+        }else {
+            throw new BusinessException("暂只支持年卡会员卡券，生日卡券使用");
+        }
+
+    }
+
 
     /**
      * APP用户的订单列表

@@ -45,7 +45,13 @@ public class ShopConst {
     public static final int ORDER_STATUS_RETURN_SUCCESS = 40;//退货成功
     public static final int ORDER_STATUS_RETURN_FAIL= 41;//退货失败
 
-    //礼券类型
-    public static final int VOUCHER_TYPE_PACKAGE = 1; //礼包兑换券
+    //卡券类型
+    public static final int VOUCHER_TYPE_DEDUCTION = 1; //抵扣券
+    public static final int VOUCHER_TYPE_BEAUTY_PACKAGE_DEDUCTION = 11; //小样礼包抵扣券
+    public static final int VOUCHER_TYPE_BIRTH_PACKAGE_DEDUCTION = 12; //生日礼包抵扣券
+    public static final int VOUCHER_TYPE_PACKAGE_DISCOUNT = 11; //折扣券
 
+    //卡券状态
+    public static final int VOUCHER_STATUS_UNUSER = 0; //未使用
+    public static final int VOUCHER_STATUS_USERd = 1; //已使用
 }

@@ -1,15 +1,15 @@
 package com.balance.service.user;
 
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.client.RedisClient;
-import com.balance.constance.MissionConst;
-import com.balance.constance.RedisKeyConst;
-import com.balance.constance.UserConst;
+import com.balance.constance.*;
 import com.balance.entity.common.UserFreeCount;
 import com.balance.entity.common.UserInviteCodeId;
+import com.balance.entity.information.Article;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.user.*;
 import com.balance.mapper.common.AutoIncreaseIdMapper;
@@ -70,6 +70,8 @@ public class UserService extends BaseService {
     @Autowired
     private UserSendService userSendService;
 
+    @Autowired
+    private UserVoucherService userVoucherService;
     /**
      * 注册用户
      *
@@ -376,6 +378,24 @@ public class UserService extends BaseService {
     public User allUserInfo(String userId) {
         return userMapper.getUserInfo(userId);
     }
+
+
+    /**
+     * 获取公告和首页广告
+     * @return
+     */
+    public Map<String,Object> listAnnounceAndAd(Pagination pagination){
+        Map<String,Object> map = new HashMap<>();
+        Map<String,Object> announceWhereMap = ImmutableMap.of(Article.Article_type+"=", InformationConst.ARTICLE_TYPE_ANNOUNCE);
+        Map<String,Object> orderMap = ImmutableMap.of(Article.CreateTime, CommonConst.MYSQL_DESC);
+        List<Article> announceList = selectListByWhereMap(announceWhereMap,pagination,Article.class,orderMap);
+
+        List<UserAdvertisement> userAdvertisements = selectAll(null,UserAdvertisement.class);
+
+        return ImmutableMap.of("announceList",announceList,"userAdvertisements",userAdvertisements);
+    }
+
+
 
 
 }

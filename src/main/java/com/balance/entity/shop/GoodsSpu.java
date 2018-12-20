@@ -28,6 +28,18 @@ public class GoodsSpu implements Serializable{
     @Column(name = Goods_name)
     private String goodsName;//商品名称
 
+    @Column(name = Goods_description)
+    private String goodsDescription;//商品描述
+
+    @Column(name = Package_unit)
+    private String packageUnit;//包装单位
+
+    @Column(name = Background_color)
+    private String backgroundColor;//背景色
+
+    @Column(name = Freight)
+    private BigDecimal freight;//运费
+
     @Column(name = Low_price)
     private BigDecimal lowPrice;//最低价格
 
@@ -92,7 +104,11 @@ public class GoodsSpu implements Serializable{
     //DB Column name
     public static final String Id = "id";
     public static final String Spu_no = "spu_no";
+    public static final String Package_unit = "package_unit";
+    public static final String Background_color = "background_color";
     public static final String Goods_name = "goods_name";
+    public static final String Goods_description = "goods_description";
+    public static final String Freight = "freight";
     public static final String Low_price = "low_price";
     public static final String Settlement_id = "settlement_id";
     public static final String Category_id = "category_id";
