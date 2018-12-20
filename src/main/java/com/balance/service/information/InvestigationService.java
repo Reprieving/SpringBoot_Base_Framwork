@@ -64,14 +64,14 @@ public class InvestigationService extends BaseService{
      */
     private String checkInvestigation (String orderId, String userId) {
         OrderInfo orderInfo = selectOneByWhereString(OrderInfo.Id + " = ", orderId, OrderInfo.class);
-        if (orderInfo == null || !orderInfo.getUserId().equals(userId)) {
+        if (orderInfo == null || !orderInfo.getUserId().equals(userId) || orderInfo.getIfInvestigation()) {
             // 订单为空, 或者订单不是 该登录用户
-            throw new BusinessException("数据异常");
+            throw new BusinessException("数据状态异常");
         }
         List<OrderItem> orderItems = selectListByWhereString(OrderItem.Order_id + " = ", orderId, null, OrderItem.class);
         if (orderItems == null && orderItems.size() != 1) {
             // 订单项为空, 或者订单项不是一个
-            throw new BusinessException("数据异常");
+            throw new BusinessException("数据状态异常");
         }
         OrderItem orderItem = orderItems.get(0);
         return orderItem.getGoodsSpuId();
@@ -93,8 +93,12 @@ public class InvestigationService extends BaseService{
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                Integer i = insertIfNotNull(investigation);
-                if (i == 0) {
+                int result1 = insertIfNotNull(investigation);
+                OrderInfo orderInfo = new OrderInfo();
+                orderInfo.setId(orderId);
+                orderInfo.setIfInvestigation(true);
+                int result2 = updateIfNotNull(orderInfo);
+                if (result1 < 1 || result2 < 1) {
                     throw new BusinessException("提交问卷失败");
                 }
                 //完成任务
