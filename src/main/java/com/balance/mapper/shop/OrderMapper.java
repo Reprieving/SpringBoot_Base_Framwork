@@ -45,5 +45,5 @@ public interface OrderMapper {
      */
     List<OrderGoodsInfo> listAdminOrderGoodsInfo(@Param("orderNo") String orderNo, @Param("userName") String userName, @Param("settlementId") Integer settlementId,
                                                  @Param("logisticNumber") String logisticNumber, @Param("startTime") Timestamp startTime, @Param("endTime") Timestamp endTime,
-                                                 @Param("status") String status, @Param("pagination") Pagination pagination);
+                                                 @Param("status") Integer status, @Param("pagination") Pagination pagination);
 }

@@ -4,15 +4,12 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
-import com.balance.controller.app.req.PaginationReq;
 import com.balance.entity.information.Article;
 import com.balance.entity.information.Investigation;
 import com.balance.service.information.ArticleService;
 import com.balance.service.information.InvestigationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -116,12 +113,13 @@ public class AppInformationController {
      * 按美妆品id查询调查模板
      *
      * @param request
-     * @param beautyId
+     * @param orderId
      * @return
      */
-    @RequestMapping("investTemplate/list/{beautyId}")
-    public Result<?> articleList(HttpServletRequest request, @PathVariable String beautyId, Pagination pagination) {
-        return ResultUtils.success(investigationService.listInvestigationTemplate(beautyId, pagination));
+    @RequestMapping("investTemplate/get/{orderId}")
+    public Result<?> articleList(HttpServletRequest request, @PathVariable String orderId) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        return ResultUtils.success(investigationService.getInvestigationTemplate(orderId, userId));
     }
 
     /**
@@ -135,6 +133,7 @@ public class AppInformationController {
     @RequestMapping("invest/create")
     public Result<?> createInvestigation(HttpServletRequest request, Investigation investigation) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        investigation.setUserId(userId);
         investigationService.createInvestigation(userId, investigation);
         return ResultUtils.success();
     }

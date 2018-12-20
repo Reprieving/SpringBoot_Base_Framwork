@@ -47,7 +47,7 @@ public class OrderInfo implements Serializable {
     private BigDecimal price;
 
     @Column(name = Status)
-    private String status;
+    private Integer status;
 
     @Column(name = Logistic_number)
     private String logisticNumber;
