@@ -14,6 +14,7 @@ import com.balance.controller.app.req.PaginationReq;
 import com.balance.controller.app.req.UserLocation;
 import com.balance.entity.shop.SampleMachineLocation;
 import com.balance.entity.user.*;
+import com.balance.service.common.AddressService;
 import com.balance.service.common.WjSmsService;
 import com.balance.service.shop.SampleMachineService;
 import com.balance.service.user.*;
@@ -59,6 +60,9 @@ public class AppUserController {
 
     @Autowired
    private RedisClient redisClient;
+
+    @Autowired
+    private AddressService addressService;
 
     /**
      * 发送短信
@@ -122,7 +126,7 @@ public class AppUserController {
         } else if(sex != null && (sex == 1 || sex == 2)){
             user.setSex(sex);
         } else if(StringUtils.isNotBlank(location)) {
-            user.setLocation(location);
+            user.setLocation(addressService.getLocation(location));
         } else if(birthday != null) {
             user.setBirthday(birthday);
         } else {
@@ -318,27 +322,12 @@ public class AppUserController {
 
     /**
      * 获取省市联动数据
+     * @param pid
      * @return
-     * @throws Exception
      */
-    @GetMapping("area")
-    public Result<?> area() throws Exception {
-        URL resource = this.getClass().getResource("/data/address.json");
-        BufferedReader reader = null;
-        StringBuilder sb = null;
-        try {
-            reader = new BufferedReader(new FileReader(resource.getFile()));
-            sb = new StringBuilder();
-            String s;
-            while ((s = reader.readLine()) != null) {
-                sb.append(s);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            reader.close();
-        }
-        return ResultUtils.success(JSONObject.parseArray(sb.toString()));
+    @GetMapping("area/{pid}")
+    public Result<?> area(@PathVariable Integer pid) {
+        return ResultUtils.success(addressService.getByPid(pid));
     }
 
     /**
