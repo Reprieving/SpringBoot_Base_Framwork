@@ -31,14 +31,17 @@ public class ShoppingAddress {
     @Column(name = Shoper_province)
     private String shoperProvince; //购买者省份
 
+    @Column(name = Shoper_district)
+    private String shoperDistrict; //购买者省份
+
     @Column(name = Shoper_address)
     private String shoperAddress; //购买者详细地址
 
     @Column(name = Post_number)
     private String postNumber; //邮政编码
 
-    @Column(name = Is_default)
-    private Boolean isDefault; //默认标志
+    @Column(name = If_default)
+    private Boolean ifDefault; //默认标志
 
     @Column(name = Create_time)
     private Timestamp createTime; //
@@ -55,17 +58,16 @@ public class ShoppingAddress {
     public static final String Shoper_city = "shoper_city";
     public static final String Shoper_address = "shoper_address";
     public static final String Post_number = "post_number";
-    public static final String Is_default = "is_default";
+    public static final String If_default = "if_default";
+    public static final String Shoper_district = "shoper_district";
     public static final String Create_time = "create_time";
-
-
 
     public ShoppingAddress(){
 
     }
 
-    public ShoppingAddress(String addressId, Boolean isDefault) {
+    public ShoppingAddress(String addressId, Boolean ifDefault) {
         this.id = addressId;
-        this.isDefault = isDefault;
+        this.ifDefault = ifDefault;
     }
 }

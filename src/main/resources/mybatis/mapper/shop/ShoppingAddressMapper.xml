@@ -4,6 +4,6 @@
 <mapper namespace="com.balance.mapper.shop.ShoppingAddressMapper">
 
     <update id="updateDefault">
-        UPDATE shopping_address SET is_default = 0 WHERE id NOT IN (${addressId})
+        UPDATE shopping_address SET if_default = 0 WHERE id NOT IN (#{addressId})
     </update>
 </mapper>
