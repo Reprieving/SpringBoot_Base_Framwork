@@ -321,7 +321,7 @@ public class AppUserController {
      */
     @GetMapping("area")
     public Result<?> area() throws Exception {
-        URL resource = this.getClass().getResource("/data/area.json");
+        URL resource = this.getClass().getResource("/data/address.json");
         BufferedReader reader = null;
         StringBuilder sb = null;
         try {
@@ -336,7 +336,7 @@ public class AppUserController {
         } finally {
             reader.close();
         }
-        return ResultUtils.success(JSONObject.parseObject(sb.toString()));
+        return ResultUtils.success(JSONObject.parseArray(sb.toString()));
     }
 
     /**
