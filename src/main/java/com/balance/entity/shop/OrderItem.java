@@ -66,8 +66,11 @@ public class OrderItem implements Serializable{
     //spu id
     private String spuId;
 
-    //spu name
+    //spu名称
     private String spuName;
+
+    //spu描述
+    private String spuDescription;
 
     //spu默认图片
     private String imgUrl;

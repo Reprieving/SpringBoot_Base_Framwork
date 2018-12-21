@@ -4,6 +4,7 @@ import com.balance.architecture.service.BaseService;
 import com.balance.entity.user.UserAdvertisement;
 import com.balance.entity.user.UserVoucherRecord;
 import com.balance.mapper.user.UserMapper;
+import com.balance.mapper.user.UserVoucherMapper;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class UserVoucherService extends BaseService {
     private TransactionTemplate transactionTemplate;
 
     @Autowired
-    private UserMapper userMapper;
+    private UserVoucherMapper userVoucherMapper;
 
     /**
      * 获取用户拥有的卡券
@@ -29,7 +30,7 @@ public class UserVoucherService extends BaseService {
      * @return
      */
     public List<UserVoucherRecord> listUserVoucher(String userId) {
-        return userMapper.listUserVoucher(userId);
+        return userVoucherMapper.listUserVoucher(userId);
     }
 
 }

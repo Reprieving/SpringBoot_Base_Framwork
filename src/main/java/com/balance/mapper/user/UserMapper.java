@@ -40,18 +40,5 @@ public interface UserMapper {
      */
     User getUserInfo(@Param("userId")String userId);
 
-    /**
-     * 查询用户指定的卡券信息
-     * @param userId
-     * @return
-     */
-    List<UserVoucherRecord> listUserVoucher(@Param("userId") String userId);
 
-    /**
-     * 查找用户指定的卡券信息
-     * @param userId
-     * @param voucherId
-     * @return
-     */
-    UserVoucherRecord getUserVoucher(@Param("userId")String userId, @Param("voucherId")String voucherId);
 }

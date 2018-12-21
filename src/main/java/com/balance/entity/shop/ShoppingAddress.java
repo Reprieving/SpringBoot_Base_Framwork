@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 
 @Data
 @Alias("ShoppingAddress")
-@Table(name = "shopping_address")//购物车表
+@Table(name = "shopping_address")//收获地址表
 public class ShoppingAddress {
     @Id
     @Column(name = Id)
@@ -26,7 +26,7 @@ public class ShoppingAddress {
     private String shoperTel; //购物者手机号
 
     @Column(name = Shoper_city)
-    private String shoperCity; //购买者省份
+    private String shoperCity; //购买者城市
 
     @Column(name = Shoper_province)
     private String shoperProvince; //购买者省份

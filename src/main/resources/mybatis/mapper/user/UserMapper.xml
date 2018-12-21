@@ -55,24 +55,4 @@
         WHERE a.id = #{userId}
     </select>
 
-    <sql id="findUserVoucher">
-        SELECT
-        a.id,a.quantity,a.create_time,a.unable_time,a.status,b.voucher_name,b.voucher_type,b.description,c.shop_name
-      FROM user_voucher_record a
-        LEFT JOIN shop_voucher b ON a.voucher_id = b.id
-        LEFT JOIN shop_info c ON b.shop_id = c.id
-      WHERE a.user_id = #{userId} AND a.if_valid = 1
-    </sql>
-
-
-    <select id="listUserVoucher" resultMap="userVoucherRecordMap">
-        <include refid="findUserVoucher"/>
-    </select>
-
-    <select id="getUserVoucher" resultMap="userVoucherRecordMap">
-        <include refid="findUserVoucher"/>
-        AND b.id = #{voucherId}
-    </select>
-
-
 </mapper>

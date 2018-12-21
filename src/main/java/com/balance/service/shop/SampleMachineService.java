@@ -1,8 +1,17 @@
 package com.balance.service.shop;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.balance.client.RedisClient;
 import com.balance.constance.RedisKeyConst;
 import com.balance.entity.shop.SampleMachineLocation;
+import com.balance.entity.shop.SampleMachineSourceLocations;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.GeoResult;
@@ -10,11 +19,17 @@ import org.springframework.data.geo.GeoResults;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class SampleMachineService {
+
+    private static final Logger logger = LoggerFactory.getLogger(SampleMachineService.class);
 
     @Autowired
     private RedisClient redisClient;
@@ -48,11 +63,35 @@ public class SampleMachineService {
      * @param cityCode
      * @param sampleMachineLocations
      */
-    public void updateSampleMachineLocation(String cityCode,List<SampleMachineLocation> sampleMachineLocations){
-        String redisKey = RedisKeyConst.buildSampleMachineId(cityCode);
-        sampleMachineLocations.forEach(sl -> {
-            String member = sl.getSampleName()+":"+sl.getImgUrl()+":"+sl.getCoordinateX()+":"+sl.getCoordinateY();
-            redisClient.leftPush(redisKey,member);
+    public void updateSampleMachineLocation(String cityCode, List<SampleMachineLocation> sampleMachineLocations){
+        //扫码接口
+        GetMethod get = null;
+        String result = null;
+        try {
+            HttpClient client = new HttpClient();
+            get = new GetMethod("http://pinkjewelry.cn/pinkjewelry/officialAccounts/queryAllLongitudeAndLatitude");
+            client.executeMethod(get);
+            result = get.getResponseBodyAsString();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        } finally {
+            if(get!=null){
+                get.releaseConnection();
+            }
+        }
+
+        result = result.replace("null(","").replace(")","");
+        SampleMachineSourceLocations sls = JSON.parseObject(result,SampleMachineSourceLocations.class);
+
+        sls.getDatas().forEach(sl -> {
+            String redisKey = RedisKeyConst.buildSampleMachineId(sl.getId());
+            String member = sl.getName()+":"+" "+":"+sl.getLongitude()+":"+sl.getLatitude();
+            redisClient.cacheGeo(redisKey, sl.getLongitude(), sl.getLatitude(), member, -1L);
         });
+
+    }
+
+    public static void main(String[] args) {
+
     }
 }

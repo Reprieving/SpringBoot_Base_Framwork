@@ -20,6 +20,7 @@
             <result property="number" column="number"></result>
             <result property="totalPrice" column="total_price"></result>
             <result property="spuName" column="spu_name"></result>
+            <result property="spuName" column="spu_description"></result>
             <result property="imgUrl" column="default_img_url"></result>
             <result property="specJson" column="spec_json"></result>
             <result property="status" column="order_item_status"></result>
@@ -44,6 +45,7 @@
             b.status as order_item_status,
             c.id as spu_id,
             c.goods_name as spu_name,
+            c.goods_description as spu_description
             c.default_img_url,
             d.id as sku_id,
             d.spec_json

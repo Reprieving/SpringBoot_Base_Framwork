@@ -41,9 +41,9 @@ public class RedisKeyConst {
     }
 
     //小样机器坐标
-    public static final String SAMPLE_MACHINE_ID = "machineId:"+ SampleMachineLocation.CityCode;
-    public static String buildSampleMachineId(String cityCode) {
-        return SAMPLE_MACHINE_ID.replace(SampleMachineLocation.CityCode, cityCode);
+    public static final String SAMPLE_MACHINE_ID = "sampleMachineId:"+ SampleMachineLocation.machineId;
+    public static String buildSampleMachineId(String machineId) {
+        return SAMPLE_MACHINE_ID.replace(SampleMachineLocation.machineId, machineId);
     }
 
 

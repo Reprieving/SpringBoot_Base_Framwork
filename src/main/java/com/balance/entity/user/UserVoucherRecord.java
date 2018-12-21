@@ -5,6 +5,7 @@ import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
+import sun.misc.Version;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -43,6 +44,9 @@ public class UserVoucherRecord implements Serializable{
     @Column(name = Status)
     public Integer status;
 
+    @Column(name = Version)
+    public Integer version;
+
     //扩展属性
     public String voucherName;
     public Integer voucherType;
@@ -60,6 +64,7 @@ public class UserVoucherRecord implements Serializable{
     public static final String Unable_time = "unable_time";
     public static final String Description = "description";
     public static final String Status = "status";
+    public static final String Version = "version";
 
     public UserVoucherRecord(){}
 

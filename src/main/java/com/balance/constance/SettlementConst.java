@@ -7,4 +7,6 @@ public class SettlementConst {
     public static final int SETTLEMENT_ORE = 3;//矿石
     public static final int SETTLEMENT_COMPUTING_POWER = 4;//算力
     public static final int SETTLEMENT_CANDY = 5;//糖果
+
+    public static final int SETTLEMENT_VOUCHER = 6;//卡券抵扣
 }

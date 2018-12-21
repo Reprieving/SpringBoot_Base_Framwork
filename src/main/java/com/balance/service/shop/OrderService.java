@@ -5,6 +5,8 @@ import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.AssetTurnoverConst;
+import com.balance.constance.SettlementConst;
+import com.balance.constance.ShopConst;
 import com.balance.controller.app.req.ShopOrderSkuReq;
 import com.balance.entity.shop.*;
 import com.balance.entity.user.User;
@@ -12,12 +14,19 @@ import com.balance.entity.user.UserAssets;
 import com.balance.entity.user.UserVoucherRecord;
 import com.balance.mapper.shop.OrderMapper;
 import com.balance.mapper.user.UserMapper;
+import com.balance.mapper.user.UserVoucherMapper;
+import com.balance.service.common.WjSmsService;
 import com.balance.service.user.AssetsTurnoverService;
 import com.balance.service.user.UserAssetsService;
 import com.balance.utils.BigDecimalUtils;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
@@ -26,6 +35,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -36,6 +46,8 @@ import java.util.Map;
 
 @Service
 public class OrderService extends BaseService {
+
+    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -57,6 +69,10 @@ public class OrderService extends BaseService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private UserVoucherMapper userVoucherMapper;
+
     /**
      * 商城下单
      *
@@ -88,7 +104,7 @@ public class OrderService extends BaseService {
                     String skuOrSpuId;
                     BigDecimal skuOrSpuPrice;
 
-                    if(StringUtils.isNotBlank(orderSkuReq.getSpecIdStr())){//有sku的商品计算价格
+                    if (StringUtils.isNotBlank(orderSkuReq.getSpecIdStr())) {//有sku的商品计算价格
                         Map<String, Object> skuWhereMap = ImmutableMap.of(GoodsSku.Spu_id + " = ", spuId, GoodsSku.Spec_json + " = ", orderSkuReq.getSpecIdStr());
                         GoodsSku goodsSku = selectOneByWhereMap(skuWhereMap, GoodsSku.class);
                         ValueCheckUtils.notEmpty(goodsSku, "未找到商品");
@@ -98,7 +114,7 @@ public class OrderService extends BaseService {
                         }
                         skuOrSpuId = goodsSku.getId();
                         skuOrSpuPrice = goodsSku.getPrice();
-                    }else {//没有sku的商品计算价格
+                    } else {//没有sku的商品计算价格
                         skuOrSpuId = spuId;
                         skuOrSpuPrice = goodsSpu.getLowPrice();
                     }
@@ -162,31 +178,79 @@ public class OrderService extends BaseService {
 
     /**
      * 扫码领取小样
-     * @param userId 用户id
-     * @param spuId 商品id
-     * @param aisleCode 小样编码
+     *
+     * @param userId      用户id
+     * @param spuId       商品id
+     * @param aisleCode   小样编码
      * @param machineCode 小样机器编码
      */
-    public void obtainBeautyOnScan(String userId,String spuId,String aisleCode,String machineCode){
+    public void obtainBeautyOnScan(String userId, String spuId, String aisleCode, String machineCode) {
+        User user = selectOneById(userId, User.class);
+        if (StringUtils.isBlank(user.getWxOpenId())) {
+            throw new BusinessException("请绑定微信号后再扫码领取");
+        }
+
+        //扫码接口
+        PostMethod post = null;
+        try {
+            HttpClient client = new HttpClient();
+            post = new PostMethod("http://pinkjewelry.cn/pinkjewelry/payment/freeCollenctionGoods");
+            post.addRequestHeader("Article_content-Type", "application/x-www-form-urlencoded;charset=utf-8");//在头文件中设置转码
+            NameValuePair[] data = {new NameValuePair("openid", user.getWxOpenId()), new NameValuePair("aisle_code", aisleCode), new NameValuePair("machine_code", machineCode)};
+            post.setRequestBody(data);
+            client.executeMethod(post);
+            String result = new String(post.getResponseBodyAsString().getBytes("utf-8"));
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        } finally {
+            if(post!=null){
+                post.releaseConnection();
+            }
+        }
+
+
+        //获取小样信息接口
 
     }
 
 
     /**
      * 卡券兑换礼包
+     *
      * @param userId 用户id
-     * @param spuId 商品id
+     * @param spuId  商品id
      */
-    public void exchangeSpuPackage(String userId,String voucherId,String spuId){
-        UserVoucherRecord userVoucherRecord = userMapper.getUserVoucher(userId,voucherId);
-        if(shopVoucherService.checkIfPackageVoucher(userVoucherRecord.getVoucherType())){
-            //创建订单
+    public void exchangeSpuPackage(String userId, String voucherId, String spuId, String addressId) {
+        UserVoucherRecord userVoucherRecord = userVoucherMapper.getUserVoucher(userId, voucherId);
+        if (userVoucherRecord.getQuantity() == 0) {
+            throw new BusinessException("卡券已用光");
+        }
 
-
+        if (shopVoucherService.checkIfPackageVoucher(userVoucherRecord.getVoucherType())) {
             //扣除用户优惠券数量
+            if (userVoucherMapper.decreaseQuantity(userVoucherRecord.getId(), userVoucherRecord.getVersion()) == 0) {
+                throw new BusinessException("兑换失败");
+            }
 
+            //创建订单
+            ShopInfo officialShop = selectOneById(ShopConst.SHOP_OFFICIAL, ShopInfo.class);
+            ValueCheckUtils.notEmpty(officialShop, "未找到商铺");
+            GoodsSpu goodsSpu = selectOneById(spuId, GoodsSpu.class);
+            ValueCheckUtils.notEmpty(goodsSpu, "未找到商品");
 
-        }else {
+            User user = selectOneById(userId, User.class);
+            String shopId = officialShop.getId();
+            Integer settlementId = SettlementConst.SETTLEMENT_VOUCHER;
+            BigDecimal orderTotalPrice = goodsSpu.getLowPrice();
+
+            String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
+            OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, orderTotalPrice);
+
+            if (insertIfNotNull(orderInfo) == 0) {
+                throw new BusinessException("兑换失败");
+            }
+
+        } else {
             throw new BusinessException("暂只支持年卡会员卡券，生日卡券使用");
         }
 
