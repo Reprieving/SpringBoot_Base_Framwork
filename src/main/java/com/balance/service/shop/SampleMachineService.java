@@ -91,7 +91,4 @@ public class SampleMachineService {
 
     }
 
-    public static void main(String[] args) {
-
-    }
 }

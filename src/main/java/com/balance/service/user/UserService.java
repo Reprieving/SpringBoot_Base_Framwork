@@ -70,8 +70,6 @@ public class UserService extends BaseService {
     @Autowired
     private UserSendService userSendService;
 
-    @Autowired
-    private UserVoucherService userVoucherService;
     /**
      * 注册用户
      *
@@ -124,8 +122,6 @@ public class UserService extends BaseService {
 
             }
         });
-
-
     }
 
     /**

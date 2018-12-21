@@ -49,7 +49,7 @@ public class ShopConst {
     public static final int VOUCHER_TYPE_DEDUCTION = 1; //抵扣券
     public static final int VOUCHER_TYPE_BEAUTY_PACKAGE_DEDUCTION = 11; //小样礼包抵扣券
     public static final int VOUCHER_TYPE_BIRTH_PACKAGE_DEDUCTION = 12; //生日礼包抵扣券
-    public static final int VOUCHER_TYPE_PACKAGE_DISCOUNT = 11; //折扣券
+    public static final int VOUCHER_TYPE_PACKAGE_DISCOUNT = 2; //折扣券
 
     //卡券状态
     public static final int VOUCHER_STATUS_UNUSER = 0; //未使用

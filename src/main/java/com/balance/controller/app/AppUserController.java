@@ -1,6 +1,7 @@
 package com.balance.controller.app;
 
 import com.alibaba.fastjson.JSONObject;
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.utils.JwtUtils;
@@ -9,15 +10,13 @@ import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.client.RedisClient;
 import com.balance.constance.RedisKeyConst;
 import com.balance.constance.UserConst;
+import com.balance.controller.app.req.PaginationReq;
 import com.balance.controller.app.req.UserLocation;
 import com.balance.entity.shop.SampleMachineLocation;
 import com.balance.entity.user.*;
 import com.balance.service.common.WjSmsService;
 import com.balance.service.shop.SampleMachineService;
-import com.balance.service.user.CertificationService;
-import com.balance.service.user.UserAssetsService;
-import com.balance.service.user.UserSendService;
-import com.balance.service.user.UserService;
+import com.balance.service.user.*;
 import com.balance.utils.RandomUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.units.qual.A;
@@ -50,13 +49,16 @@ public class AppUserController {
     private UserAssetsService userAssetsServices;
 
     @Autowired
+    private UserMemberService userMemberService;
+
+    @Autowired
     private CertificationService certificationService;
 
     @Autowired
     private SampleMachineService sampleMachineService;
 
     @Autowired
-    private RedisClient redisClient;
+   private RedisClient redisClient;
 
     /**
      * 发送短信
@@ -446,6 +448,31 @@ public class AppUserController {
         update.setPhoneNumber(phoneNumber);
         userService.updateIfNotNull(update);
         return ResultUtils.success();
+    }
+
+    /**
+     * 办理年卡会员
+     * @param request
+     * @return
+     */
+    @RequestMapping("member/become")
+    public Result<?> becomeMember(HttpServletRequest request) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        userMemberService.becomeMember(userId,UserConst.USER_MEMBER_TYPE_COMMON);
+        return ResultUtils.success("办理年卡会员成功");
+    }
+
+    /**
+     * 公告和广告图
+     * @param request
+     * @param pagination
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @RequestMapping("announceAndAd")
+    public Result<?> announceAndAd(HttpServletRequest request,Pagination pagination) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        return ResultUtils.success(userService.listAnnounceAndAd(pagination));
     }
 
 }

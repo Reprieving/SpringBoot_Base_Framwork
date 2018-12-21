@@ -1,8 +1,11 @@
 package com.balance.controller.app;
 
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
+import com.balance.controller.app.req.GoodsExchangeReq;
+import com.balance.controller.app.req.GoodsScanReq;
 import com.balance.controller.app.req.PaginationReq;
 import com.balance.controller.app.req.ShopOrderSkuReq;
 import com.balance.entity.shop.GoodsCollection;
@@ -12,6 +15,7 @@ import com.balance.entity.shop.GoodsSpu;
 import com.balance.service.shop.GoodsSkuService;
 import com.balance.service.shop.GoodsSpecService;
 import com.balance.service.shop.GoodsSpuService;
+import com.balance.service.shop.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,14 +36,18 @@ public class AppGoodsController {
     @Autowired
     private GoodsSkuService goodsSkuService;
 
+    @Autowired
+    private OrderService orderService;
+
     /**
      * 查询商品
+     *
      * @param goodsSpu
      * @return
      */
     @RequestMapping("spuList")
-    public Result<?> spuList( GoodsSpu goodsSpu) {
-        List<GoodsSpu> goodsSpuList = goodsSpuService.listGoodsSpu(goodsSpu, goodsSpu.getPagination());
+    public Result<?> spuList(GoodsSpu goodsSpu) {
+        List<GoodsSpu> goodsSpuList = goodsSpuService.listGoodsSpu(goodsSpu, goodsSpu.buildPagination());
         return ResultUtils.success(goodsSpuList);
     }
 
@@ -89,14 +97,36 @@ public class AppGoodsController {
      * 用户商品收藏列表
      *
      * @param request
-     * @param paginationReq
+     * @param pagination
      * @return
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("collection")
-    public Result<?> collection(HttpServletRequest request, PaginationReq paginationReq) throws UnsupportedEncodingException {
+    public Result<?> collection(HttpServletRequest request, Pagination pagination) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        List<GoodsCollection> goodsCollections = goodsSpuService.listGoodsCollection(userId, paginationReq.getPagination());
+        List<GoodsCollection> goodsCollections = goodsSpuService.listGoodsCollection(userId, pagination);
         return ResultUtils.success(goodsCollections);
+    }
+
+    /**
+     * 兑换小样礼包
+     *
+     * @param request
+     * @param paramReq
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @RequestMapping("beauty/exchange/")
+    public Result<?> exchangeBeauty(HttpServletRequest request, GoodsExchangeReq paramReq) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        orderService.exchangeSpuPackage(userId, paramReq.getVoucherId(), paramReq.getSpuId(), paramReq.getAddressId());
+        return ResultUtils.success("兑换小样");
+    }
+
+    @RequestMapping("beauty/scan/")
+    public Result<?> scanBeauty(HttpServletRequest request, GoodsScanReq paramReq) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        orderService.scanBeauty(userId, paramReq.getAisleCode(), paramReq.getMachineCode());
+        return ResultUtils.success("兑换小样");
     }
 }

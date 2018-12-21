@@ -50,6 +50,7 @@ public class UserVoucherRecord implements Serializable{
     //扩展属性
     public String voucherName;
     public Integer voucherType;
+    public String shopId;
     public String shopName;
     public String description;
 

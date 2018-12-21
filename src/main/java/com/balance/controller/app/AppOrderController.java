@@ -30,9 +30,8 @@ public class AppOrderController {
      * @return
      */
     @RequestMapping("list/{orderStatus}")
-    public Result<?> list(HttpServletRequest request, @PathVariable("orderStatus")Integer orderStatus, @RequestBody PaginationReq paginationReq) throws UnsupportedEncodingException {
+    public Result<?> list(HttpServletRequest request, @PathVariable("orderStatus")Integer orderStatus, Pagination pagination) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        Pagination pagination = paginationReq.getPagination();
         List<OrderGoodsInfo> orderInfoList = orderService.listAppOrderGoodsInfo(userId,orderStatus,pagination);
         return ResultUtils.success(orderInfoList);
     }

@@ -10,13 +10,14 @@
         <result property="voucherName" column="voucher_name"></result>
         <result property="voucherType" column="voucher_type"></result>
         <result property="description" column="description"></result>
+        <result property="shopId" column="shop_id"></result>
         <result property="shopName" column="shop_name"></result>
         <result property="status" column="status"></result>
     </resultMap>
 
     <sql id="findUserVoucher">
         SELECT
-        a.id,a.quantity,a.create_time,a.unable_time,a.status,b.voucher_name,b.voucher_type,b.description,c.shop_name
+        a.id,a.quantity,a.create_time,a.unable_time,a.status,b.voucher_name,b.voucher_type,b.description,c.id AS shop_id,c.shop_name
       FROM user_voucher_record a
         LEFT JOIN shop_voucher b ON a.voucher_id = b.id
         LEFT JOIN shop_info c ON b.shop_id = c.id

@@ -80,8 +80,12 @@ public class GoodsSpu implements Serializable{
     private String categoryName;
     //品牌名
     private String brandName;
-    //分页
+    //分页对象
     private Pagination pagination;
+    //分页页码
+    private Integer pageNum;
+    //分页条目数
+    private Integer pageSize;
     //所有图片集合
     private List<GoodsImg> allImg;
     //默认图对象
@@ -100,6 +104,8 @@ public class GoodsSpu implements Serializable{
     private Timestamp endTime;
     //规格名Id
     private List<String> specNameIdList;
+
+
 
     //DB Column name
     public static final String Id = "id";
@@ -120,4 +126,11 @@ public class GoodsSpu implements Serializable{
     public static final String Spu_type = "spu_type";
     public static final String Status = "status";
     public static final String If_valid = "if_valid";
+
+    public Pagination buildPagination() {
+        Pagination pagination =  new Pagination();
+        pagination.setPageNum(this.pageNum);
+        pagination.setPageSize(this.pageSize);
+        return pagination;
+    }
 }

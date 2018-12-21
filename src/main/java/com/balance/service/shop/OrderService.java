@@ -180,11 +180,10 @@ public class OrderService extends BaseService {
      * 扫码领取小样
      *
      * @param userId      用户id
-     * @param spuId       商品id
      * @param aisleCode   小样编码
      * @param machineCode 小样机器编码
      */
-    public void obtainBeautyOnScan(String userId, String spuId, String aisleCode, String machineCode) {
+    public void scanBeauty(String userId, String aisleCode, String machineCode) {
         User user = selectOneById(userId, User.class);
         if (StringUtils.isBlank(user.getWxOpenId())) {
             throw new BusinessException("请绑定微信号后再扫码领取");
@@ -207,7 +206,6 @@ public class OrderService extends BaseService {
                 post.releaseConnection();
             }
         }
-
 
         //获取小样信息接口
 
