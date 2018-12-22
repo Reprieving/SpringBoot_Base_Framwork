@@ -5,6 +5,7 @@ import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.client.RedisClient;
+import com.balance.constance.CommonConst;
 import com.balance.constance.InformationConst;
 import com.balance.constance.MissionConst;
 import com.balance.constance.RedisKeyConst;
@@ -16,13 +17,14 @@ import com.balance.mapper.information.ArticleMapper;
 import com.balance.service.mission.MissionCompleteService;
 import com.balance.service.mission.MissionService;
 import com.google.common.collect.ImmutableMap;
-import org.checkerframework.checker.units.qual.A;
+import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,19 +48,29 @@ public class ArticleService extends BaseService {
 
     /**
      * 发布文章
+     *
      * @param userId
      * @param article
      */
-    public void createArticle(String userId,Article article){
-        if(InformationConst.ARTICLE_TYPE_ANNOUNCE == article.getArticleType() || InformationConst.ARTICLE_TYPE_ACTIVITY == article.getArticleType()){
-            Subscriber subscriber = selectOneById(userId,Subscriber.class);
-            ValueCheckUtils.notEmpty(subscriber,"非管理员用户不能发布公告和活动");
+    public void createArticle(String userId, Article article) {
+        if (true) {
+            Subscriber subscriber = selectOneById(userId, Subscriber.class);
+            ValueCheckUtils.notEmpty(subscriber, "非管理员用户不能发布公告和活动");
         }
         article.setCreateBy(userId);
         Integer i = insertIfNotNull(article);
-        if(i == 0){
+        if (i == 0) {
             throw new BusinessException("发布文章失败");
         }
+    }
+
+    public List<Article> getListByType(int articleType) {
+        HashMap<String, Object> params = Maps.newHashMap();
+        params.put("ifValid", 1);
+        params.put("articleType", articleType);
+        params.put("startRow", 0);
+        params.put("pageSize", 10);
+        return articleMapper.selectByPage(params);
     }
 
     /**
@@ -68,9 +80,9 @@ public class ArticleService extends BaseService {
      * @param articleType InformationConst.ARTICLE_TYPE_*
      * @return
      */
-    public List<Article> listArticle(String userId, Integer articleType,Pagination pagination) {
+    public List<Article> listArticle(String userId, Integer articleType, Pagination pagination) {
         Map<String, Object> whereMap = ImmutableMap.of(Article.Article_type + "=", articleType);
-        List<Article> articles =  selectListByWhereMap(whereMap, pagination, Article.class);
+        List<Article> articles = selectListByWhereMap(whereMap, pagination, Article.class);
         articles.stream().forEach(article -> {
             String articleId = article.getId();
             article.setIfLike((Integer) redisClient.getHashKey(userId, RedisKeyConst.buildUserIdLikeArticleId(userId, articleId)));//是否点赞
@@ -105,11 +117,12 @@ public class ArticleService extends BaseService {
 
     /**
      * 根据id查询文章
+     *
      * @param articleId
      * @return
      */
-    public Article getArticleById(String articleId){
-        return selectOneById(articleId,Article.class);
+    public Article getArticleById(String articleId) {
+        return selectOneById(articleId, Article.class);
     }
 
     /**
@@ -187,6 +200,7 @@ public class ArticleService extends BaseService {
             }
         });
     }
+
 
     public Pagination getByPage(Map<String, Object> params) {
         Pagination pagination = new Pagination();

@@ -29,10 +29,16 @@ public class Article implements Serializable{
     private String articleContent; //内容
 
     @Column(name = Article_type)
-    private Integer articleType;//文章类型InformationConst.ARTICLE_TYPE_*
+    private Integer articleType;//文章类型 InformationConst
+
+    @Column(name = Content_type)
+    private Integer contentType; //内容类型 1. 空 2: 链接, 3:富文本, 4:商品
 
     @Column(name = IfValid)
     private Boolean ifValid; //有效性
+
+    @Column(name = Sort)
+    private Integer sort; //排序 大的排前面
 
     @Column(name = VerifyStatus)
     private Integer verifyStatus; //审核状态
@@ -54,7 +60,9 @@ public class Article implements Serializable{
     public static final String Article_cover = "article_cover";
     public static final String Article_content = "article_content";
     public static final String Article_type = "article_type";
+    public static final String Content_type = "content_type";
     public static final String IfValid = "if_valid";
+    public static final String Sort = "sort";
     public static final String VerifyStatus = "verify_status";
     public static final String CreateBy = "create_by";
     public static final String CreateTime = "create_time";

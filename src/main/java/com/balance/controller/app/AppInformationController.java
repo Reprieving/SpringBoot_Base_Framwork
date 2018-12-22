@@ -29,14 +29,12 @@ public class AppInformationController {
     /**
      * 按类型查询文章列表
      *
-     * @param request
      * @param articleType
      * @return
      */
     @RequestMapping("article/list/{articleType}")
-    public Result<?> articleList(HttpServletRequest request, @PathVariable Integer articleType, Pagination pagination) throws UnsupportedEncodingException {
-        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        return ResultUtils.success(articleService.listArticle(userId, articleType, pagination));
+    public Result<?> articleList(@PathVariable Integer articleType) {
+        return ResultUtils.success(articleService.getListByType(articleType));
     }
 
     /**
