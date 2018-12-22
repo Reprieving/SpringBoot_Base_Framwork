@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
-import java.sql.Timestamp;
 import java.util.List;
 
 @RestController
@@ -105,7 +104,7 @@ public class AppUserController {
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("info/update")
-    public Result<?> updateInfo(HttpServletRequest request, String userName, Integer sex, String location, Timestamp birthday) throws BusinessException, UnsupportedEncodingException {
+    public Result<?> updateInfo(HttpServletRequest request, String userName, Integer sex, String location, String birthday) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         userService.updateInfo(userName, sex, location, birthday, userId);
         return ResultUtils.success();

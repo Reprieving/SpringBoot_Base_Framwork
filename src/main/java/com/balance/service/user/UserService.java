@@ -39,6 +39,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -184,7 +186,7 @@ public class UserService extends BaseService {
     /**
      * 修改用户信息
      */
-    public void updateInfo(String userName, Integer sex, String location, Timestamp birthday, String userId) {
+    public void updateInfo(String userName, Integer sex, String location, String birthday, String userId) {
         User user = new User();
         user.setId(userId);
         if (StringUtils.isNotBlank(userName)) {
@@ -199,7 +201,18 @@ public class UserService extends BaseService {
         } else if(StringUtils.isNotBlank(location)) {
             user.setLocation(addressService.getLocation(location));
         } else if(birthday != null) {
-            user.setBirthday(birthday);
+            Timestamp b;
+            try {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date = simpleDateFormat.parse(birthday);
+                if (date.compareTo(new Date()) > 0) {
+                    throw new BusinessException("生日不能大于当前时间");
+                }
+                b = new Timestamp(date.getTime());
+            } catch (ParseException e) {
+                throw new BusinessException("日期格式错误");
+            }
+            user.setBirthday(b);
         } else {
             throw new BusinessException("缺少更新数据");
         }
