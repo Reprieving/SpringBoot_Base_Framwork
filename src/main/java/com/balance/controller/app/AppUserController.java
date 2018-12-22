@@ -1,7 +1,5 @@
 package com.balance.controller.app;
 
-import com.alibaba.fastjson.JSONObject;
-import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.utils.JwtUtils;
@@ -10,29 +8,18 @@ import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.client.RedisClient;
 import com.balance.constance.RedisKeyConst;
 import com.balance.constance.UserConst;
-import com.balance.controller.app.req.PaginationReq;
 import com.balance.controller.app.req.UserLocation;
 import com.balance.entity.shop.SampleMachineLocation;
 import com.balance.entity.user.*;
 import com.balance.service.common.AddressService;
-import com.balance.service.common.WjSmsService;
 import com.balance.service.shop.SampleMachineService;
 import com.balance.service.user.*;
-import com.balance.utils.RandomUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -194,15 +181,16 @@ public class AppUserController {
      * 申请实名认证
      *
      * @param request
-     * @param files
+     * @param frontFiles
+     * @param backFiles
      * @return
      * @throws BusinessException
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("cert")
-    public Result<?> cert(HttpServletRequest request, MultipartFile[] files) throws BusinessException, UnsupportedEncodingException {
+    public Result<?> cert(HttpServletRequest request,String realName,String licenseNumber, MultipartFile frontFiles,MultipartFile backFiles) throws BusinessException, UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        certificationService.createCert(userId, files);
+        certificationService.createCert(userId, realName,licenseNumber,frontFiles,backFiles);
         return ResultUtils.success("申请实名认证成功");
     }
 
@@ -450,27 +438,14 @@ public class AppUserController {
     }
 
     /**
-     * 公告和广告图
-     * @param request
-     * @param pagination
-     * @return
-     * @throws UnsupportedEncodingException
-     */
-    @RequestMapping("announceAndAd")
-    public Result<?> announceAndAd(HttpServletRequest request,Pagination pagination) throws UnsupportedEncodingException {
-        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        return ResultUtils.success(userService.listAnnounceAndAd(pagination));
-    }
-
-    /**
      * wx用户同步数据
-     * @param request
      * @return
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping("synchronizing/wx")
-    public Result<?> synchronizingWX(HttpServletRequest request,@RequestParam("userStr") String userStr){
-        return ResultUtils.success();
+    @RequestMapping("wx/synchronizing")
+    public Result<?> synchronizingWX(@RequestParam("userStr") String userStr){
+        userService.synchronizingWX(userStr);
+        return ResultUtils.success("数据同步成功");
     }
 
 }

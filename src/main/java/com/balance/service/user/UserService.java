@@ -1,5 +1,6 @@
 package com.balance.service.user;
 
+import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
@@ -20,6 +21,7 @@ import com.balance.service.mission.MissionService;
 import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,7 +136,7 @@ public class UserService extends BaseService {
     public User login(User user) throws UnsupportedEncodingException {
         //验证码校验
         String userId = user.getUserId();
-        ValueCheckUtils.notEmpty(userId,"用户id不能为空");
+        ValueCheckUtils.notEmpty(userId, "用户id不能为空");
         userSendService.validateMsgCode(userId, user.getPhoneNumber(), user.getMsgCode(), UserConst.MSG_CODE_TYPE_LOGINANDREGISTER);
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put(User.Phone_number + "=", user.getPhoneNumber());
@@ -144,7 +146,7 @@ public class UserService extends BaseService {
         if (user1 == null) {
             ifRegister = false;
             userService.createUser(user);
-            user1 = selectOneById(user.getId(),User.class);
+            user1 = selectOneById(user.getId(), User.class);
         }
 
         user1.setPassword("");
@@ -162,7 +164,7 @@ public class UserService extends BaseService {
      * @param userId 用户id
      * @param file   头像图片
      */
-    public String updateHeadPic(String userId, @RequestParam("file")MultipartFile file) {
+    public String updateHeadPic(String userId, @RequestParam("file") MultipartFile file) {
         String fileDirectory = DateFormatUtils.format(new Date(), "yyyy-MM-dd|HH");
         String imgUrl = aliOSSBusiness.uploadCommonPic(file, fileDirectory);
 
@@ -215,6 +217,9 @@ public class UserService extends BaseService {
         List<User> directUserList = new ArrayList<>();
         for (Iterator it = allUser.iterator(); it.hasNext(); ) {
             User user = (User) it.next();
+            if (user.getInviteId() == null) {
+                continue;
+            }
             if (user.getInviteId().equals(userId)) {
                 directUserList.add(user);
                 it.remove();
@@ -225,6 +230,9 @@ public class UserService extends BaseService {
         List<User> inDirectUserList = new ArrayList<>();
         for (User user1 : allUser) {
             for (User user2 : directUserList) {
+                if (user1.getInviteId() == null) {
+                    continue;
+                }
                 if (user1.getInviteId().equals(user2.getId())) {
                     inDirectUserList.add(user1);
                 }
@@ -346,55 +354,75 @@ public class UserService extends BaseService {
 
     /**
      * 更新用户的邀请用户id
+     *
      * @param userId
      */
-    public void updateInviteCode(String userId,String inviteCode) {
-        ValueCheckUtils.notEmpty(inviteCode,"邀请码不能为空");
+    public void updateInviteCode(String userId, String inviteCode) {
+        ValueCheckUtils.notEmpty(inviteCode, "邀请码不能为空");
         User inviteUser = selectOneByWhereString(User.Invite_code + " = ", inviteCode, User.class);
-        if(inviteUser==null){
+        if (inviteUser == null) {
             throw new BusinessException("邀请码错误,请重新输入");
         }
         String inviteId = inviteUser.getId();
-        User user = selectOneById(userId,User.class);
-        if(user.getInviteId()!=null){
+        User user = selectOneById(userId, User.class);
+        if (user.getInviteId() != null) {
             throw new BusinessException("该用户已设置邀请Id");
         }
         user.setId(userId);
         user.setInviteId(inviteId);
-        if(updateIfNotNull(user)==0){
+        if (updateIfNotNull(user) == 0) {
             throw new BusinessException("更新邀请用户ID失败");
         }
     }
 
     /**
      * 获取用户所有信息
+     *
      * @param userId
      * @return
      */
     public User allUserInfo(String userId) {
         User user = userMapper.getUserInfo(userId);
-        if(user.getCertStatus() == null){
+        if (user.getCertStatus() == null) {
             user.setCertStatus(UserConst.USER_CERT_STATUS_NONE);
         }
         return user;
     }
 
-
     /**
-     * 获取公告和首页广告
-     * @return
+     * 微信用户同步
+     *
+     * @param userStr
      */
-    public Map<String,Object> listAnnounceAndAd(Pagination pagination){
-        Map<String,Object> announceWhereMap = ImmutableMap.of(Article.Article_type+"=", InformationConst.ARTICLE_TYPE_ANNOUNCE);
-        Map<String,Object> orderMap = ImmutableMap.of(Article.CreateTime, CommonConst.MYSQL_DESC);
-        List<Article> announceList = selectListByWhereMap(announceWhereMap,pagination,Article.class,orderMap);
-
-        List<UserAdvertisement> userAdvertisements = selectAll(null,UserAdvertisement.class);
-
-        return ImmutableMap.of("announceList",announceList,"userAdvertisements",userAdvertisements);
+    public void synchronizingWX(String userStr) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                if (CommonConst.WX_USER_SYNCHRONIZED) {
+                    if(StringUtils.isBlank(userStr)){
+                        throw new BusinessException("用户字符串不能为空");
+                    }
+                    List<User> userList = JSONObject.parseArray(userStr, User.class);
+                    CommonConst.WX_USER_SYNCHRONIZED = false;
+                    for (User user : userList) {
+                        if (StringUtils.isBlank(user.getWxOpenId())) {
+                            continue;
+                        }
+                        UserInviteCodeId userInviteCodeId = new UserInviteCodeId();
+                        autoIncreaseIdMapper.insertUserInviteCode(userInviteCodeId);
+                        user.setInviteCode(RandomUtil.randomInviteCode(userInviteCodeId.getId()));
+                    }
+                    try {
+                        insertBatch(userList,false);
+                    } catch (Exception e) {
+                        CommonConst.WX_USER_SYNCHRONIZED = true;
+                        throw new BusinessException("同步用户数据失败");
+                    }
+                    CommonConst.WX_USER_SYNCHRONIZED = true;
+                } else {
+                    throw new BusinessException("数据正在同步,请稍后再试");
+                }
+            }
+        });
     }
-
-
-
-
 }

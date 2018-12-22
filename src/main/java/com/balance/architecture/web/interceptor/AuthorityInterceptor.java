@@ -17,7 +17,8 @@ import java.util.List;
 @Component
 public class AuthorityInterceptor implements HandlerInterceptor {
 
-    private static final List<String> excludePath = new ArrayList<>(Arrays.asList("/admin/subscriber/login","/app/user/msg/send","/app/user/login"));
+    private static final List<String> excludePath = new ArrayList<>(Arrays.asList(
+            "/admin/subscriber/login","/app/user/msg/send","/app/user/login","/app/user/wx/synchronizing"));
 
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {

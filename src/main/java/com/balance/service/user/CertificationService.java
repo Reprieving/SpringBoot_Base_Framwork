@@ -3,6 +3,7 @@ package com.balance.service.user;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.MissionConst;
 import com.balance.constance.UserConst;
 import com.balance.entity.mission.Mission;
@@ -46,36 +47,34 @@ public class CertificationService extends BaseService {
 
     /**
      * app端申请实名认证
-     *
-     * @param userId 用户id
-     * @param files  图片
+     *  @param userId 用户id
+     * @param realName
+     * @param licenseNumber
+     * @param frontFiles  图片
+     * @param backFiles  图片
      */
-    public void createCert(String userId, MultipartFile[] files) {
+    public void createCert(String userId, String realName, String licenseNumber, MultipartFile frontFiles, MultipartFile backFiles) {
         Certification certificationPo = selectOneByWhereString(Certification.User_id + "= ", userId, Certification.class);
-        if (UserConst.USER_CERT_STATUS_NONE == certificationPo.getStatus()) {
-            throw new BusinessException("该用户处于认证中状态,请勿重复提交");
-        }
-        if (UserConst.USER_CERT_STATUS_PASS == certificationPo.getStatus()) {
-            throw new BusinessException("该用户已通过认证.请勿重复提交");
-        }
-
-        Certification certification = new Certification();
-        String fileDirectory = DateFormatUtils.format(new Date(), "yyyy-MM-dd|HH");
-        for (MultipartFile file : files) {
-            switch (file.getName()) {
-                case UserConst.APPLY_CERT_PIC_TYPE_FRONT:
-                    certification.setPositivePhotoUrl(aliOSSBusiness.uploadSensitivePic(file, fileDirectory));
-                    break;
-                case UserConst.APPLY_CERT_PIC_TYPE_BACK:
-                    certification.setReversePhotoUrl(aliOSSBusiness.uploadSensitivePic(file, fileDirectory));
-                    break;
-                case UserConst.APPLY_CERT_PIC_TYPE_HANDLER:
-                    certification.setHandlePhotoUrl(aliOSSBusiness.uploadSensitivePic(file, fileDirectory));
-                    break;
+        if (certificationPo != null) {
+            if (UserConst.USER_CERT_STATUS_NONE == certificationPo.getStatus()) {
+                throw new BusinessException("该用户处于认证中状态,请勿重复提交");
+            }
+            if (UserConst.USER_CERT_STATUS_PASS == certificationPo.getStatus()) {
+                throw new BusinessException("该用户已通过认证.请勿重复提交");
             }
         }
 
+        ValueCheckUtils.notEmpty(frontFiles,"证件正面图不能为空");
+        ValueCheckUtils.notEmpty(frontFiles,"证件背面图不能为空");
+
+        Certification certification = new Certification();
+        String fileDirectory = DateFormatUtils.format(new Date(), "yyyy-MM-dd|HH");
+        certification.setPositivePhotoUrl(aliOSSBusiness.uploadCommonPic(frontFiles, fileDirectory));
+        certification.setReversePhotoUrl(aliOSSBusiness.uploadCommonPic(backFiles, fileDirectory));
+
         certification.setUserId(userId);
+        certification.setRealName(realName);
+        certification.setLicenseNumber(licenseNumber);
 
         Integer i = insertIfNotNull(certification);
         if (i == 0) {
