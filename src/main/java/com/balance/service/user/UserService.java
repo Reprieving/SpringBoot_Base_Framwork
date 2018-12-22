@@ -14,6 +14,7 @@ import com.balance.entity.mission.Mission;
 import com.balance.entity.user.*;
 import com.balance.mapper.common.AutoIncreaseIdMapper;
 import com.balance.mapper.user.UserMapper;
+import com.balance.service.common.AddressService;
 import com.balance.service.common.AliOSSBusiness;
 import com.balance.service.mission.MissionCompleteService;
 import com.balance.service.mission.MissionService;
@@ -21,7 +22,7 @@ import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.springframework.beans.BeanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
@@ -69,6 +70,9 @@ public class UserService extends BaseService {
 
     @Autowired
     private UserSendService userSendService;
+
+    @Autowired
+    private AddressService addressService;
 
     /**
      * 注册用户
@@ -178,17 +182,29 @@ public class UserService extends BaseService {
     }
 
     /**
-     * 修改用户名
+     * 修改用户信息
      */
-    public void updateUserName(User user) {
-        Map<String, Object> whereMap = ImmutableMap.of(User.User_name + "=", user.getUserName(), User.Id + "!=", user.getId());
-        User userPo = selectOneByWhereMap(whereMap, User.class);
-        if (userPo != null) {
-            throw new BusinessException("用户昵称已存在");
+    public void updateInfo(String userName, Integer sex, String location, Timestamp birthday, String userId) {
+        User user = new User();
+        user.setId(userId);
+        if (StringUtils.isNotBlank(userName)) {
+            user.setUserName(userName);
+            Map<String, Object> whereMap = ImmutableMap.of(User.User_name + "=", userName, User.Id + "!=", userId);
+            User userPo = selectOneByWhereMap(whereMap, User.class);
+            if (userPo != null) {
+                throw new BusinessException("用户昵称已存在");
+            }
+        } else if(sex != null && (sex == 1 || sex == 2)){
+            user.setSex(sex);
+        } else if(StringUtils.isNotBlank(location)) {
+            user.setLocation(addressService.getLocation(location));
+        } else if(birthday != null) {
+            user.setBirthday(birthday);
+        } else {
+            throw new BusinessException("缺少更新数据");
         }
-        Integer i = updateIfNotNull(user);
-        if (i == 0) {
-            throw new BusinessException("修改用户昵称失败");
+        if (userService.updateIfNotNull(user) == 0) {
+            throw new BusinessException("修改用户信息失败");
         }
     }
 
@@ -381,17 +397,80 @@ public class UserService extends BaseService {
      * @return
      */
     public Map<String,Object> listAnnounceAndAd(Pagination pagination){
-        Map<String,Object> map = new HashMap<>();
-        Map<String,Object> announceWhereMap = ImmutableMap.of(Article.Article_type+"=", InformationConst.ARTICLE_TYPE_ANNOUNCE);
+        Map<String,Object> announceWhereMap = ImmutableMap.of(Article.Article_type+"=", InformationConst.HOME_NOTICE);
         Map<String,Object> orderMap = ImmutableMap.of(Article.CreateTime, CommonConst.MYSQL_DESC);
         List<Article> announceList = selectListByWhereMap(announceWhereMap,pagination,Article.class,orderMap);
-
         List<UserAdvertisement> userAdvertisements = selectAll(null,UserAdvertisement.class);
-
         return ImmutableMap.of("announceList",announceList,"userAdvertisements",userAdvertisements);
     }
 
 
+    public void binding(String type, String openId, String userId) {
+        User user = userService.selectOneById(userId, User.class);
+        int result = 0;
+        switch (type) {
+            case "wx":
+                String oldOpenId = user.getWxOpenId();
+                if (StringUtils.isNotBlank(oldOpenId) && oldOpenId.equals(openId)) {
+                    throw new BusinessException("不能绑定同一个微信");
+                }
+                if (userService.selectOneByWhereString(User.Wx_open_id + " = ", openId, User.class) != null) {
+                    throw new BusinessException("该微信已经绑定其它账号");
+                }
+                user = new User();
+                user.setId(userId);
+                user.setWxOpenId(openId);
+                result = userService.updateIfNotNull(user);
+                break;
+        }
+        if (result < 1) {
+            throw new BusinessException("绑定失败");
+        }
+    }
 
+    public void unbind(String type, String userId) {
+        User user = userService.selectOneById(userId, User.class);
+        int result = 0;
+        switch (type) {
+            case "wx":
+                if (StringUtils.isBlank(user.getWxOpenId())) {
+                    throw new BusinessException("您还没有绑定微信");
+                }
+                User update = new User();
+                update.setWxOpenId(StringUtils.EMPTY);
+                userService.updateIfNotNull(update);
+                break;
+        }
+        if (result < 1) {
+            throw new BusinessException("解绑失败");
+        }
+    }
+
+    public void checkSmsCode(Integer type, String msgCode, String userId) {
+        if (type == UserConst.MSG_CODE_TYPE_UNBIND_PHONE) {
+            User user = userService.selectOneById(userId, User.class);
+            String phoneNumber = user.getPhoneNumber();
+            if (StringUtils.isBlank(phoneNumber)) {
+                throw new BusinessException("您还没有绑定手机号码");
+            }
+            userSendService.validateMsgCode(userId, phoneNumber, msgCode, UserConst.MSG_CODE_TYPE_UNBIND_PHONE);
+            return;
+        }
+        throw new BusinessException("短信验证错误");
+    }
+
+    public void bindPhone(String msgCode, String phoneNumber, String userId) {
+        User user = userService.selectOneByWhereString(User.Phone_number + " = ", phoneNumber, User.class);
+        if (user != null) {
+            throw new BusinessException("该手机号码已经绑定其它账号");
+        }
+        userSendService.validateMsgCode(userId, phoneNumber, msgCode, UserConst.MSG_CODE_TYPE_BIND_PHONE);
+        User update = new User();
+        update.setId(userId);
+        update.setPhoneNumber(phoneNumber);
+        if (userService.updateIfNotNull(update) < 1) {
+            throw new BusinessException("绑定失败");
+        }
+    }
 
 }

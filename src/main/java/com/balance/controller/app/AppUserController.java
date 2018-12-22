@@ -1,6 +1,5 @@
 package com.balance.controller.app;
 
-import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.exception.BusinessException;
@@ -10,29 +9,19 @@ import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.client.RedisClient;
 import com.balance.constance.RedisKeyConst;
 import com.balance.constance.UserConst;
-import com.balance.controller.app.req.PaginationReq;
 import com.balance.controller.app.req.UserLocation;
 import com.balance.entity.shop.SampleMachineLocation;
 import com.balance.entity.user.*;
 import com.balance.service.common.AddressService;
-import com.balance.service.common.WjSmsService;
 import com.balance.service.shop.SampleMachineService;
 import com.balance.service.user.*;
-import com.balance.utils.RandomUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -108,7 +97,7 @@ public class AppUserController {
     }
 
     /**
-     * 修改用户昵称
+     * 修改用户信息
      *
      * @param request
      * @return
@@ -118,22 +107,8 @@ public class AppUserController {
     @RequestMapping("info/update")
     public Result<?> updateInfo(HttpServletRequest request, String userName, Integer sex, String location, Timestamp birthday) throws BusinessException, UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        User user = new User();
-        user.setId(userId);
-        if (StringUtils.isNotBlank(userName)) {
-            user.setUserName(userName);
-            userService.updateUserName(user);
-        } else if(sex != null && (sex == 1 || sex == 2)){
-            user.setSex(sex);
-        } else if(StringUtils.isNotBlank(location)) {
-            user.setLocation(addressService.getLocation(location));
-        } else if(birthday != null) {
-            user.setBirthday(birthday);
-        } else {
-            return ResultUtils.error("缺少更新数据");
-        }
-        userService.updateIfNotNull(user);
-        return ResultUtils.success("修改成功");
+        userService.updateInfo(userName, sex, location, birthday, userId);
+        return ResultUtils.success();
     }
 
     /**
@@ -338,29 +313,8 @@ public class AppUserController {
      */
     @GetMapping("binding/{type}/{openId}")
     public Result<?> binding(@PathVariable String type, @PathVariable String openId, HttpServletRequest request) throws UnsupportedEncodingException {
-        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        User user = userService.selectOneById(userId, User.class);
-        int result = 0;
-        switch (type) {
-            case "wx" :
-                String oldOpenId = user.getWxOpenId();
-                if(StringUtils.isNotBlank(oldOpenId) && oldOpenId.equals(openId)) {
-                    return ResultUtils.error("不能绑定同一个微信");
-                }
-                if(userService.selectOneByWhereString(User.Wx_open_id + " = ", openId, User.class) != null) {
-                    return ResultUtils.error("该微信已经绑定其它账号");
-                }
-                user = new User();
-                user.setId(userId);
-                user.setWxOpenId(openId);
-                result = userService.updateIfNotNull(user);
-                break;
-        }
-        if (result > 0) {
-            return ResultUtils.success();
-        } else {
-            return ResultUtils.error("绑定失败");
-        }
+        userService.binding(type, openId, JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
+        return ResultUtils.success();
     }
 
     /**
@@ -370,24 +324,8 @@ public class AppUserController {
      */
     @GetMapping("unbind/{type}")
     public Result<?> unbind(@PathVariable String type, HttpServletRequest request) throws UnsupportedEncodingException {
-        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        User user = userService.selectOneById(userId, User.class);
-        int result = 0;
-        switch (type) {
-            case "wx" :
-                if (StringUtils.isBlank(user.getWxOpenId())) {
-                    return ResultUtils.error("您还绑定微信");
-                }
-                User update = new User();
-                update.setWxOpenId(StringUtils.EMPTY);
-                userService.updateIfNotNull(update);
-                break;
-        }
-        if (result > 0) {
-            return ResultUtils.success();
-        } else {
-            return ResultUtils.error("解绑成功");
-        }
+        userService.unbind(type, JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
+        return ResultUtils.success();
     }
 
     /**
@@ -400,17 +338,8 @@ public class AppUserController {
      */
     @GetMapping("checkMsgCode")
     public Result<?> checkMsgCode(HttpServletRequest request, Integer type, String msgCode) throws UnsupportedEncodingException {
-        if(type == UserConst.MSG_CODE_TYPE_UNBIND_PHONE) {
-            String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-            User user = userService.selectOneById(userId, User.class);
-            String phoneNumber = user.getPhoneNumber();
-            if (StringUtils.isBlank(phoneNumber)) {
-                return ResultUtils.error("您还没有绑定手机号码");
-            }
-            userSendService.validateMsgCode(userId, phoneNumber, msgCode, UserConst.MSG_CODE_TYPE_UNBIND_PHONE);
-            return ResultUtils.success();
-        }
-        return ResultUtils.error("短信验证错误");
+        userService.checkSmsCode(type, msgCode, JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
+        return ResultUtils.success();
     }
 
     /**
@@ -426,16 +355,7 @@ public class AppUserController {
         if (StringUtils.isBlank(msgCode) || StringUtils.isBlank(phoneNumber)) {
             return ResultUtils.error("缺少必要参数");
         }
-        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        User user = userService.selectOneByWhereString(User.Phone_number + " = ", phoneNumber, User.class);
-        if (user != null) {
-            return ResultUtils.error("该手机号码已经绑定其它账号");
-        }
-        userSendService.validateMsgCode(userId, phoneNumber, msgCode, UserConst.MSG_CODE_TYPE_BIND_PHONE);
-        User update = new User();
-        update.setId(userId);
-        update.setPhoneNumber(phoneNumber);
-        userService.updateIfNotNull(update);
+        userService.bindPhone(msgCode, phoneNumber, JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
         return ResultUtils.success();
     }
 
