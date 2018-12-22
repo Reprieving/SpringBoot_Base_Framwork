@@ -5,12 +5,12 @@ import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.client.RedisClient;
-import com.balance.constance.CommonConst;
 import com.balance.constance.InformationConst;
 import com.balance.constance.MissionConst;
 import com.balance.constance.RedisKeyConst;
 import com.balance.entity.information.Article;
 import com.balance.entity.mission.Mission;
+import com.balance.entity.shop.GoodsSpu;
 import com.balance.entity.sys.Subscriber;
 import com.balance.entity.user.UserArticleCollection;
 import com.balance.mapper.information.ArticleMapper;
@@ -45,6 +45,7 @@ public class ArticleService extends BaseService {
 
     @Autowired
     private ArticleMapper articleMapper;
+
 
     /**
      * 发布文章
@@ -204,7 +205,13 @@ public class ArticleService extends BaseService {
 
     public Pagination getByPage(Map<String, Object> params) {
         Pagination pagination = new Pagination();
-        pagination.setObjectList(articleMapper.selectByPage(params));
+        List<Article> objectList = articleMapper.selectByPage(params);
+        for (Article article : objectList) {
+            if (article.getContentType() == InformationConst.CONTENT_TYPE_GOODS) {
+                article.setGoodsName(selectOneById(article.getArticleContent(), GoodsSpu.class).getGoodsName());
+            }
+        }
+        pagination.setObjectList(objectList);
         pagination.setTotalRecordNumber(articleMapper.selectCount(params));
         return pagination;
     }
