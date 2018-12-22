@@ -15,7 +15,7 @@ public class SampleMachineLocation implements Serializable {
     private Integer distance;
     private String cityCode;
 
-    public static final String machineId = "machineId";
+    public static final String CityCode = "cityCode";
 
     public SampleMachineLocation(String sampleName, String imgUrl, Double coordinateX, Double coordinateY, Integer distance) {
         this.sampleName = sampleName;

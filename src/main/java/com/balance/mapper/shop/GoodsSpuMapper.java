@@ -1,6 +1,7 @@
 package com.balance.mapper.shop;
 
 import com.balance.architecture.dto.Pagination;
+import com.balance.entity.shop.GoodsCollection;
 import com.balance.entity.shop.GoodsSpecName;
 import com.balance.entity.shop.GoodsSpu;
 import org.apache.ibatis.annotations.Param;
@@ -66,4 +67,27 @@ public interface GoodsSpuMapper {
      * @param spuId
      */
     Integer deleteSpuSpecName(@Param("spuId") String spuId);
+
+    /**
+     * 获取spu的收藏数
+     *
+     * @param spuId
+     */
+    Integer countCollection(@Param("spuId") String spuId);
+
+    /**
+     * 获取spu的购买数
+     *
+     * @param spuId
+     */
+    Integer countBuy(@Param("spuId") String spuId);
+
+    /**
+     * 获取用户的收藏列表
+     *
+     * @param userId
+     * @param pagination
+     * @return
+     */
+    List<GoodsCollection> listGoodsCollection(@Param("userId") String userId, @Param("pagination") Pagination pagination, @Param("spuType") Integer spuType);
 }

@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.apache.ibatis.type.Alias;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 @Data
 @Alias("GoodsImg")
@@ -35,7 +36,7 @@ public class GoodsImg implements Serializable {
     private Integer imgType;//商品图片类型
 
     @Column(name = Create_time)
-    private String createTime;//创建时间
+    private Timestamp createTime;//创建时间
 
     //扩展属性
     private String name;

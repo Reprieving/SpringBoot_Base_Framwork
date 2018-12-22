@@ -46,6 +46,18 @@
         <result property="label" column="spec_name"></result>
     </resultMap>
 
+    <resultMap id="spuCollectionMap" type="GoodsCollection">
+        <id property="id" column="id"></id>
+        <result property="userId" column="user_id"></result>
+        <result property="spuId" column="spu_id"></result>
+        <result property="defaultImgUrl" column="default_img_url"></result>
+        <result property="lowPrice" column="low_price"></result>
+        <result property="goodsName" column="goods_name"></result>
+        <result property="goodsDescription" column="goods_description"></result>
+        <result property="countCollection" column="count_collection"></result>
+    </resultMap>
+    
+    
     <delete id="deleteSpuImg">
         DELETE FROM goods_img WHERE spu_id = #{spuId}
     </delete>
@@ -56,7 +68,7 @@
 
     <select id="listGoodsSpu" resultMap="goodsSpuSimpleMap">
         SELECT
-        a.id,a.spu_no,a.goods_name,a.low_price,a.settlement_id,c.category_name,d.brand_name,a.default_img_url,a.create_time,a.status,a.spu_type
+        a.id,a.spu_no,a.goods_name,a.low_price,a.settlement_id,c.category_name,d.brand_name,a.default_img_url,a.create_time,a.status,a.spu_type, a.background_color
         FROM goods_spu a
         LEFT JOIN goods_category c on a.category_id = c.id
         LEFT JOIN goods_brand d on a.brand_id = d.id
@@ -113,5 +125,21 @@
       SELECT a.id as spec_name_id,a.spec_no,a.spec_name FROM goods_spec_name a
     </select>
 
+    <select id="countCollection" resultType="java.lang.Integer">
+      SELECT COUNT(*) FROM goods_collection WHERE spu_id = #{spuId}
+    </select>
+
+    <select id="countBuy" resultType="java.lang.Integer">
+      SELECT COUNT(*) FROM order_item WHERE goods_spu_id = #{spuId}
+    </select>
+
+    <select id="listGoodsCollection" resultMap="spuCollectionMap">
+      SELECT
+        a.id,a.user_id,a.spu_id,a.default_img_url,a.low_price,a.goods_name,a.goods_description,
+        (SELECT COUNT(*) FROM goods_collection WHERE spu_id = a.spu_id) AS count_collection,
+        (SELECT COUNT(*) FROM order_item WHERE goods_spu_id = a.spu_id) AS count_buy
+      FROM goods_collection a
+      WHERE a.user_id = #{userId} AND a.spu_type = #{spuType}
+    </select>
 
 </mapper>

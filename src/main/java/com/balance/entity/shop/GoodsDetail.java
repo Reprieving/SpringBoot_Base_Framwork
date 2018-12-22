@@ -54,7 +54,7 @@ public class GoodsDetail {//商品详情实体
     private List<GoodsSpec> goodsSpecList;
 
     //是否有收藏
-    private Integer isCollect;
+    private Boolean isCollect;
 
     //包装单位
     private String packageUnit;
@@ -67,4 +67,10 @@ public class GoodsDetail {//商品详情实体
 
     //折扣运费
     private BigDecimal discountFreight;
+
+    //收藏数
+    private Integer countCollection;
+
+    //购买数
+    private Integer countBuy;
 }

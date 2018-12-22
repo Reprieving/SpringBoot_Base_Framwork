@@ -75,7 +75,6 @@ public class AppUserController {
     public Result<?> sendMsg4register(HttpServletRequest request, User userReq) throws BusinessException, UnsupportedEncodingException {
         String msgCode = userSendService.createMsgRecord(request,userReq);
         return ResultUtils.success("发送短信成功："+msgCode);
-
 //        return ResultUtils.success("发送短信成功");
     }
 
@@ -203,7 +202,6 @@ public class AppUserController {
     @RequestMapping("cert")
     public Result<?> cert(HttpServletRequest request, MultipartFile[] files) throws BusinessException, UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-
         certificationService.createCert(userId, files);
         return ResultUtils.success("申请实名认证成功");
     }
@@ -462,6 +460,17 @@ public class AppUserController {
     public Result<?> announceAndAd(HttpServletRequest request,Pagination pagination) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         return ResultUtils.success(userService.listAnnounceAndAd(pagination));
+    }
+
+    /**
+     * wx用户同步数据
+     * @param request
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @RequestMapping("synchronizing/wx")
+    public Result<?> synchronizingWX(HttpServletRequest request,@RequestParam("userStr") String userStr){
+        return ResultUtils.success();
     }
 
 }

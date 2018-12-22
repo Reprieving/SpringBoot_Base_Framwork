@@ -372,7 +372,11 @@ public class UserService extends BaseService {
      * @return
      */
     public User allUserInfo(String userId) {
-        return userMapper.getUserInfo(userId);
+        User user = userMapper.getUserInfo(userId);
+        if(user.getCertStatus() == null){
+            user.setCertStatus(UserConst.USER_CERT_STATUS_NONE);
+        }
+        return user;
     }
 
 
@@ -381,7 +385,6 @@ public class UserService extends BaseService {
      * @return
      */
     public Map<String,Object> listAnnounceAndAd(Pagination pagination){
-        Map<String,Object> map = new HashMap<>();
         Map<String,Object> announceWhereMap = ImmutableMap.of(Article.Article_type+"=", InformationConst.ARTICLE_TYPE_ANNOUNCE);
         Map<String,Object> orderMap = ImmutableMap.of(Article.CreateTime, CommonConst.MYSQL_DESC);
         List<Article> announceList = selectListByWhereMap(announceWhereMap,pagination,Article.class,orderMap);

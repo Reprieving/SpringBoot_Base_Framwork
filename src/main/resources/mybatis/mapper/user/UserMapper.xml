@@ -20,6 +20,7 @@
         <result property="createTime" column="create_time"></result>
         <result property="memberType" column="member_type"></result>
         <result property="status" column="status"></result>
+        <result property="certStatus" column="cert_status"></result>
     </resultMap>
 
     <resultMap id="userVoucherRecordMap" type="UserVoucherRecord">
@@ -49,9 +50,11 @@
 
     <select id="getUserInfo" resultMap="userMap">
         SELECT a.user_name,a.phone_number,a.invite_code,a.create_time,a.status,a.wx_open_id,a.sex,a.location,a.birthday,a.head_picture_url,a.member_type,
-                b.compute_power,b.ih,b.eth,b.ore
+                b.compute_power,b.ih,b.eth,b.ore,
+                c.status AS cert_status
          FROM user_info a
         LEFT JOIN user_assets b ON a.id = b.user_id
+        LEFT JOIN user_certification c ON a.id = c.user_id
         WHERE a.id = #{userId}
     </select>
 
