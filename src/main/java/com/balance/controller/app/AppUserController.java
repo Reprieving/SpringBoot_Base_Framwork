@@ -104,7 +104,7 @@ public class AppUserController {
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("info/update")
-    public Result<?> updateInfo(HttpServletRequest request, String userName, Integer sex, String location, String birthday) throws UnsupportedEncodingException {
+    public Result<?> updateInfo(HttpServletRequest request, String userName, Integer sex, Integer location, String birthday) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         userService.updateInfo(userName, sex, location, birthday, userId);
         return ResultUtils.success();

@@ -186,7 +186,7 @@ public class UserService extends BaseService {
     /**
      * 修改用户信息
      */
-    public void updateInfo(String userName, Integer sex, String location, String birthday, String userId) {
+    public void updateInfo(String userName, Integer sex, Integer location, String birthday, String userId) {
         User user = new User();
         user.setId(userId);
         if (StringUtils.isNotBlank(userName)) {
@@ -198,18 +198,17 @@ public class UserService extends BaseService {
             }
         } else if(sex != null && (sex == 1 || sex == 2)){
             user.setSex(sex);
-        } else if(StringUtils.isNotBlank(location)) {
+        } else if(location != null) {
             user.setLocation(addressService.getLocation(location));
         } else if(birthday != null) {
             Timestamp b;
             try {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date date = simpleDateFormat.parse(birthday);
-                if (date.compareTo(new Date()) > 0) {
+                long timestamp = Long.parseLong(birthday);
+                if (new Date(timestamp).compareTo(new Date()) > 0) {
                     throw new BusinessException("生日不能大于当前时间");
                 }
-                b = new Timestamp(date.getTime());
-            } catch (ParseException e) {
+                b = new Timestamp(timestamp);
+            } catch (Exception e) {
                 throw new BusinessException("日期格式错误");
             }
             user.setBirthday(b);
