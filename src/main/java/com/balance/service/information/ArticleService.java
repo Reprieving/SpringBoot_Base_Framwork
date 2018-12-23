@@ -65,12 +65,12 @@ public class ArticleService extends BaseService {
         }
     }
 
-    public List<Article> getListByType(int articleType) {
+    public List<Article> getListByType(int articleType, Pagination pagination) {
         HashMap<String, Object> params = Maps.newHashMap();
         params.put("ifValid", 1);
         params.put("articleType", articleType);
-        params.put("startRow", 0);
-        params.put("pageSize", 10);
+        params.put("startRow", pagination.getStartRow());
+        params.put("pageSize", pagination.getPageSize());
         return articleMapper.selectByPage(params);
     }
 

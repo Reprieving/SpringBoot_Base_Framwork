@@ -8,6 +8,7 @@
         <result column="article_type" property="articleType" jdbcType="INTEGER"/>
         <result column="content_type" property="contentType" jdbcType="INTEGER"/>
         <result column="article_content" property="articleContent" jdbcType="INTEGER"/>
+        <result column="summary" property="summary" jdbcType="INTEGER"/>
         <result column="if_valid" property="ifValid" jdbcType="BIT"/>
         <result column="sort" property="sort" jdbcType="INTEGER"/>
         <result column="verify_status" property="verifyStatus" jdbcType="INTEGER"/>
@@ -16,7 +17,8 @@
     </resultMap>
     <sql id="Base_Column_List">
       t.id, t.article_title, t.article_type, t.if_valid, t.verify_status, t.create_by,
-      t.create_time, t.article_cover, t.content_type, t.sort, LEFT(t.`article_content`, 200) 'article_content'
+      t.create_time, t.article_cover, t.content_type, t.sort, LEFT(t.`article_content`, 200) 'article_content',
+      t.summary
     </sql>
 
     <select id="selectByPage" resultMap="BaseResultMap" parameterType="map">
