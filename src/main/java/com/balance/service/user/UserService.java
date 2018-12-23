@@ -198,17 +198,16 @@ public class UserService extends BaseService {
         } else if(location != null) {
             user.setLocation(addressService.getLocation(location));
         } else if(birthday != null) {
-            Timestamp b;
+            Timestamp timestamp;
             try {
-                long timestamp = Long.parseLong(birthday);
-                if (new Date(timestamp).compareTo(new Date()) > 0) {
-                    throw new BusinessException("生日不能大于当前时间");
-                }
-                b = new Timestamp(timestamp);
+                timestamp = new Timestamp(Long.parseLong(birthday));
             } catch (Exception e) {
                 throw new BusinessException("日期格式错误");
             }
-            user.setBirthday(b);
+            if (timestamp.getTime() > System.currentTimeMillis()) {
+                throw new BusinessException("生日不能大于当前时间");
+            }
+            user.setBirthday(timestamp);
         } else {
             throw new BusinessException("缺少更新数据");
         }
