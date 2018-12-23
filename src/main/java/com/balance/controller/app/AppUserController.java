@@ -1,5 +1,6 @@
 package com.balance.controller.app;
 
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.utils.JwtUtils;
@@ -53,6 +54,9 @@ public class AppUserController {
 
     @Autowired
     private AppUpgradeService appUpgradeService;
+
+    @Autowired
+    private BankCardService bankCardService;
 
     /**
      * 发送短信
@@ -390,5 +394,36 @@ public class AppUserController {
             return ResultUtils.error("缺少必要参数");
         }
         return ResultUtils.success(appUpgradeService.checkVersion(device, version));
+    }
+
+
+    @GetMapping("bankInfo")
+    public Result<?> bankInfo() {
+        return ResultUtils.success(bankCardService.selectAll(null, BankInfo.class));
+    }
+
+    @GetMapping("bankList")
+    public Result<?> bankList(HttpServletRequest request, Pagination pagination) throws UnsupportedEncodingException {
+        return ResultUtils.success(bankCardService.getList(
+                JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId(),
+                pagination
+        ));
+    }
+
+    @PostMapping("addBank")
+    public Result<?> addBank(HttpServletRequest request, BankCard bankCard, String msgCode, String bankId) throws UnsupportedEncodingException {
+        bankCard.setUserId(JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
+        bankCardService.add(bankCard, msgCode, bankId);
+        return ResultUtils.success();
+    }
+
+    @GetMapping("removeBank/{cardId}")
+    public Result<?> removeBank(HttpServletRequest request, @PathVariable String cardId) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        BankCard bankCard = new BankCard();
+        bankCard.setUserId(userId);
+        bankCard.setId(cardId);
+        bankCardService.remove(bankCard);
+        return ResultUtils.success();
     }
 }

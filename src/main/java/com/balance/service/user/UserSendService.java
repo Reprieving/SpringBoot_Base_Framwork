@@ -87,6 +87,11 @@ public class UserSendService extends BaseService {
                 }
                 msgTypeStr = "[绑定手机号码]";
                 break;
+            case UserConst.MSG_CODE_TYPE_BIND_BANK:
+                userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+                phoneNumber = selectOneById(userId, User.class).getPhoneNumber();
+                msgTypeStr = "[绑定银行卡]";
+                break;
         }
 
         //验证发送短信次数

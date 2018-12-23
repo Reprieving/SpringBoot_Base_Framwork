@@ -2,11 +2,13 @@ package com.balance.entity.common;
 
 import org.apache.ibatis.type.Alias;
 
+import java.io.Serializable;
+
 /**
  * Created by weihuaguo on 2018/12/18 17:32.
  */
 @Alias("Address")
-public class Address {
+public class Address  implements Serializable {
 
     private Integer id;
 

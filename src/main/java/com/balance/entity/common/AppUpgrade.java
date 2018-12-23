@@ -6,6 +6,7 @@ import com.balance.architecture.mybatis.annotation.Table;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
@@ -15,7 +16,7 @@ import java.sql.Timestamp;
 @Data
 @Alias("AppUpgrade")
 @Table(name = "app_upgrade")
-public class AppUpgrade {
+public class AppUpgrade  implements Serializable {
     @Id
     @Column(name = Id)
     private String id;
