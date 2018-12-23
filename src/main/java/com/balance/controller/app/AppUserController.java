@@ -58,6 +58,11 @@ public class AppUserController {
     @Autowired
     private BankCardService bankCardService;
 
+    @Autowired
+    private FeedbackService feedbackService;
+
+
+
     /**
      * 发送短信
      *
@@ -424,6 +429,17 @@ public class AppUserController {
         bankCard.setUserId(userId);
         bankCard.setId(cardId);
         bankCardService.remove(bankCard);
+        return ResultUtils.success();
+    }
+
+
+    @PostMapping("addFeedback")
+    public Result<?> addFeedback(HttpServletRequest request, String content, Integer type) throws UnsupportedEncodingException {
+        Feedback feedback = new Feedback();
+        feedback.setUserId(JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
+        feedback.setType(type);
+        feedback.setContent(content);
+        feedbackService.add(feedback);
         return ResultUtils.success();
     }
 }
