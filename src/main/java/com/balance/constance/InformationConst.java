@@ -25,7 +25,7 @@ public class InformationConst {
     //文章审核状态
     public static final int ARTICLE_VERTIFY_STATUS_NONE = 0;//审核中
     public static final int ARTICLE_VERTIFY_STATUS_PASS = 1;//审核通过
-    public static final int ARTICLE_VERTIFY_STATUS_UNPASS = -1;//审核不通过
+    public static final int ARTICLE_VERTIFY_STATUS_UNPASS = 2;//审核不通过
     public static final BigDecimal ARTICLE_VERTIFY_REWARD_UNPASS = new BigDecimal(100);//审核通过奖励
 
 }

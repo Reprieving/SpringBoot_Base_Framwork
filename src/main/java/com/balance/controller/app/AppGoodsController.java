@@ -101,10 +101,10 @@ public class AppGoodsController {
      * @return
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping("collection")
-    public Result<?> collection(HttpServletRequest request, Pagination pagination) throws UnsupportedEncodingException {
+    @RequestMapping("collection/{spuType}")
+    public Result<?> collection(HttpServletRequest request,@PathVariable Integer spuType,  Pagination pagination) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        List<GoodsCollection> goodsCollections = goodsSpuService.listGoodsCollection(userId, pagination);
+        List<GoodsCollection> goodsCollections = goodsSpuService.listGoodsCollection(userId, pagination,spuType);
         return ResultUtils.success(goodsCollections);
     }
 
@@ -116,17 +116,24 @@ public class AppGoodsController {
      * @return
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping("beauty/exchange/")
+    @RequestMapping("beauty/exchange")
     public Result<?> exchangeBeauty(HttpServletRequest request, GoodsExchangeReq paramReq) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         orderService.exchangeSpuPackage(userId, paramReq.getVoucherId(), paramReq.getSpuId(), paramReq.getAddressId());
-        return ResultUtils.success("兑换小样");
+        return ResultUtils.success();
     }
 
-    @RequestMapping("beauty/scan/")
+    /**
+     * 扫码领取小样
+     * @param request
+     * @param paramReq
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @RequestMapping("beauty/scan")
     public Result<?> scanBeauty(HttpServletRequest request, GoodsScanReq paramReq) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         orderService.scanBeauty(userId, paramReq.getAisleCode(), paramReq.getMachineCode());
-        return ResultUtils.success("兑换小样");
+        return ResultUtils.success();
     }
 }

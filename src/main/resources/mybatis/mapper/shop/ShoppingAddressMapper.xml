@@ -3,7 +3,11 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.balance.mapper.shop.ShoppingAddressMapper">
 
+    <update id="updateNotDefault">
+        UPDATE shopping_address SET if_default = 0 WHERE id != #{addressId} AND user_id = #{userId}
+    </update>
+
     <update id="updateDefault">
-        UPDATE shopping_address SET if_default = 0 WHERE id NOT IN (#{addressId})
+         UPDATE shopping_address SET if_default = 1 WHERE id = #{addressId} AND user_id = #{userId}
     </update>
 </mapper>

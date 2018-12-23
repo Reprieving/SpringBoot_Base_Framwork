@@ -1,6 +1,7 @@
 package com.balance.architecture.controller;
 
 import com.balance.architecture.dto.Result;
+import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.exception.LoginException;
 import com.balance.architecture.utils.ResultUtils;
 import org.slf4j.Logger;
@@ -22,7 +23,15 @@ public class BaseController {
     public Result<?> exceptionHandler(Exception e) {
         logger.error(getExceptionInfo(e));
         String[] arr = e.getClass().getName().split("\\.");
-//        Result<?> result = ResultUtils.error(ResultUtils.RSP_FAIL, arr[arr.length - 1]);
+        Result<?> result = ResultUtils.error(ResultUtils.RSP_FAIL, arr[arr.length - 1]);
+//        Result<?> result = ResultUtils.error(ResultUtils.RSP_FAIL, "System error");
+        return result;
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    @ResponseBody
+    public Result<?> businessExceptionHandler(BusinessException e) {
+        logger.error(getExceptionInfo(e));
         Result<?> result = ResultUtils.error(ResultUtils.RSP_FAIL, e.getMessage());
         return result;
     }

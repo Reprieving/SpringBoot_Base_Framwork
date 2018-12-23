@@ -9,4 +9,7 @@ public class CommonConst {
     public final static String MYSQL_DESC = " DESC ";
     public final static String MYSQL_ASC = " ASC ";
 
+    //微信用户数据同步开关
+    public static Boolean WX_USER_SYNCHRONIZED = true;
+
 }

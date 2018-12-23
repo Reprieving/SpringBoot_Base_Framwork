@@ -61,9 +61,10 @@ public class SampleMachineService {
     /**
      * 更新市内小样机坐标
      * @param cityCode
-     * @param sampleMachineLocations
      */
-    public void updateSampleMachineLocation(String cityCode, List<SampleMachineLocation> sampleMachineLocations){
+    public void updateSampleMachineLocation(String cityCode){
+        cityCode = "440300";//先默认为深圳
+
         //扫码接口
         GetMethod get = null;
         String result = null;
@@ -83,8 +84,9 @@ public class SampleMachineService {
         result = result.replace("null(","").replace(")","");
         SampleMachineSourceLocations sls = JSON.parseObject(result,SampleMachineSourceLocations.class);
 
+        String redisKey = RedisKeyConst.buildSampleMachineId(cityCode);
         sls.getDatas().forEach(sl -> {
-            String redisKey = RedisKeyConst.buildSampleMachineId(sl.getId());
+            //[sampleName],[imgUrl],[coordinateX],[coordinateY]
             String member = sl.getName()+":"+" "+":"+sl.getLongitude()+":"+sl.getLatitude();
             redisClient.cacheGeo(redisKey, sl.getLongitude(), sl.getLatitude(), member, -1L);
         });

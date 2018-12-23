@@ -87,6 +87,8 @@ public class User implements Serializable{ //用户信息
     private BigDecimal ih; //IH(美钻)
     private BigDecimal eth; //ETH
     private BigDecimal ore; //矿石
+    private Integer certStatus; //认证状态
+
 
     //DB Column name
     public static final String Id = "id";

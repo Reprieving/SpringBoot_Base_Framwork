@@ -25,11 +25,11 @@ public class ShoppingAddressService extends BaseService {
      * @param addressId 收货地址id
      * @return
      */
-    public Integer updateDefaultAddress(String addressId) {
-        ShoppingAddress shoppingAddress = new ShoppingAddress(addressId, true);
-        updateIfNotNull(shoppingAddress);
-
-        return shoppingAddressMapper.updateDefault(addressId);
+    public Integer updateDefaultAddress(String addressId, String userId) {
+        Integer i;
+        i = shoppingAddressMapper.updateDefault(addressId, userId);
+        i = shoppingAddressMapper.updateNotDefault(addressId, userId);
+        return i;
     }
 
     /**
@@ -49,8 +49,10 @@ public class ShoppingAddressService extends BaseService {
         switch (operatorType) {
             case ShopConst.SHOPPING_ADDRESS_OPERATOR_TYPE_INSERT: //添加
                 shoppingAddress.setUserId(userId);
-                shoppingAddress.setIfDefault(false);
                 i = insertIfNotNull(shoppingAddress);
+                if (shoppingAddress.getIfDefault()) {
+                    updateDefaultAddress(shoppingAddress.getId(), userId);
+                }
                 if (i == 0) {
                     throw new BusinessException("添加收货地址失败");
                 }
@@ -67,6 +69,7 @@ public class ShoppingAddressService extends BaseService {
             case ShopConst.SHOPPING_ADDRESS_OPERATOR_TYPE_UPDATE: //编辑
                 ValueCheckUtils.notEmpty(shoperAddressId, "收货地址id不能为空");
                 i = updateIfNotNull(shoppingAddress);
+                i = updateDefaultAddress(shoperAddressId, userId);
                 if (i == 0) {
                     throw new BusinessException("保存收货地址失败");
                 }
@@ -74,12 +77,12 @@ public class ShoppingAddressService extends BaseService {
 
             case ShopConst.SHOPPING_ADDRESS_OPERATOR_TYPE_QUERY: //查询
                 Map orderMap = ImmutableMap.of(ShoppingAddress.If_default, CommonConst.MYSQL_DESC);
-                o = selectListByWhereString(ShoppingAddress.User_id + "=", userId, null, clazz,orderMap);
+                o = selectListByWhereString(ShoppingAddress.User_id + "=", userId, null, clazz, orderMap);
                 break;
 
             case ShopConst.SHOPPING_ADDRESS_OPERATOR_TYPE_DEFAULT: //设置默认
                 ValueCheckUtils.notEmpty(shoperAddressId, "收货地址id不能为空");
-                i = updateDefaultAddress(shoperAddressId);
+                i = updateDefaultAddress(shoperAddressId, userId);
                 if (i == 0) {
                     o = "设置收货地址失败";
                 }

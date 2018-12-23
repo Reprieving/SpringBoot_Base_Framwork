@@ -39,6 +39,7 @@ public class GoodsSpuService extends BaseService {
 
     @Autowired
     private ShopInfoService shopInfoService;
+
     /**
      * 新增商品基本信息
      *
@@ -110,33 +111,33 @@ public class GoodsSpuService extends BaseService {
      */
     public GoodsDetail getGoodsDetail(String userId, String spuId) {
         GoodsDetail goodsDetail = new GoodsDetail();
-
         GoodsSpu goodsSpu = selectOneById(spuId, GoodsSpu.class);
         if (goodsSpu == null || !goodsSpu.getIfValid()) {
             throw new BusinessException("商品不存在");
         }
 
-        User user = selectOneById(userId,User.class);
+        User user = selectOneById(userId, User.class);
 
         goodsDetail.setGoodsName(goodsSpu.getGoodsName());
         goodsDetail.setGoodsDescription(goodsSpu.getGoodsDescription());
         goodsDetail.setPrice(goodsSpu.getLowPrice());
         goodsDetail.setPackageUnit(goodsSpu.getPackageUnit());
         goodsDetail.setFreight(goodsSpu.getFreight());
+        goodsDetail.setCountCollection(goodsSpuMapper.countCollection(goodsSpu.getId()));
+        goodsDetail.setCountBuy(goodsSpuMapper.countBuy(goodsSpu.getId()));
 
         //会员享有折扣运费
-        if(user.getMemberType() == UserConst.USER_MEMBER_TYPE_COMMON){
-            goodsDetail.setDiscountFreight(BigDecimalUtils.multiply(goodsSpu.getFreight(),new BigDecimal(0.95)));
+        if (user.getMemberType() == UserConst.USER_MEMBER_TYPE_COMMON) {
+            goodsDetail.setDiscountFreight(BigDecimalUtils.multiply(goodsSpu.getFreight(), new BigDecimal(0.95)));
         }
-
 
         //检查用户是否有收藏商品
         Map<String, Object> whereMap_ = ImmutableMap.of(GoodsCollection.User_id + "=", userId, GoodsCollection.Spu_id + "=", spuId);
         GoodsCollection goodsCollection = selectOneByWhereMap(whereMap_, GoodsCollection.class);
         if (goodsCollection != null) {
-            goodsDetail.setIsCollect(1);
+            goodsDetail.setIsCollect(true);
         } else {
-            goodsDetail.setIsCollect(0);
+            goodsDetail.setIsCollect(false);
         }
 
         //查询spu的sku列表
@@ -180,24 +181,24 @@ public class GoodsSpuService extends BaseService {
         }
         goodsDetail.setGoodsSpecList(goodsSpecList);
 
-        //查询spu的sku对应图片
-        Map<String, Object> whereMap = ImmutableMap.of(GoodsImg.Spu_id + " = ", spuId, GoodsImg.Sku_id + " = ", goodsSkuList.get(0).getId());
-        List<GoodsImg> goodsImgList = selectListByWhereMap(whereMap, null, GoodsImg.class);
-        List<String> introduceImgList = new ArrayList<>(5);
-        List<String> detailImgList = new ArrayList<>(5);
-        for (GoodsImg goodsImg : goodsImgList) {
-            if (ShopConst.GOODS_IMG_TYPE_INTRODUCE == goodsImg.getImgType()) {//介绍图
-                introduceImgList.add(goodsImg.getImgUrl());
-            } else {//详情图
-                detailImgList.add(goodsImg.getImgUrl());
+        if (goodsSkuList.size() > 0) {
+            //查询spu的sku对应图片
+            Map<String, Object> whereMap = ImmutableMap.of(GoodsImg.Spu_id + " = ", spuId, GoodsImg.Sku_id + " = ", goodsSkuList.get(0).getId());
+            List<GoodsImg> goodsImgList = selectListByWhereMap(whereMap, null, GoodsImg.class);
+            List<String> introduceImgList = new ArrayList<>(5);
+            List<String> detailImgList = new ArrayList<>(5);
+            for (GoodsImg goodsImg : goodsImgList) {
+                if (ShopConst.GOODS_IMG_TYPE_INTRODUCE == goodsImg.getImgType()) {//介绍图
+                    introduceImgList.add(goodsImg.getImgUrl());
+                } else {//详情图
+                    detailImgList.add(goodsImg.getImgUrl());
+                }
             }
+            goodsDetail.setIntroduceImgList(introduceImgList);
+            goodsDetail.setDetailImgList(detailImgList);
         }
-        goodsDetail.setIntroduceImgList(introduceImgList);
-        goodsDetail.setDetailImgList(detailImgList);
-
         return goodsDetail;
     }
-
 
     /**
      * 收藏商品
@@ -212,8 +213,8 @@ public class GoodsSpuService extends BaseService {
         Map<String, Object> whereMap = ImmutableMap.of(GoodsCollection.User_id + "=", userId, GoodsCollection.Spu_id + "=", spuId);
         GoodsCollection goodsCollection = selectOneByWhereMap(whereMap, GoodsCollection.class);
 
-        if (goodsSpu == null) {//收藏商品
-            goodsCollection = new GoodsCollection(userId, spuId, goodsSpu.getGoodsName(), goodsSpu.getLowPrice(), goodsSpu.getDefaultImgUrl());
+        if (goodsCollection == null) {//收藏商品
+            goodsCollection = new GoodsCollection(userId, spuId, goodsSpu.getGoodsName(),goodsSpu.getGoodsDescription(), goodsSpu.getLowPrice(), goodsSpu.getDefaultImgUrl(),goodsSpu.getSpuType());
             Integer i = insertIfNotNull(goodsCollection);
             if (i == 0) {
                 throw new BusinessException("收藏商品失败");
@@ -233,8 +234,8 @@ public class GoodsSpuService extends BaseService {
      * @param pagination
      * @return
      */
-    public List<GoodsCollection> listGoodsCollection(String userId, Pagination pagination) {
-        return selectListByWhereString(GoodsCollection.User_id, userId, pagination, GoodsCollection.class);
+    public List<GoodsCollection> listGoodsCollection(String userId, Pagination pagination,Integer spuType) {
+        return goodsSpuMapper.listGoodsCollection(userId,pagination,spuType);
     }
 
 
@@ -354,22 +355,23 @@ public class GoodsSpuService extends BaseService {
 
     /**
      * 获取品牌，类目，商铺信息
+     *
      * @param subscriberId
      * @return
      */
-    public GoodsSpuSelectData listSelectData(String subscriberId){
-        Map<String,Object> whereMap1 = ImmutableMap.of(
+    public GoodsSpuSelectData listSelectData(String subscriberId) {
+        Map<String, Object> whereMap1 = ImmutableMap.of(
                 GoodsBrand.Subscriber_id + "=", subscriberId,
                 GoodsBrand.If_valid + "=", true);
 
-        Map<String,Object> whereMap2 = ImmutableMap.of(GoodsCategory.If_valid + "=", true);
+        Map<String, Object> whereMap2 = ImmutableMap.of(GoodsCategory.If_valid + "=", true);
 
-        Map<String,Object> whereMap3 = ImmutableMap.of(ShopInfo.Subscriber_id + "=", subscriberId);
+        Map<String, Object> whereMap3 = ImmutableMap.of(ShopInfo.Subscriber_id + "=", subscriberId);
 
         return new GoodsSpuSelectData(
-                selectListByWhereMap(whereMap1,null,GoodsBrand.class),
-                selectListByWhereMap(whereMap2,null,GoodsCategory.class),
-                selectListByWhereMap(whereMap3,null,ShopInfo.class)
+                selectListByWhereMap(whereMap1, null, GoodsBrand.class),
+                selectListByWhereMap(whereMap2, null, GoodsCategory.class),
+                selectListByWhereMap(whereMap3, null, ShopInfo.class)
         );
     }
 }

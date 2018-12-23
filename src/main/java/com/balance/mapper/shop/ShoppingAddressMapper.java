@@ -5,5 +5,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ShoppingAddressMapper {
-    Integer updateDefault(@Param("addressId") String addressId);
+    Integer updateNotDefault(@Param("addressId") String addressId, @Param("userId") String userId);
+
+    Integer updateDefault(@Param("addressId")String addressId, @Param("userId")String userId);
 }
