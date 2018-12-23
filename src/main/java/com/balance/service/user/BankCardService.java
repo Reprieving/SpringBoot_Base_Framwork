@@ -3,6 +3,7 @@ package com.balance.service.user;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.CommonConst;
 import com.balance.constance.UserConst;
 import com.balance.entity.user.BankCard;
@@ -72,9 +73,7 @@ public class BankCardService extends BaseService {
         if (selectBank == null || !selectBank.getUserId().equals(bankCard.getUserId())) {
             throw new BusinessException("数据异常");
         }
-        if (delete(bankCard) < 1) {
-            throw new BusinessException("删除失败");
-        }
+        ValueCheckUtils.notZero(delete(bankCard), "删除失败");
     }
 
 

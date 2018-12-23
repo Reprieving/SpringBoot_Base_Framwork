@@ -466,9 +466,7 @@ public class UserService extends BaseService {
                 result = userService.updateIfNotNull(user);
                 break;
         }
-        if (result < 1) {
-            throw new BusinessException("绑定失败");
-        }
+        ValueCheckUtils.notZero(result, "绑定失败");
     }
 
     public void unbind(String type, String userId) {
@@ -484,9 +482,7 @@ public class UserService extends BaseService {
                 userService.updateIfNotNull(update);
                 break;
         }
-        if (result < 1) {
-            throw new BusinessException("解绑失败");
-        }
+        ValueCheckUtils.notZero(result, "解绑失败");
     }
 
     public void checkSmsCode(Integer type, String msgCode, String userId) {
