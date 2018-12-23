@@ -1,6 +1,5 @@
 package com.balance.controller.app;
 
-import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.utils.JwtUtils;
@@ -19,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -47,7 +45,7 @@ public class AppUserController {
     private SampleMachineService sampleMachineService;
 
     @Autowired
-   private RedisClient redisClient;
+    private RedisClient redisClient;
 
     @Autowired
     private AddressService addressService;
@@ -63,7 +61,6 @@ public class AppUserController {
     public Result<?> sendMsg4register(HttpServletRequest request, User userReq) throws BusinessException, UnsupportedEncodingException {
         String msgCode = userSendService.createMsgRecord(request,userReq);
         return ResultUtils.success("发送短信成功："+msgCode);
-
 //        return ResultUtils.success("发送短信成功");
     }
 
@@ -169,16 +166,16 @@ public class AppUserController {
      * 申请实名认证
      *
      * @param request
-     * @param files
+     * @param frontFiles
+     * @param backFiles
      * @return
      * @throws BusinessException
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("cert")
-    public Result<?> cert(HttpServletRequest request, MultipartFile[] files) throws BusinessException, UnsupportedEncodingException {
+    public Result<?> cert(HttpServletRequest request,String realName,String licenseNumber, MultipartFile frontFiles,MultipartFile backFiles) throws BusinessException, UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-
-        certificationService.createCert(userId, files);
+        certificationService.createCert(userId, realName,licenseNumber,frontFiles,backFiles);
         return ResultUtils.success("申请实名认证成功");
     }
 
@@ -304,6 +301,7 @@ public class AppUserController {
         return ResultUtils.success(addressService.getByPid(pid));
     }
 
+
     /**
      * 绑定第三方
      * @param type
@@ -315,6 +313,7 @@ public class AppUserController {
         userService.binding(type, openId, JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
         return ResultUtils.success();
     }
+
 
     /**
      * 解绑第三方
@@ -371,16 +370,14 @@ public class AppUserController {
     }
 
     /**
-     * 公告和广告图
-     * @param request
-     * @param pagination
+     * wx用户同步数据
      * @return
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping("announceAndAd")
-    public Result<?> announceAndAd(HttpServletRequest request,Pagination pagination) throws UnsupportedEncodingException {
-        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        return ResultUtils.success(userService.listAnnounceAndAd(pagination));
+    @RequestMapping("wx/synchronizing")
+    public Result<?> synchronizingWX(@RequestParam("userStr") String userStr){
+        userService.synchronizingWX(userStr);
+        return ResultUtils.success("数据同步成功");
     }
 
 }
