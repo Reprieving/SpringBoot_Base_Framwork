@@ -12,6 +12,7 @@ import com.balance.controller.app.req.UserLocation;
 import com.balance.entity.shop.SampleMachineLocation;
 import com.balance.entity.user.*;
 import com.balance.service.common.AddressService;
+import com.balance.service.common.AppUpgradeService;
 import com.balance.service.shop.SampleMachineService;
 import com.balance.service.user.*;
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +50,9 @@ public class AppUserController {
 
     @Autowired
     private AddressService addressService;
+
+    @Autowired
+    private AppUpgradeService appUpgradeService;
 
     /**
      * 发送短信
@@ -380,4 +384,11 @@ public class AppUserController {
         return ResultUtils.success("数据同步成功");
     }
 
+    @RequestMapping("checkVer")
+    public Result<?> checkVersion(String device, String version) {
+        if (StringUtils.isBlank(device) || StringUtils.isBlank(version)) {
+            return ResultUtils.error("缺少必要参数");
+        }
+        return ResultUtils.success(appUpgradeService.checkVersion(device, version));
+    }
 }
