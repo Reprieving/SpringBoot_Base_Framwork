@@ -5,8 +5,10 @@ import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.AssetTurnoverConst;
 import com.balance.constance.MissionConst;
+import com.balance.constance.UserConst;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.mission.MissionComplete;
+import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
 import com.balance.service.user.AssetsTurnoverService;
 import com.balance.service.user.UserAssetsService;
@@ -39,30 +41,10 @@ public class MissionService extends BaseService {
     /**
      * 查询任务列表信息
      *
-     * @param userId
-     * @param settlementId
      * @return
      */
-    public List<Mission> getMissionList(String userId, String settlementId) {
-        List<Mission> missions = selectListByWhereString(Mission.Settlement_id + " = ", settlementId, null, Mission.class);
-        for (Mission mission : missions) {
-
-            Map<String, Object> paramMap = ImmutableMap.of(MissionComplete.Mission_id + " = ", mission.getId(), MissionComplete.User_id + " = ", userId);
-            MissionComplete missionComplete = missionCompleteService.selectOneByWhereMap(paramMap, MissionComplete.class);
-
-            Boolean missionCompleteNull = missionComplete == null;
-
-            if (missionCompleteNull) {//任务完成记录为空即未完成
-                mission.setState(MissionConst.MISSION_COMPLETE_STATE_NONE);
-            } else {
-                mission.setState(missionComplete.getStatus());
-            }
-
-            if (missionComplete != null) {
-                mission.setMissionCompleteId(missionComplete.getId());
-            }
-        }
-        return missions;
+    public List<Mission> getMissionList() {
+        return selectAll(null, Mission.class);
     }
 
     /**
@@ -113,6 +95,50 @@ public class MissionService extends BaseService {
             }
         });
     }
+
+    /**
+     * 完成任务并领取奖励
+     *
+     * @param user         用户实体
+     * @param missionCode  任务编码
+     * @param turnoverDesc 流水描述
+     */
+    public void finishMission(User user, Integer missionCode, String turnoverDesc) {
+        String userId = user.getId();
+        Mission mission = filterTaskByCode(missionCode, selectAll(null, Mission.class));
+        UserAssets userAssets = userAssetsService.getAssetsByUserId(userId);
+        BigDecimal rewardValue = mission.getRewardValue();
+
+        if(user.getMemberType()== UserConst.USER_MEMBER_TYPE_COMMON && mission.getMemberRewardValue()!=null){
+            rewardValue = mission.getMemberRewardValue();
+        }
+
+        Integer settlementId = mission.getSettlementId();
+        userAssetsService.changeUserAssets(userId, rewardValue, settlementId, userAssets);
+        assetsTurnoverService.createAssetsTurnover(
+                userId, AssetTurnoverConst.TURNOVER_TYPE_MISSION_REWARD, rewardValue, AssetTurnoverConst.COMPANY_ID, userId, userAssets, settlementId, turnoverDesc
+        );
+    }
+
+    /**
+     * 完成任务并领取奖励
+     *
+     * @param userId         用户实体
+     * @param missionCode  任务编码
+     * @param turnoverDesc 流水描述
+     */
+    public void finishMission(String userId, Integer missionCode, String turnoverDesc) {
+        Mission mission = filterTaskByCode(missionCode, selectAll(null, Mission.class));
+        UserAssets userAssets = userAssetsService.getAssetsByUserId(userId);
+        BigDecimal rewardValue = mission.getRewardValue();
+
+        Integer settlementId = mission.getSettlementId();
+        userAssetsService.changeUserAssets(userId, rewardValue, settlementId, userAssets);
+        assetsTurnoverService.createAssetsTurnover(
+                userId, AssetTurnoverConst.TURNOVER_TYPE_MISSION_REWARD, rewardValue, AssetTurnoverConst.COMPANY_ID, userId, userAssets, settlementId, turnoverDesc
+        );
+    }
+
 
 
     /**

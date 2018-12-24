@@ -2,12 +2,16 @@ package com.balance.service.user;
 
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.constance.MissionConst;
 import com.balance.constance.ShopConst;
+import com.balance.entity.mission.Mission;
 import com.balance.entity.shop.ShopVoucher;
 import com.balance.entity.user.User;
 import com.balance.entity.user.UserVoucherRecord;
+import com.balance.service.mission.MissionService;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -22,6 +26,9 @@ import java.util.Map;
 public class UserMemberService extends BaseService {
     @Autowired
     private TransactionTemplate transactionTemplate;
+
+    @Autowired
+    private MissionService missionService;
 
     /**
      * 办理年卡
@@ -60,7 +67,7 @@ public class UserMemberService extends BaseService {
                 }
 
                 //完成任务
-
+                missionService.finishMission(userId, MissionConst.APPLY_YEAR_CARD,"办理年卡");
 
                 //支付对接
             }

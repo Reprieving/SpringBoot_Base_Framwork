@@ -1,13 +1,17 @@
 package com.balance.service.shop;
 
+import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.AssetTurnoverConst;
+import com.balance.constance.MissionConst;
 import com.balance.constance.SettlementConst;
 import com.balance.constance.ShopConst;
 import com.balance.controller.app.req.ShopOrderSkuReq;
+import com.balance.entity.common.CodeEntity;
+import com.balance.entity.mission.Mission;
 import com.balance.entity.shop.*;
 import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
@@ -16,6 +20,7 @@ import com.balance.mapper.shop.OrderMapper;
 import com.balance.mapper.user.UserMapper;
 import com.balance.mapper.user.UserVoucherMapper;
 import com.balance.service.common.WjSmsService;
+import com.balance.service.mission.MissionService;
 import com.balance.service.user.AssetsTurnoverService;
 import com.balance.service.user.UserAssetsService;
 import com.balance.utils.BigDecimalUtils;
@@ -73,6 +78,9 @@ public class OrderService extends BaseService {
     @Autowired
     private UserVoucherMapper userVoucherMapper;
 
+    @Autowired
+    private MissionService missionService;
+
     /**
      * 商城下单
      *
@@ -88,10 +96,7 @@ public class OrderService extends BaseService {
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                 ValueCheckUtils.notEmpty(user, "未找到用户");
                 String userId = user.getId();
-                BigDecimal orderTotalPrice = BigDecimalUtils.newObject(0d);
-
                 Map<String, List<OrderItem>> shopOrderItemMap = new HashMap<>(); // 商铺Id对应的订单
-
                 for (ShopOrderSkuReq orderSkuReq : orderSkuReqList) {
                     //1.检查商品是否支持用户选择的支付方式
                     BigDecimal skuNumber = BigDecimalUtils.newObject(orderSkuReq.getNumber());
@@ -108,7 +113,6 @@ public class OrderService extends BaseService {
                         Map<String, Object> skuWhereMap = ImmutableMap.of(GoodsSku.Spu_id + " = ", spuId, GoodsSku.Spec_json + " = ", orderSkuReq.getSpecIdStr());
                         GoodsSku goodsSku = selectOneByWhereMap(skuWhereMap, GoodsSku.class);
                         ValueCheckUtils.notEmpty(goodsSku, "未找到商品");
-
                         if (orderSkuReq.getNumber() > goodsSku.getStock()) {
                             throw new BusinessException("商品编号" + goodsSku.getSkuNo() + "库存不足");
                         }
@@ -118,8 +122,15 @@ public class OrderService extends BaseService {
                         skuOrSpuId = spuId;
                         skuOrSpuPrice = goodsSpu.getLowPrice();
                     }
+
+                    BigDecimal freight = goodsSpu.getFreight();
+                    //如果邮费等于0，则包邮
+                    if (BigDecimalUtils.ifZero(freight)) {
+                        freight = new BigDecimal(1);
+                    }
+
                     BigDecimal spuTotalPrice = BigDecimalUtils.multiply(skuOrSpuPrice, skuNumber);
-                    orderTotalPrice = BigDecimalUtils.add(orderTotalPrice, spuTotalPrice);
+                    spuTotalPrice = BigDecimalUtils.multiply(spuTotalPrice, freight);
 
                     //获取商铺信息
                     String shopId = goodsSpu.getShopId();
@@ -140,14 +151,18 @@ public class OrderService extends BaseService {
 
                 //3.增加订单记录
                 for (Map.Entry<String, List<OrderItem>> entry : shopOrderItemMap.entrySet()) {
-                    //订单信息
-                    String shopId = entry.getKey();
+                    BigDecimal orderTotalPrice = BigDecimalUtils.newObject(0); // 订单总价格
+                    String shopId = entry.getKey(); //商铺id
+                    List<OrderItem> orderItemList = entry.getValue();  //订单详情
+                    //获取订单总价格
+                    for (OrderItem orderItem : orderItemList) {
+                        orderTotalPrice = BigDecimalUtils.add(orderTotalPrice, orderItem.getTotalPrice());
+                    }
                     String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
                     OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, orderTotalPrice);
                     insertIfNotNull(orderInfo);
 
-                    //订单详情
-                    List<OrderItem> orderItemList = entry.getValue();
+
                     for (OrderItem orderItem : orderItemList) {
                         orderItem.setOrderId(orderInfo.getId());
                     }
@@ -155,13 +170,11 @@ public class OrderService extends BaseService {
 
                     //4.扣除用户资产
                     UserAssets userAssets = selectOneByWhereString(UserAssets.User_id + " = ", userId, UserAssets.class);
-
                     BigDecimal assets = userAssetsService.getAssetsBySettlementId(userAssets, settlementId);
                     int a = assets.compareTo(orderTotalPrice);
                     if (a == -1) {
                         throw new BusinessException("用户资产不足");
                     }
-
                     Integer i = userAssetsService.changeUserAssets(userId, orderTotalPrice, settlementId, userAssets);
                     if (i == 0) {
                         throw new BusinessException("支付失败");
@@ -184,30 +197,43 @@ public class OrderService extends BaseService {
      * @param machineCode 小样机器编码
      */
     public void scanBeauty(String userId, String aisleCode, String machineCode) {
+
         User user = selectOneById(userId, User.class);
         if (StringUtils.isBlank(user.getWxOpenId())) {
             throw new BusinessException("请绑定微信号后再扫码领取");
         }
 
-        //扫码接口
-        PostMethod post = null;
-        try {
-            HttpClient client = new HttpClient();
-            post = new PostMethod("http://pinkjewelry.cn/pinkjewelry/payment/freeCollenctionGoods");
-            post.addRequestHeader("Article_content-Type", "application/x-www-form-urlencoded;charset=utf-8");//在头文件中设置转码
-            NameValuePair[] data = {new NameValuePair("openid", user.getWxOpenId()), new NameValuePair("aisle_code", aisleCode), new NameValuePair("machine_code", machineCode)};
-            post.setRequestBody(data);
-            client.executeMethod(post);
-            String result = new String(post.getResponseBodyAsString().getBytes("utf-8"));
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        } finally {
-            if(post!=null){
-                post.releaseConnection();
-            }
-        }
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                //扫码接口
+                PostMethod post = null;
+                try {
+                    HttpClient client = new HttpClient();
+                    post = new PostMethod("http://pinkjewelry.cn/pinkjewelry/payment/freeCollenctionGoods");
+                    post.addRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");//在头文件中设置转码
+                    NameValuePair[] data = {new NameValuePair("openid", user.getWxOpenId()), new NameValuePair("aisle_code", aisleCode), new NameValuePair("machine_code", machineCode)};
+                    post.setRequestBody(data);
+                    client.executeMethod(post);
+                    String result = new String(post.getResponseBodyAsString().getBytes("utf-8"));
 
-        //获取小样信息接口
+                    CodeEntity codeEntity = JSONObject.parseObject(result, CodeEntity.class);
+                    if (codeEntity != null && codeEntity.getCode() != "00") {
+                        throw new BusinessException("库存异常");
+                    }
+                    missionService.finishMission(user,MissionConst.OBTAIN_BEAUTY,"APP线上领取小样");
+                } catch (IOException e) {
+                    logger.error(e.getMessage());
+                } finally {
+                    if (post != null) {
+                        post.releaseConnection();
+                    }
+                }
+
+                //获取小样信息接口
+
+            }
+        });
 
     }
 
@@ -219,39 +245,45 @@ public class OrderService extends BaseService {
      * @param spuId  商品id
      */
     public void exchangeSpuPackage(String userId, String voucherId, String spuId, String addressId) {
-        UserVoucherRecord userVoucherRecord = userVoucherMapper.getUserVoucher(userId, voucherId);
-        if (userVoucherRecord.getQuantity() == 0) {
-            throw new BusinessException("卡券已用光");
-        }
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                UserVoucherRecord userVoucherRecord = userVoucherMapper.getUserVoucher(userId, voucherId);
+                if (userVoucherRecord.getQuantity() == 0) {
+                    throw new BusinessException("卡券已用光");
+                }
 
-        if (shopVoucherService.checkIfPackageVoucher(userVoucherRecord.getVoucherType())) {
-            //扣除用户优惠券数量
-            if (userVoucherMapper.decreaseQuantity(userVoucherRecord.getId(), userVoucherRecord.getVersion()) == 0) {
-                throw new BusinessException("兑换失败");
+                if (shopVoucherService.checkIfPackageVoucher(userVoucherRecord.getVoucherType())) {
+                    //扣除用户优惠券数量
+                    if (userVoucherMapper.decreaseQuantity(userVoucherRecord.getId(), userVoucherRecord.getVersion()) == 0) {
+                        throw new BusinessException("兑换失败");
+                    }
+
+                    //创建订单
+                    ShopInfo officialShop = selectOneById(ShopConst.SHOP_OFFICIAL, ShopInfo.class);
+                    ValueCheckUtils.notEmpty(officialShop, "未找到商铺");
+                    GoodsSpu goodsSpu = selectOneById(spuId, GoodsSpu.class);
+                    ValueCheckUtils.notEmpty(goodsSpu, "未找到商品");
+
+                    User user = selectOneById(userId, User.class);
+                    String shopId = officialShop.getId();
+                    Integer settlementId = SettlementConst.SETTLEMENT_VOUCHER;
+                    BigDecimal orderTotalPrice = goodsSpu.getLowPrice();
+
+                    String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
+                    OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, orderTotalPrice);
+
+                    if (insertIfNotNull(orderInfo) == 0) {
+                        throw new BusinessException("兑换失败");
+                    }
+
+                    missionService.finishMission(user, MissionConst.EXCHANGE_PACKAGE, "兑换礼包");
+
+                } else {
+                    throw new BusinessException("暂只支持年卡会员卡券，生日卡券使用");
+                }
             }
-
-            //创建订单
-            ShopInfo officialShop = selectOneById(ShopConst.SHOP_OFFICIAL, ShopInfo.class);
-            ValueCheckUtils.notEmpty(officialShop, "未找到商铺");
-            GoodsSpu goodsSpu = selectOneById(spuId, GoodsSpu.class);
-            ValueCheckUtils.notEmpty(goodsSpu, "未找到商品");
-
-            User user = selectOneById(userId, User.class);
-            String shopId = officialShop.getId();
-            Integer settlementId = SettlementConst.SETTLEMENT_VOUCHER;
-            BigDecimal orderTotalPrice = goodsSpu.getLowPrice();
-
-            String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
-            OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, orderTotalPrice);
-
-            if (insertIfNotNull(orderInfo) == 0) {
-                throw new BusinessException("兑换失败");
-            }
-
-        } else {
-            throw new BusinessException("暂只支持年卡会员卡券，生日卡券使用");
-        }
-
+        });
     }
 
 

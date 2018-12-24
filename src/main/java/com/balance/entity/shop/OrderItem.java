@@ -33,10 +33,10 @@ public class OrderItem implements Serializable{
     private Integer number;//数量
 
     @Column(name = Price)
-    private BigDecimal price;//单价
+    private BigDecimal price;//spu单价
 
     @Column(name = Total_price)
-    private BigDecimal totalPrice;//总价
+    private BigDecimal totalPrice;//spu总价
 
     @Column(name = Status)
     private Integer status;

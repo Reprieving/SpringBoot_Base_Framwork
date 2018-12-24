@@ -3,12 +3,16 @@ package com.balance.service.mission;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.constance.AssetTurnoverConst;
 import com.balance.constance.CommonConst;
 import com.balance.constance.MissionConst;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.mission.SignIn;
 import com.balance.entity.mission.SignInfo;
+import com.balance.entity.user.UserAssets;
 import com.balance.mapper.mission.MissionMapper;
+import com.balance.service.user.AssetsTurnoverService;
+import com.balance.service.user.UserAssetsService;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -24,9 +29,6 @@ public class SignInService extends BaseService {
 
     @Autowired
     private MissionService missionService;
-
-    @Autowired
-    private MissionCompleteService missionCompleteService;
 
     @Autowired
     private MissionMapper missionMapper;
@@ -45,16 +47,10 @@ public class SignInService extends BaseService {
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 String today = sdf.format(new Date());
-
                 Integer i = missionMapper.selectCountTodaySign(userId, today);
                 if (i > 0) {
                     throw new BusinessException("今天已签到了");
                 }
-
-                List<Mission> allMission = selectAll(null, Mission.class);
-
-                //每日签到
-                Mission daySignMission = missionService.filterTaskByCode(MissionConst.SIGN_DAY, allMission);
 
                 //每日签到奖励
                 SignIn newSignIn = new SignIn();
@@ -106,19 +102,16 @@ public class SignInService extends BaseService {
                 }
 
                 //每日签到
-                missionCompleteService.createOrUpdateMissionComplete(userId, daySignMission);
+                missionService.finishMission(userId,MissionConst.SIGN_DAY,"每日签到");
 
                 //完成7天连续签到
                 if (seriesSignCount % 7 == 0) {
-                    Mission weekSignMission = missionService.filterTaskByCode(MissionConst.SIGN_WEEK, allMission);
-                    missionCompleteService.createOrUpdateMissionComplete(userId, weekSignMission);
+                    missionService.finishMission(userId,MissionConst.SIGN_WEEK,"每周签到");
                 }
-
 
                 //完成30天连续签到
                 if (seriesSignCount % 30 == 0) {
-                    Mission monthSignMission = missionService.filterTaskByCode(MissionConst.SIGN_MONTH, allMission);
-                    missionCompleteService.createOrUpdateMissionComplete(userId, monthSignMission);
+                    missionService.finishMission(userId,MissionConst.SIGN_MONTH,"每月签到");
                 }
 
             }

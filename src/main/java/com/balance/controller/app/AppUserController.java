@@ -199,21 +199,7 @@ public class AppUserController {
      */
     @RequestMapping("pwd/reset")
     public Result<?> resetPassword(HttpServletRequest request, User userReq) throws UnsupportedEncodingException {
-        String userId;
-        Integer msgType = userReq.getMsgType();
-        if (UserConst.MSG_CODE_TYPE_RESET_LOGINPWD == msgType) {
-            User user = userService.selectOneByWhereString(User.Phone_number + "=", userReq.getPhoneNumber(), User.class);
-            ValueCheckUtils.notEmpty(user, "该手机号未注册");
-            userId = user.getUserId();
-        } else if (UserConst.MSG_CODE_TYPE_RESET_PAYPWD == msgType || UserConst.MSG_CODE_TYPE_SETTLE_PAYPWD == msgType) {
-            userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        } else {
-            throw new BusinessException("短信验证码类型有误");
-        }
-
-        userSendService.validateMsgCode(userId, userReq.getPhoneNumber(), userReq.getMsgCode(), userReq.getMsgType());
-        userService.resetPassword(userId, userReq.getNewPassword(), userReq.getMsgType());
-
+        userService.resetPassword(request,userReq.getNewPassword(),userReq.getPhoneNumber(),userReq.getMsgCode(),userReq.getMsgType());
         return ResultUtils.success("重置密码成功");
     }
 

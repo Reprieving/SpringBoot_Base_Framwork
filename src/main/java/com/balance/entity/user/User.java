@@ -82,13 +82,15 @@ public class User implements Serializable{ //用户信息
     private String oldPassword; //旧密码
     private Integer updatePwdType; //UserConst.UPDATE_PWD_TYPE_* 修改密码类型
     private Integer lockRepOrderCount; //锁仓订单数量
-    private Boolean ifRegister;
+    private Boolean ifRegister;//是否已注册
     private BigDecimal computePower; //算力
     private BigDecimal ih; //IH(美钻)
     private BigDecimal eth; //ETH
     private BigDecimal ore; //矿石
     private Integer certStatus; //认证状态
-
+    private BigDecimal totalIncome = new BigDecimal(0);//总收益
+    private BigDecimal todayIncome = new BigDecimal(0);//今日收益
+    private Integer countMachine = 0;//小样机数量
 
     //DB Column name
     public static final String Id = "id";

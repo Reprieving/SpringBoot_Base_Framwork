@@ -102,8 +102,7 @@ public class InvestigationService extends BaseService{
                     throw new BusinessException("提交问卷失败");
                 }
                 //完成任务
-                Mission mission = missionService.filterTaskByCode(MissionConst.JOIN_INVESTIGATION, missionService.selectAll(null, Mission.class));
-                missionCompleteService.createOrUpdateMissionComplete(userId, mission);
+                
             }
         });
 

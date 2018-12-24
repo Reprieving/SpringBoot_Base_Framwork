@@ -30,7 +30,10 @@ public class Mission implements Serializable {
     private Integer settlementId; //任务类型(支付方式)
 
     @Column(name = Reward_value)
-    private BigDecimal rewardValue; //奖励值
+    private BigDecimal rewardValue; //普通用户奖励值
+
+    @Column(name = Member_reward_value)
+    private BigDecimal memberRewardValue; //会员用户奖励值
 
     @Column(name = Disposable)
     private Integer disposable; //是否一次性任务
@@ -41,22 +44,6 @@ public class Mission implements Serializable {
     @Column(name = Action_name)
     private String actionName; //跳转按钮名
 
-    /**
-     * 1.邀请好友
-     * 2.关注公众号
-     * 3.购买商品
-     * 4.实名认证
-     * 5.锁仓
-     * 6.邀请好友
-     * 7.分享
-     * 8.幸运抽奖
-     * 9.首次充值
-     * 10.新用户注册
-     * 11.每日签到
-     * 12.每周签到
-     * 13.每月签到
-     * 14.新人矿石礼包
-     */
     @Column(name = Redirect_type)
     private Integer redirectType; //跳转类型
 
@@ -78,6 +65,7 @@ public class Mission implements Serializable {
     public static final String Task_code = "task_code";
     public static final String Settlement_id = "settlement_id";
     public static final String Reward_value = "reward_value";
+    public static final String Member_reward_value = "member_reward_value";
     public static final String Disposable = "disposable";
     public static final String Description = "description";
     public static final String Action_name = "action_name";

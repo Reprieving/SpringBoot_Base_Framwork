@@ -26,12 +26,9 @@ public class AppMissionController {
     private SignInService signInService;
 
     @ResponseBody
-    @RequestMapping(value = "/list/{settlementId}", method = RequestMethod.POST)
-    public Result<?> list(HttpServletRequest request, @PathVariable String settlementId) throws UnsupportedEncodingException {
-
-        User user = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME));
-        List<Mission> missions = missionService.getMissionList(user.getId(), settlementId);
-
+    @RequestMapping(value = "/list", method = RequestMethod.POST)
+    public Result<?> list() throws UnsupportedEncodingException {
+        List<Mission> missions = missionService.getMissionList();
         return ResultUtils.success(missions);
     }
 
@@ -40,8 +37,7 @@ public class AppMissionController {
     public Result<?> reward(HttpServletRequest request, @PathVariable String missionCompleteId) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         missionService.obtainMissionReward(missionCompleteId, userId);
-
-        return ResultUtils.success("");
+        return ResultUtils.success();
     }
 
     @ResponseBody
@@ -49,7 +45,7 @@ public class AppMissionController {
     public Result<?> signList(HttpServletRequest request) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         SignInfo signList = signInService.getSignList(userId);
-        return ResultUtils.success(signList, "");
+        return ResultUtils.success(signList);
     }
 
     @ResponseBody
@@ -57,8 +53,7 @@ public class AppMissionController {
     public Result<?> signIn(HttpServletRequest request) throws UnsupportedEncodingException {
         String userId =  JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         signInService.signIn(userId);
-
-        return ResultUtils.success("");
+        return ResultUtils.success();
     }
 
 }

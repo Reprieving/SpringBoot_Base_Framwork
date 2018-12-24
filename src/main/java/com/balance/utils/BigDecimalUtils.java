@@ -7,6 +7,8 @@ import java.math.BigDecimal;
  */
 public class BigDecimalUtils {
 
+    private static final BigDecimal zeroBigDecimal = new BigDecimal(0);
+
     /**
      * 相乘
      *
@@ -61,6 +63,11 @@ public class BigDecimalUtils {
     public static BigDecimal subtract(BigDecimal bigDecimal1, BigDecimal bigDecimal2) {
         return bigDecimal1.subtract(bigDecimal2);
     }
+
+    public static Boolean ifZero(BigDecimal bigDecimal) {
+        return (zeroBigDecimal.compareTo(bigDecimal) == 0);
+    }
+
 
     public static BigDecimal setScale(BigDecimal bigDecimal) {
         return bigDecimal.setScale(SCALE_EIGHT, ROUND_FLOOR);

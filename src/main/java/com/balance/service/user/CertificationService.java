@@ -6,16 +6,13 @@ import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.MissionConst;
 import com.balance.constance.UserConst;
-import com.balance.entity.mission.Mission;
 import com.balance.entity.user.Certification;
+import com.balance.entity.user.User;
 import com.balance.mapper.user.CertificationMapper;
 import com.balance.service.common.AliOSSBusiness;
 import com.balance.service.mission.MissionCompleteService;
 import com.balance.service.mission.MissionService;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -24,7 +21,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -45,13 +41,20 @@ public class CertificationService extends BaseService {
     @Autowired
     private CertificationMapper certificationMapper;
 
+    @Autowired
+    private UserAssetsService userAssetsService;
+
+    @Autowired
+    private AssetsTurnoverService assetsTurnoverService;
+
     /**
      * app端申请实名认证
-     *  @param userId 用户id
+     *
+     * @param userId        用户id
      * @param realName
      * @param licenseNumber
-     * @param frontFiles  图片
-     * @param backFiles  图片
+     * @param frontFiles    图片
+     * @param backFiles     图片
      */
     public void createCert(String userId, String realName, String licenseNumber, MultipartFile frontFiles, MultipartFile backFiles) {
         Certification certificationPo = selectOneByWhereString(Certification.User_id + "= ", userId, Certification.class);
@@ -64,8 +67,8 @@ public class CertificationService extends BaseService {
             }
         }
 
-        ValueCheckUtils.notEmpty(frontFiles,"证件正面图不能为空");
-        ValueCheckUtils.notEmpty(frontFiles,"证件背面图不能为空");
+        ValueCheckUtils.notEmpty(frontFiles, "证件正面图不能为空");
+        ValueCheckUtils.notEmpty(frontFiles, "证件背面图不能为空");
 
         Certification certification = new Certification();
         String fileDirectory = DateFormatUtils.format(new Date(), "yyyy-MM-dd|HH");
@@ -102,6 +105,9 @@ public class CertificationService extends BaseService {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                Certification certificationPo = selectOneById(certId, Certification.class);
+                ValueCheckUtils.notEmpty(certificationPo, "未找到申请实名记录");
+
                 Certification certification = new Certification();
                 certification.setId(certId);
                 certification.setStatus(vertifyStatus);
@@ -109,9 +115,24 @@ public class CertificationService extends BaseService {
                 if (i == 0) {
                     throw new BusinessException("审核失败");
                 }
+
                 if (vertifyStatus == UserConst.USER_CERT_STATUS_PASS) {
-                    Mission mission = missionService.filterTaskByCode(MissionConst.RELEASE_ARTICLE, missionService.selectAll(null, Mission.class));
-                    missionCompleteService.createOrUpdateMissionComplete(certification.getUserId(), mission);
+                    String userId = certificationPo.getUserId();
+                    User user = selectOneById(userId, User.class);
+                    //实名认证
+                    missionService.finishMission(user, MissionConst.CERTIFICATION, "实名认证");
+
+                    //直接邀请
+                    User directInviteUser = selectOneById(user.getInviteId(), User.class);
+                    if (directInviteUser != null) {
+                        missionService.finishMission(directInviteUser, MissionConst.DIRECT_INVITE, "直接邀请实名认证");
+                    }
+
+                    //间接邀请
+                    User inDirectInviteUser = selectOneById(directInviteUser.getInviteId(), User.class);
+                    if (inDirectInviteUser != null) {
+                        missionService.finishMission(inDirectInviteUser, MissionConst.INDIRECT_INVITE, "间接邀请实名认证");
+                    }
                 }
             }
         });

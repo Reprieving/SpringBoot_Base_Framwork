@@ -35,6 +35,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -119,10 +120,6 @@ public class UserService extends BaseService {
                 userFreeCount.setUser_id(userId);
                 insertIfNotNull(userFreeCount);
 
-                //完成新用户注册任务
-                Mission mission = missionService.filterTaskByCode(MissionConst.NEW_REGISTER, missionService.selectAll(null, Mission.class));
-                missionCompleteService.createOrUpdateMissionComplete(userId, mission);
-
             }
         });
     }
@@ -193,11 +190,11 @@ public class UserService extends BaseService {
             if (userPo != null) {
                 throw new BusinessException("用户昵称已存在");
             }
-        } else if(sex != null && (sex == 1 || sex == 2)){
+        } else if (sex != null && (sex == 1 || sex == 2)) {
             user.setSex(sex);
-        } else if(location != null) {
+        } else if (location != null) {
             user.setLocation(addressService.getLocation(location));
-        } else if(birthday != null) {
+        } else if (birthday != null) {
             Timestamp timestamp;
             try {
                 timestamp = new Timestamp(Long.parseLong(birthday));
@@ -266,31 +263,54 @@ public class UserService extends BaseService {
 
 
     /**
-     * 根据短信类型重置密码
+     * 根据短信类型获取用户id，再重置密码
      *
-     * @param userId      用户id
+     * @param request     请求体
      * @param newPassword 新密码
      * @param msgType     短信类型
      */
-    public void resetPassword(String userId, String newPassword, Integer msgType) {
+    public void resetPassword(HttpServletRequest request, String newPassword, String phoneNumber, String msgCode, Integer msgType) throws UnsupportedEncodingException {
+        String userId;
+        if (UserConst.MSG_CODE_TYPE_RESET_LOGINPWD == msgType) {
+            User user = userService.selectOneByWhereString(User.Phone_number + "=", phoneNumber, User.class);
+            ValueCheckUtils.notEmpty(user, "该手机号未注册");
+            userId = user.getUserId();
+        } else if (UserConst.MSG_CODE_TYPE_RESET_PAYPWD == msgType || UserConst.MSG_CODE_TYPE_SETTLE_PAYPWD == msgType) {
+            userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        } else {
+            throw new BusinessException("短信验证码类型有误");
+        }
+
+        userSendService.validateMsgCode(userId, phoneNumber, msgCode, msgType);
+
+        resetPassword(userId,newPassword,msgType);
+    }
+
+    /**
+     * 重置密码
+     *
+     * @param userId      用户id
+     * @param password 支付密码
+     * @param msgType     短信类型
+     */
+    public void resetPassword(String userId, String password, Integer msgType) {
         String updatePWDColumn;
         if (UserConst.MSG_CODE_TYPE_RESET_LOGINPWD == msgType) {
             updatePWDColumn = User.Password;
-            ValueCheckUtils.notEmpty(newPassword, "新密码不能为空");
+            ValueCheckUtils.notEmpty(password, "新密码不能为空");
         } else if (UserConst.MSG_CODE_TYPE_RESET_PAYPWD == msgType || UserConst.MSG_CODE_TYPE_SETTLE_PAYPWD == msgType) {
             updatePWDColumn = User.Pay_password;
         } else {
             throw new BusinessException("短信类型有误");
         }
 
-        newPassword = EncryptUtils.md5Password(newPassword);
-        ValueCheckUtils.notEmpty(newPassword, "新密码字符串异常");
+        password = EncryptUtils.md5Password(password);
+        ValueCheckUtils.notEmpty(password, "新密码字符串异常");
 
-        Integer i = userMapper.updatePassword(userId, newPassword, updatePWDColumn);
+        Integer i = userMapper.updatePassword(userId, password, updatePWDColumn);
         if (i == 0) {
             throw new BusinessException("设置密码失败");
         }
-
     }
 
     /**
@@ -404,11 +424,7 @@ public class UserService extends BaseService {
      * @return
      */
     public User allUserInfo(String userId) {
-        User user = userMapper.getUserInfo(userId);
-        if (user.getCertStatus() == null) {
-            user.setCertStatus(UserConst.USER_CERT_STATUS_NONE);
-        }
-        return user;
+        return userMapper.getUserInfo(userId);
     }
 
     /**
@@ -421,7 +437,7 @@ public class UserService extends BaseService {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                 if (CommonConst.WX_USER_SYNCHRONIZED) {
-                    if(StringUtils.isBlank(userStr)){
+                    if (StringUtils.isBlank(userStr)) {
                         throw new BusinessException("用户字符串不能为空");
                     }
                     List<User> userList = JSONObject.parseArray(userStr, User.class);
@@ -435,7 +451,7 @@ public class UserService extends BaseService {
                         user.setInviteCode(RandomUtil.randomInviteCode(userInviteCodeId.getId()));
                     }
                     try {
-                        insertBatch(userList,false);
+                        insertBatch(userList, false);
                     } catch (Exception e) {
                         CommonConst.WX_USER_SYNCHRONIZED = true;
                         throw new BusinessException("同步用户数据失败");
@@ -511,5 +527,6 @@ public class UserService extends BaseService {
             throw new BusinessException("绑定失败");
         }
     }
+
 
 }
