@@ -2,6 +2,10 @@ package com.balance.utils;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -20,5 +24,14 @@ public class MineDateUtils {
         return new Timestamp(currentDate.getTime());
     }
 
+    /**
+     * 获取今天剩余秒数
+     * @return
+     */
+    public static long getDaySeconds () {
+        // 当天最大时间
+        LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+        return LocalDateTime.now().until(localDateTime, ChronoUnit.SECONDS);
+    }
 
 }

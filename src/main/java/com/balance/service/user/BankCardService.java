@@ -12,6 +12,7 @@ import com.balance.entity.user.BankInfo;
 import com.balance.entity.user.BankWithdraw;
 import com.balance.entity.user.User;
 import com.balance.service.common.GlobalConfigService;
+import com.balance.utils.MineDateUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 银行卡 相关
@@ -142,6 +144,7 @@ public class BankCardService extends BaseService {
         bankWithdraw.setAmount(amount);
         insertIfNotNull(bankWithdraw);
         stringRedisTemplate.opsForValue().increment(redisKey, amountDouble);
+        stringRedisTemplate.expire(redisKey, MineDateUtils.getDaySeconds(), TimeUnit.SECONDS);
     }
 
 
