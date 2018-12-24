@@ -107,7 +107,7 @@ public class AppUserController {
     }
 
     /**
-     * 修改用户信息
+     * 修改用户信息`
      *
      * @param request
      * @return
@@ -155,11 +155,10 @@ public class AppUserController {
      * @return
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping("inviteRecord")
-    public Result<?> inviteRecord(HttpServletRequest request) throws UnsupportedEncodingException {
+    @RequestMapping("inviteRecord/{inviteType}")
+    public Result<?> inviteRecord(HttpServletRequest request,Pagination pagination,@PathVariable Integer inviteType) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        User user = userService.listInviteUser(userId);
-        return ResultUtils.success(user, "");
+        return ResultUtils.success(userService.listInviteUser(userId,inviteType,pagination));
     }
 
     /**

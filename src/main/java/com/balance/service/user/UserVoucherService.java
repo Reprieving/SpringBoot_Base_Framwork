@@ -18,19 +18,17 @@ import java.util.List;
 public class UserVoucherService extends BaseService {
 
     @Autowired
-    private TransactionTemplate transactionTemplate;
-
-    @Autowired
     private UserVoucherMapper userVoucherMapper;
 
     /**
      * 获取用户拥有的卡券
      *
      * @param userId
+     * @param ifValid
      * @return
      */
-    public List<UserVoucherRecord> listUserVoucher(String userId) {
-        return userVoucherMapper.listUserVoucher(userId);
+    public List<UserVoucherRecord> listUserVoucher(String userId, Integer ifValid) {
+        return userVoucherMapper.listUserVoucher(userId,ifValid);
     }
 
 }

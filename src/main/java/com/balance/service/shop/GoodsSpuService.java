@@ -214,7 +214,7 @@ public class GoodsSpuService extends BaseService {
         GoodsCollection goodsCollection = selectOneByWhereMap(whereMap, GoodsCollection.class);
 
         if (goodsCollection == null) {//收藏商品
-            goodsCollection = new GoodsCollection(userId, spuId, goodsSpu.getGoodsName(),goodsSpu.getGoodsDescription(), goodsSpu.getLowPrice(), goodsSpu.getDefaultImgUrl(),goodsSpu.getSpuType());
+            goodsCollection = new GoodsCollection(userId, spuId, goodsSpu.getGoodsName(),goodsSpu.getGoodsDescription(),goodsSpu.getBackgroundColor(), goodsSpu.getLowPrice(), goodsSpu.getDefaultImgUrl(),goodsSpu.getSpuType());
             Integer i = insertIfNotNull(goodsCollection);
             if (i == 0) {
                 throw new BusinessException("收藏商品失败");

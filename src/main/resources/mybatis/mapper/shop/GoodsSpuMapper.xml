@@ -54,6 +54,7 @@
         <result property="lowPrice" column="low_price"></result>
         <result property="goodsName" column="goods_name"></result>
         <result property="goodsDescription" column="goods_description"></result>
+        <result property="backgroundColor" column="background_color"></result>
         <result property="countCollection" column="count_collection"></result>
     </resultMap>
     
@@ -135,7 +136,7 @@
 
     <select id="listGoodsCollection" resultMap="spuCollectionMap">
       SELECT
-        a.id,a.user_id,a.spu_id,a.default_img_url,a.low_price,a.goods_name,a.goods_description,
+        a.id,a.user_id,a.spu_id,a.default_img_url,a.low_price,a.goods_name,a.goods_description,a.background_color,
         (SELECT COUNT(*) FROM goods_collection WHERE spu_id = a.spu_id) AS count_collection,
         (SELECT COUNT(*) FROM order_item WHERE goods_spu_id = a.spu_id) AS count_buy
       FROM goods_collection a

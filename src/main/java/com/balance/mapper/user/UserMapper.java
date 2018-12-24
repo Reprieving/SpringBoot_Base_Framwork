@@ -1,5 +1,7 @@
 package com.balance.mapper.user;
 
+import com.balance.architecture.dto.Pagination;
+import com.balance.entity.user.InviteUserRecord;
 import com.balance.entity.user.User;
 import com.balance.entity.user.UserVoucherRecord;
 import org.apache.ibatis.annotations.Param;
@@ -41,4 +43,12 @@ public interface UserMapper {
     User getUserInfo(@Param("userId")String userId);
 
 
+    /**
+     * 用户邀请列表
+     * @param userId
+     * @param inviteType
+     * @param pagination
+     * @return
+     */
+    List<InviteUserRecord> listInviteUser(@Param("userId")String userId, @Param("inviteType")Integer inviteType,@Param("pagination")Pagination pagination);
 }

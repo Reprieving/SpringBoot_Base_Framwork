@@ -11,10 +11,8 @@ public class MissionConst {
 
     //对应关系在e_mission的task_code字段
     public final static int INVITE_USER_REGISTER = 1; //邀请用户注册
-
     public final static int DIRECT_INVITE = 1; //直接邀请
     public final static int INDIRECT_INVITE = 1; //间接邀请
-
     public final static int APPLY_YEAR_CARD = 2;//办年卡
     public final static int INVITE_SOMEONE_APPLY_YEAR_CARD = 3;//邀请别人办理年卡
     public final static int SIGN_DAY = 4;//每日签到

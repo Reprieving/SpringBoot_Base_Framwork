@@ -31,6 +31,9 @@ public class GoodsCollection implements Serializable {
     @Column(name = Goods_description)
     private String goodsDescription;//商品描述
 
+    @Column(name = Background_color)
+    private String backgroundColor;//背景色
+
     @Column(name = Low_price)
     private BigDecimal lowPrice;//最低价格
 
@@ -50,19 +53,22 @@ public class GoodsCollection implements Serializable {
     public static final String User_id = "user_id";
     public static final String Spu_id = "spu_id";
     public static final String Goods_name = "goods_name";
+    public static final String Background_color = "background_color";
     public static final String Goods_description = "goods_description";
     public static final String Low_price = "low_price";
     public static final String Default_img_url = "default_img_url";
     public static final String Spu_type = "spu_type";
 
+
     public GoodsCollection() {
     }
 
-    public GoodsCollection(String userId, String spuId, String goodsName,String goodsDescription, BigDecimal lowPrice, String defaultImgUrl,Integer spuType) {
+    public GoodsCollection(String userId, String spuId, String goodsName,String goodsDescription,String backgroundColor, BigDecimal lowPrice, String defaultImgUrl,Integer spuType) {
         this.userId = userId;
         this.spuId = spuId;
         this.goodsName = goodsName;
         this.goodsDescription = goodsDescription;
+        this.backgroundColor = backgroundColor;
         this.lowPrice = lowPrice;
         this.defaultImgUrl = defaultImgUrl;
         this.spuType = spuType;

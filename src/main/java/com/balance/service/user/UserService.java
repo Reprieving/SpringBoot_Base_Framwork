@@ -1,6 +1,7 @@
 package com.balance.service.user;
 
 import com.alibaba.fastjson.JSONObject;
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
@@ -20,6 +21,7 @@ import com.balance.service.mission.MissionService;
 import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
 import com.google.common.collect.ImmutableMap;
+import com.sun.org.apache.bcel.internal.generic.RETURN;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,12 +62,6 @@ public class UserService extends BaseService {
     private AliOSSBusiness aliOSSBusiness;
 
     @Autowired
-    private MissionService missionService;
-
-    @Autowired
-    private MissionCompleteService missionCompleteService;
-
-    @Autowired
     private RedisClient redisClient;
 
     @Autowired
@@ -73,6 +69,9 @@ public class UserService extends BaseService {
 
     @Autowired
     private AddressService addressService;
+
+    @Autowired
+    private MissionService missionService;
 
     /**
      * 注册用户
@@ -228,37 +227,8 @@ public class UserService extends BaseService {
      * @param userId 用户id
      * @return
      */
-    @Cacheable(value = "listInviteUser", sync = true)
-    public User listInviteUser(String userId) {
-        List<User> allUser = listUser4InviteRecord();
-
-        //直接邀请用户列表
-        List<User> directUserList = new ArrayList<>();
-        for (Iterator it = allUser.iterator(); it.hasNext(); ) {
-            User user = (User) it.next();
-            if (user.getInviteId() == null) {
-                continue;
-            }
-            if (user.getInviteId().equals(userId)) {
-                directUserList.add(user);
-                it.remove();
-            }
-        }
-
-        //间接邀请用户列表
-        List<User> inDirectUserList = new ArrayList<>();
-        for (User user1 : allUser) {
-            for (User user2 : directUserList) {
-                if (user1.getInviteId() == null) {
-                    continue;
-                }
-                if (user1.getInviteId().equals(user2.getId())) {
-                    inDirectUserList.add(user1);
-                }
-            }
-        }
-
-        return new User(directUserList, inDirectUserList);
+    public List<InviteUserRecord> listInviteUser(String userId, Integer inviteType, Pagination pagination) {
+        return userMapper.listInviteUser(userId,inviteType,pagination);
     }
 
 
@@ -283,15 +253,15 @@ public class UserService extends BaseService {
 
         userSendService.validateMsgCode(userId, phoneNumber, msgCode, msgType);
 
-        resetPassword(userId,newPassword,msgType);
+        resetPassword(userId, newPassword, msgType);
     }
 
     /**
      * 重置密码
      *
-     * @param userId      用户id
+     * @param userId   用户id
      * @param password 支付密码
-     * @param msgType     短信类型
+     * @param msgType  短信类型
      */
     public void resetPassword(String userId, String password, Integer msgType) {
         String updatePWDColumn;
@@ -400,21 +370,28 @@ public class UserService extends BaseService {
      * @param userId
      */
     public void updateInviteCode(String userId, String inviteCode) {
-        ValueCheckUtils.notEmpty(inviteCode, "邀请码不能为空");
-        User inviteUser = selectOneByWhereString(User.Invite_code + " = ", inviteCode, User.class);
-        if (inviteUser == null) {
-            throw new BusinessException("邀请码错误,请重新输入");
-        }
-        String inviteId = inviteUser.getId();
-        User user = selectOneById(userId, User.class);
-        if (user.getInviteId() != null) {
-            throw new BusinessException("该用户已设置邀请Id");
-        }
-        user.setId(userId);
-        user.setInviteId(inviteId);
-        if (updateIfNotNull(user) == 0) {
-            throw new BusinessException("更新邀请用户ID失败");
-        }
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                ValueCheckUtils.notEmpty(inviteCode, "邀请码不能为空");
+                User directInviteUser = selectOneByWhereString(User.Invite_code + " = ", inviteCode, User.class); //直接邀请用户
+                String directInviteId = directInviteUser.getId();
+
+                if (directInviteUser == null) {
+                    throw new BusinessException("邀请码错误,请重新输入");
+                }
+
+                User user = selectOneById(userId, User.class);
+                if (user.getInviteId() != null) {
+                    throw new BusinessException("该用户已设置邀请人");
+                }
+                user.setId(userId);
+                user.setInviteId(directInviteId);
+                if (updateIfNotNull(user) == 0) {
+                    throw new BusinessException("更新邀请用户ID失败");
+                }
+            }
+        });
     }
 
     /**

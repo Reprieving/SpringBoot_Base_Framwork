@@ -29,9 +29,6 @@ public class MissionService extends BaseService {
     private TransactionTemplate transactionTemplate;
 
     @Autowired
-    private MissionCompleteService missionCompleteService;
-
-    @Autowired
     private UserAssetsService userAssetsService;
 
     @Autowired

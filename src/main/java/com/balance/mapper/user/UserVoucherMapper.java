@@ -14,7 +14,7 @@ public interface UserVoucherMapper {
      * @param userId
      * @return
      */
-    List<UserVoucherRecord> listUserVoucher(@Param("userId") String userId);
+    List<UserVoucherRecord> listUserVoucher(@Param("userId") String userId,@Param("ifValid") Integer ifValid);
 
     /**
      * 查找用户指定的卡券信息

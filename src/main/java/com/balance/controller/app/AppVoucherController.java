@@ -5,6 +5,7 @@ import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
 import com.balance.service.user.UserVoucherService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,10 +25,10 @@ public class AppVoucherController {
      * @return
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping("list")
-    public Result<?> voucherList(HttpServletRequest request) throws UnsupportedEncodingException {
+    @RequestMapping("list/{ifValid}")
+    public Result<?> voucherList(HttpServletRequest request, @PathVariable Integer ifValid) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        return ResultUtils.success(userVoucherService.listUserVoucher(userId));
+        return ResultUtils.success(userVoucherService.listUserVoucher(userId,ifValid));
     }
 
 

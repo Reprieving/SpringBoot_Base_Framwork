@@ -6,7 +6,9 @@ import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.MissionConst;
 import com.balance.constance.UserConst;
+import com.balance.entity.mission.Mission;
 import com.balance.entity.user.Certification;
+import com.balance.entity.user.InviteUserRecord;
 import com.balance.entity.user.User;
 import com.balance.mapper.user.CertificationMapper;
 import com.balance.service.common.AliOSSBusiness;
@@ -20,6 +22,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -122,17 +125,34 @@ public class CertificationService extends BaseService {
                     //实名认证
                     missionService.finishMission(user, MissionConst.CERTIFICATION, "实名认证");
 
+                    //增加邀请记录
                     //直接邀请
                     User directInviteUser = selectOneById(user.getInviteId(), User.class);
                     if (directInviteUser != null) {
                         missionService.finishMission(directInviteUser, MissionConst.DIRECT_INVITE, "直接邀请实名认证");
                     }
+                    Mission directMission = missionService.filterTaskByCode(MissionConst.DIRECT_INVITE, selectAll(null, Mission.class));//直接邀请任务
+                    BigDecimal directRewardValue = directMission.getRewardValue();
+
+                    if (directInviteUser.getMemberType() == UserConst.USER_MEMBER_TYPE_COMMON && directMission.getMemberRewardValue() != null) {
+                        directRewardValue = directMission.getMemberRewardValue();
+                    }
+                    InviteUserRecord directInviteRecord = new InviteUserRecord(userId, directInviteUser.getId(), UserConst.USER_INVITE_TYPE_DIRECT, directRewardValue, directInviteUser.getCreateTime());
+                    insertIfNotNull(directInviteRecord);
 
                     //间接邀请
                     User inDirectInviteUser = selectOneById(directInviteUser.getInviteId(), User.class);
                     if (inDirectInviteUser != null) {
                         missionService.finishMission(inDirectInviteUser, MissionConst.INDIRECT_INVITE, "间接邀请实名认证");
                     }
+                    Mission inDirectMission = missionService.filterTaskByCode(MissionConst.DIRECT_INVITE, selectAll(null, Mission.class));//直接邀请任务
+                    BigDecimal inDirectRewardValue = inDirectMission.getRewardValue();
+                    if (directInviteUser.getMemberType() == UserConst.USER_MEMBER_TYPE_COMMON && inDirectMission.getMemberRewardValue() != null) {
+                        inDirectRewardValue = inDirectMission.getMemberRewardValue();
+                    }
+                    InviteUserRecord inDirectInviteRecord = new InviteUserRecord(userId, inDirectInviteUser.getId(), UserConst.USER_INVITE_TYPE_INDIRECT, inDirectRewardValue, inDirectInviteUser.getCreateTime());
+                    insertIfNotNull(inDirectInviteRecord);
+
                 }
             }
         });
