@@ -46,5 +46,6 @@ public class RedisKeyConst {
         return SAMPLE_MACHINE_ID.replace(SampleMachineLocation.CityCode, cityCode);
     }
 
+    public static final String BANK_WITHDRAW_AMOUNT = "BANK_AMOUNT:";
 
 }

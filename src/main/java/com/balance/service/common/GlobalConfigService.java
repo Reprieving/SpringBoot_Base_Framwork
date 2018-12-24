@@ -56,6 +56,10 @@ public class GlobalConfigService extends BaseService{
         return value;
     }
 
+    public double getDouble (String key) {
+        return Double.parseDouble(get(key));
+    }
+
     public static class Constance {
         //阿里云OSS配置
         public final static String OSS_ACCESS_KEY_ID = "OSS_ACCESS_KEY_ID";
@@ -71,6 +75,11 @@ public class GlobalConfigService extends BaseService{
         public final static String WJ_SMS_ACCESS_KEY = "WJ_SMS_ACCESS_KEY";
         public final static String WJ_SMS_UID = "WJ_SMS_UID";
 
+
+        /** 银行卡提现 最低额度 */
+        public final static String BANK_WITHDRAW_LOWEST = "BANK_WITHDRAW_LOWEST";
+        /** 银行卡提现 最高额度 */
+        public final static String BANK_WITHDRAW_HIGHEST = "BANK_WITHDRAW_HIGHEST";
     }
 
 }

@@ -26,6 +26,7 @@ public class UserConst {
     public static final int MSG_CODE_TYPE_UNBIND_PHONE = 5;//解绑手机号码
     public static final int MSG_CODE_TYPE_BIND_PHONE = 6;//绑定手机号码
     public static final int MSG_CODE_TYPE_BIND_BANK = 7;//绑定银行卡
+    public static final int MSG_CODE_TYPE_BANK_WITHDRAW = 8;//银行卡提现
 
     //提交实名认证图片类型
     public static final String APPLY_CERT_PIC_TYPE_FRONT = "front";//注册

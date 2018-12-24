@@ -92,6 +92,11 @@ public class UserSendService extends BaseService {
                 phoneNumber = selectOneById(userId, User.class).getPhoneNumber();
                 msgTypeStr = "[绑定银行卡]";
                 break;
+            case UserConst.MSG_CODE_TYPE_BANK_WITHDRAW:
+                userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+                phoneNumber = selectOneById(userId, User.class).getPhoneNumber();
+                msgTypeStr = "[银行卡提现]";
+                break;
         }
 
         //验证发送短信次数
@@ -142,6 +147,10 @@ public class UserSendService extends BaseService {
             throw new BusinessException("短信验证码已经过期");
         }
 
+    }
+
+    public void validateMsgCode(String userId, String msgCode, Integer msgType) {
+        validateMsgCode(userId, userService.selectOneById(userId, User.class).getPhoneNumber(), msgCode, msgType);
     }
 
 

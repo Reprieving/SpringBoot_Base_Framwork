@@ -22,6 +22,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 调查问卷
+ */
 @Service
 public class InvestigationService extends BaseService{
 
@@ -69,7 +72,7 @@ public class InvestigationService extends BaseService{
             throw new BusinessException("数据状态异常");
         }
         List<OrderItem> orderItems = selectListByWhereString(OrderItem.Order_id + " = ", orderId, null, OrderItem.class);
-        if (orderItems == null && orderItems.size() != 1) {
+        if (orderItems == null || orderItems.size() != 1) {
             // 订单项为空, 或者订单项不是一个
             throw new BusinessException("数据状态异常");
         }

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -379,6 +380,9 @@ public class AppUserController {
         return ResultUtils.success("数据同步成功");
     }
 
+    /**
+     * app 检查版本
+     */
     @RequestMapping("checkVer")
     public Result<?> checkVersion(String device, String version) {
         if (StringUtils.isBlank(device) || StringUtils.isBlank(version)) {
@@ -388,11 +392,17 @@ public class AppUserController {
     }
 
 
+    /**
+     * 银行卡 列表
+     */
     @GetMapping("bankInfo")
     public Result<?> bankInfo() {
         return ResultUtils.success(bankCardService.selectAll(null, BankInfo.class));
     }
 
+    /**
+     * 用户已绑定 银行卡 列表
+     */
     @GetMapping("bankList")
     public Result<?> bankList(HttpServletRequest request, Pagination pagination) throws UnsupportedEncodingException {
         return ResultUtils.success(bankCardService.getList(
@@ -401,6 +411,9 @@ public class AppUserController {
         ));
     }
 
+    /**
+     * 添加银行卡
+     */
     @PostMapping("addBank")
     public Result<?> addBank(HttpServletRequest request, BankCard bankCard, String msgCode, String bankId) throws UnsupportedEncodingException {
         bankCard.setUserId(JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
@@ -408,6 +421,9 @@ public class AppUserController {
         return ResultUtils.success();
     }
 
+    /**
+     * 删除银行卡
+     */
     @GetMapping("removeBank/{cardId}")
     public Result<?> removeBank(HttpServletRequest request, @PathVariable String cardId) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
@@ -418,7 +434,9 @@ public class AppUserController {
         return ResultUtils.success();
     }
 
-
+    /**
+     * 提交 意见反馈
+     */
     @PostMapping("addFeedback")
     public Result<?> addFeedback(HttpServletRequest request, String content, Integer type) throws UnsupportedEncodingException {
         Feedback feedback = new Feedback();
@@ -426,6 +444,31 @@ public class AppUserController {
         feedback.setType(type);
         feedback.setContent(content);
         feedbackService.add(feedback);
+        return ResultUtils.success();
+    }
+
+    /**
+     * 提现列表
+     */
+    @GetMapping("withdrawList")
+    public Result<?> withdrawList(HttpServletRequest request, Pagination pagination) throws UnsupportedEncodingException {
+        return ResultUtils.success(bankCardService.withdrawList(
+                JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId(),
+                pagination
+        ));
+    }
+
+    /**
+     * 提现申请
+     */
+    @PostMapping("withdrawApply")
+    public Result<?> withdrawApply(HttpServletRequest request, String cardId, BigDecimal amount, String msgCode) throws UnsupportedEncodingException {
+        if (StringUtils.isBlank(cardId) || StringUtils.isBlank(msgCode)) {
+            return ResultUtils.error("缺少必要参数");
+        }
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        userSendService.validateMsgCode(userId, msgCode, UserConst.MSG_CODE_TYPE_BANK_WITHDRAW);
+        bankCardService.withdrawApply(userId, cardId, amount);
         return ResultUtils.success();
     }
 }
