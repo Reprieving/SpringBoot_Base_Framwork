@@ -146,11 +146,10 @@ public class UserSendService extends BaseService {
         if (minutes > 15) {
             throw new BusinessException("短信验证码已经过期");
         }
-
     }
 
     public void validateMsgCode(String userId, String msgCode, Integer msgType) {
-        validateMsgCode(userId, userService.selectOneById(userId, User.class).getPhoneNumber(), msgCode, msgType);
+        validateMsgCode(userId, userService.getById(userId).getPhoneNumber(), msgCode, msgType);
     }
 
 

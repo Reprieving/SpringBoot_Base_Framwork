@@ -62,6 +62,8 @@ public class AppUserController {
     @Autowired
     private FeedbackService feedbackService;
 
+    @Autowired
+    private ThirdPartyService thirdPartyService;
 
 
     /**
@@ -303,21 +305,16 @@ public class AppUserController {
 
     /**
      * 绑定第三方
-     * @param type
-     * @param openId
-     * @return
      */
-    @GetMapping("binding/{type}/{openId}")
-    public Result<?> binding(@PathVariable String type, @PathVariable String openId, HttpServletRequest request) throws UnsupportedEncodingException {
-        userService.binding(type, openId, JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
+    @GetMapping("binding/{type}/{code}")
+    public Result<?> binding(@PathVariable String type, @PathVariable String code, HttpServletRequest request) throws UnsupportedEncodingException {
+        thirdPartyService.binding(type, code, JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
         return ResultUtils.success();
     }
 
 
     /**
      * 解绑第三方
-     * @param type
-     * @return
      */
     @GetMapping("unbind/{type}")
     public Result<?> unbind(@PathVariable String type, HttpServletRequest request) throws UnsupportedEncodingException {
@@ -335,7 +332,7 @@ public class AppUserController {
      */
     @GetMapping("checkMsgCode")
     public Result<?> checkMsgCode(HttpServletRequest request, Integer type, String msgCode) throws UnsupportedEncodingException {
-        userService.checkSmsCode(type, msgCode, JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
+        userSendService.validateMsgCode(JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId(), msgCode, type);
         return ResultUtils.success();
     }
 

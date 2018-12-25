@@ -43,18 +43,18 @@ public class AliOSSBusiness {
 	@PostConstruct
 	public void init(){
 
-		String appKey = globalConfigService.get(GlobalConfigService.Constance.OSS_ACCESS_KEY_ID);
-		String secret = globalConfigService.get(GlobalConfigService.Constance.OSS_ACCESS_KEY_SECRET);
+		String appKey = globalConfigService.get(GlobalConfigService.Enum.OSS_ACCESS_KEY_ID);
+		String secret = globalConfigService.get(GlobalConfigService.Enum.OSS_ACCESS_KEY_SECRET);
 
-		OSS_COMMON_BUCKET_NAME = globalConfigService.get(GlobalConfigService.Constance.OSS_COMMON_BUCKET_NAME);
+		OSS_COMMON_BUCKET_NAME = globalConfigService.get(GlobalConfigService.Enum.OSS_COMMON_BUCKET_NAME);
 
 		//系统域名
-		SYSTEM_DOMAIN = globalConfigService.get(GlobalConfigService.Constance.SYSTEM_DOMAIN);
+		SYSTEM_DOMAIN = globalConfigService.get(GlobalConfigService.Enum.SYSTEM_DOMAIN);
 
 		//敏感bucket_name
-		SENSITIVE_BUCKET_NAME = globalConfigService.get(GlobalConfigService.Constance.OSS_SENSITIVE_BUCKET_NAME);
+		SENSITIVE_BUCKET_NAME = globalConfigService.get(GlobalConfigService.Enum.OSS_SENSITIVE_BUCKET_NAME);
 
-		endPoint = globalConfigService.get(GlobalConfigService.Constance.OSS_END_POINT);
+		endPoint = globalConfigService.get(GlobalConfigService.Enum.OSS_END_POINT);
 
 		client = new OSSClient(endPoint , appKey, secret);
 	}

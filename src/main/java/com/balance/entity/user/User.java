@@ -59,6 +59,9 @@ public class User implements Serializable{ //用户信息
     @Column(name = Wx_open_id)
     private String wxOpenId;//微信OpenId
 
+    @Column(name = Wx_nickname)
+    private String wxNickname;//微信昵称
+
     @Column(name = Sex)
     private Integer sex;//性别 1.男, 2.女
 
@@ -107,6 +110,7 @@ public class User implements Serializable{ //用户信息
     public static final String Type = "type";
     public static final String Level = "level";
     public static final String Wx_open_id = "wx_open_id";
+    public static final String Wx_nickname = "wx_nickname";
     public static final String Sex = "sex";
     public static final String Location = "location";
     public static final String Birthday = "birthday";

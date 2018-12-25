@@ -10,22 +10,19 @@ import com.balance.client.RedisClient;
 import com.balance.constance.*;
 import com.balance.entity.common.UserFreeCount;
 import com.balance.entity.common.UserInviteCodeId;
-import com.balance.entity.mission.Mission;
 import com.balance.entity.user.*;
 import com.balance.mapper.common.AutoIncreaseIdMapper;
 import com.balance.mapper.user.UserMapper;
 import com.balance.service.common.AddressService;
 import com.balance.service.common.AliOSSBusiness;
-import com.balance.service.mission.MissionCompleteService;
 import com.balance.service.mission.MissionService;
 import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
 import com.google.common.collect.ImmutableMap;
-import com.sun.org.apache.bcel.internal.generic.RETURN;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.GeoResult;
 import org.springframework.data.geo.GeoResults;
@@ -43,6 +40,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 
+@Slf4j
 @Service
 public class UserService extends BaseService {
 
@@ -441,29 +439,8 @@ public class UserService extends BaseService {
         });
     }
 
-    public void binding(String type, String openId, String userId) {
-        User user = userService.selectOneById(userId, User.class);
-        int result = 0;
-        switch (type) {
-            case "wx":
-                String oldOpenId = user.getWxOpenId();
-                if (StringUtils.isNotBlank(oldOpenId) && oldOpenId.equals(openId)) {
-                    throw new BusinessException("不能绑定同一个微信");
-                }
-                if (userService.selectOneByWhereString(User.Wx_open_id + " = ", openId, User.class) != null) {
-                    throw new BusinessException("该微信已经绑定其它账号");
-                }
-                user = new User();
-                user.setId(userId);
-                user.setWxOpenId(openId);
-                result = userService.updateIfNotNull(user);
-                break;
-        }
-        ValueCheckUtils.notZero(result, "绑定失败");
-    }
-
     public void unbind(String type, String userId) {
-        User user = userService.selectOneById(userId, User.class);
+        User user = getById(userId);
         int result = 0;
         switch (type) {
             case "wx":
@@ -472,30 +449,23 @@ public class UserService extends BaseService {
                 }
                 User update = new User();
                 update.setWxOpenId(StringUtils.EMPTY);
+                update.setWxNickname(StringUtils.EMPTY);
                 userService.updateIfNotNull(update);
                 break;
         }
         ValueCheckUtils.notZero(result, "解绑失败");
     }
 
-    public void checkSmsCode(Integer type, String msgCode, String userId) {
-        if (type == UserConst.MSG_CODE_TYPE_UNBIND_PHONE) {
-            User user = userService.selectOneById(userId, User.class);
-            String phoneNumber = user.getPhoneNumber();
-            if (StringUtils.isBlank(phoneNumber)) {
-                throw new BusinessException("您还没有绑定手机号码");
-            }
-            userSendService.validateMsgCode(userId, phoneNumber, msgCode, UserConst.MSG_CODE_TYPE_UNBIND_PHONE);
-            return;
-        }
-        throw new BusinessException("短信验证错误");
-    }
 
+    /**
+     * 绑定手机号码
+     */
     public void bindPhone(String msgCode, String phoneNumber, String userId) {
         User user = userService.selectOneByWhereString(User.Phone_number + " = ", phoneNumber, User.class);
         if (user != null) {
             throw new BusinessException("该手机号码已经绑定其它账号");
         }
+        // TODO 安全性校验
         userSendService.validateMsgCode(userId, phoneNumber, msgCode, UserConst.MSG_CODE_TYPE_BIND_PHONE);
         User update = new User();
         update.setId(userId);
@@ -505,5 +475,8 @@ public class UserService extends BaseService {
         }
     }
 
+    public User getById(String userId) {
+        return userService.selectOneById(userId, User.class);
+    }
 
 }
