@@ -4,39 +4,37 @@ import com.balance.architecture.exception.BusinessException;
 import com.balance.entity.common.Address;
 import com.balance.mapper.common.AddressMapper;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
+/**
+ * 国家省份城市地区
+ */
+@CacheConfig(cacheNames = "addressCache")
 @Service
 public class AddressService {
 
     @Autowired
     private AddressMapper addressMapper;
 
+    /**
+     * 通过 父 ID 获取列表, 查出来第一次缓存
+     * @param pid
+     * @return
+     */
+    @Cacheable(key = "#pid")
     public List<Address> getByPid (int pid) {
         return addressMapper.selectListByPid(pid);
     }
 
-
-    @Deprecated
-    public String getLocation (String location) {
-        String[] split = location.split(",");
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < split.length; i++) {
-            String id = split[i];
-            Address address = addressMapper.selectById(Integer.parseInt(id));
-            if (address.getLevel() != i) {
-                throw new BusinessException("地址数据有误");
-            }
-            sb.append(address.getName()).append(StringUtils.SPACE);
-        }
-        return sb.toString().substring(0, sb.lastIndexOf(StringUtils.SPACE));
-    }
-
+    /**
+     * 通过最后一级ID 得到 国家省市区
+     */
     public String getLocation (Integer location) {
         List<Address> addressList = addressMapper.selectListByPid(location);
         if (CollectionUtils.isNotEmpty(addressList)) {
@@ -44,10 +42,10 @@ public class AddressService {
         }
         Address address;
         String str = "";
-        address = addressMapper.selectById(location);
+        address = getById(location);
         str = address.getName() + str;
         while (address.getPid() != 0) {
-            address = addressMapper.selectById(address.getPid());
+            address = getById(address.getPid());
             if (address == null) {
                 break;
             }
@@ -56,5 +54,18 @@ public class AddressService {
         return str;
     }
 
+    /**
+     * 通过 主键ID 查询, 第一次查询进行缓存
+     */
+    @Cacheable(key = "#id")
+    public Address getById(Integer id) {
+        return addressMapper.selectById(id);
+    }
+
+    /**
+     * 清除所有缓存
+     */
+    @CacheEvict(allEntries = true)
+    public void evict() {}
 
 }

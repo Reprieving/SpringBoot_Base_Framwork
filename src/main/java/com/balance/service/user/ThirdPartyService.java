@@ -3,6 +3,9 @@ package com.balance.service.user;
 import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.dto.WeiXinInfo;
 import com.balance.architecture.exception.BusinessException;
+import com.balance.architecture.utils.JwtUtils;
+import com.balance.client.RedisClient;
+import com.balance.constance.RedisKeyConst;
 import com.balance.utils.HttpClientUtils;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.entity.user.User;
@@ -25,6 +28,9 @@ public class ThirdPartyService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RedisClient redisClient;
 
     /** 微信 通过code获取access_token 的 url, 请格式化字符串: 1. appId, 2.appSecret, 3. code */
     private static final String WX_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code";
@@ -82,6 +88,7 @@ public class ThirdPartyService {
      * @return
      */
     public int bindWx(String userId, String code) {
+        // 获取openId
         WeiXinInfo weiXinInfo = getAccessToken4Wx(code);
         User user = userService.getById(userId);
         String openId = weiXinInfo.getOpenId();
@@ -92,6 +99,7 @@ public class ThirdPartyService {
         if (userService.selectOneByWhereString(User.Wx_open_id + " = ", openId, User.class) != null) {
             throw new BusinessException("该微信已经绑定其它账号");
         }
+        // 获取微信用户 昵称等信息
         weiXinInfo = getWxInfo(weiXinInfo);
         user = new User();
         user.setId(userId);
@@ -100,9 +108,28 @@ public class ThirdPartyService {
         return userService.updateIfNotNull(user);
     }
 
-    public int wxLogin(String userId) {
-        User user = userService.getById(userId);
-        return 0;
+    /**
+     * 微信登录
+     * @param code
+     * @return
+     */
+    public User wxLogin(String code, String ip) {
+        WeiXinInfo accessToken4Wx = getAccessToken4Wx(code);
+        User user = userService.selectOneByWhereString(User.Wx_open_id + " = ", accessToken4Wx.getOpenId(), User.class);
+        Boolean isReg = user != null && StringUtils.isNotBlank(user.getPhoneNumber());
+        if (isReg) {
+            //已经 注册 并绑定了手机号码
+            user.setAccessToken(JwtUtils.createToken(user));
+        } else {
+            //没有注册 创建用户 要求绑定手机号码
+            user = new User();
+            user.setWxNickname(accessToken4Wx.getNickname());
+            user.setWxOpenId(accessToken4Wx.getOpenId());
+            userService.createUser(user);
+            redisClient.setForTimeMIN(RedisKeyConst.USER_IP_INFO + user.getUserId(), ip, 5);
+        }
+        user.setIfRegister(isReg);
+        return user;
     }
 
 }

@@ -10,6 +10,7 @@
         <result property="inviteId" column="invite_id"></result>
         <result property="inviteCode" column="invite_code"></result>
         <result property="wxOpenId" column="wx_open_id"></result>
+        <result property="wxNickname" column="wx_nickname"></result>
         <result property="sex" column="sex"></result>
         <result property="location" column="location"></result>
         <result property="birthday" column="birthday"></result>
@@ -55,7 +56,7 @@
 
 
     <select id="getUserInfo" resultMap="userMap">
-        SELECT a.user_name,a.phone_number,a.invite_code,a.create_time,a.status,a.wx_open_id,a.sex,a.location,a.birthday,a.head_picture_url,a.member_type,
+        SELECT a.user_name,a.phone_number,a.invite_code,a.create_time,a.status,a.wx_nickname,a.sex,a.location,a.birthday,a.head_picture_url,a.member_type,
                 b.compute_power,b.ih,b.eth,b.ore,
                 c.status AS cert_status
          FROM user_info a

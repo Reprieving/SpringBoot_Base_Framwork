@@ -81,12 +81,6 @@ public class UserService extends BaseService {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                ValueCheckUtils.notEmpty(user.getPhoneNumber(), "手机号码不能为空");
-
-                User user1 = selectOneByWhereString(User.Phone_number + " = ", user.getPhoneNumber(), User.class);
-                if (user1 != null) {
-                    throw new BusinessException("手机号已被注册");
-                }
 
                 user.setUserName("");
                 user.setCreateTime(new Timestamp(System.currentTimeMillis()));
@@ -126,9 +120,8 @@ public class UserService extends BaseService {
      *
      * @param user
      * @return
-     * @throws UnsupportedEncodingException
      */
-    public User login(User user) throws UnsupportedEncodingException {
+    public User login(User user) {
         //验证码校验
         String userId = user.getUserId();
         ValueCheckUtils.notEmpty(userId, "用户id不能为空");
@@ -138,17 +131,17 @@ public class UserService extends BaseService {
 
         User user1 = selectOneByWhereMap(paramMap, User.class);
         Boolean ifRegister = true;
-        if (user1 == null) {
+        if (user1 == null && StringUtils.isBlank(user1.getWxOpenId())) {
+            //手机号码第一次登录
             ifRegister = false;
             userService.createUser(user);
             user1 = selectOneById(user.getId(), User.class);
-        }
+        } else if(StringUtils.isBlank(user1.getPhoneNumber())){
+            //微信登录 没有绑定手机号码
 
-        user1.setPassword("");
-        user1.setPayPassword("");
+        }
         user1.setAccessToken(JwtUtils.createToken(user1));
         user1.setIfRegister(ifRegister);
-
         return user1;
     }
 
@@ -439,6 +432,11 @@ public class UserService extends BaseService {
         });
     }
 
+    /**
+     * 解绑 第三方
+     * @param type
+     * @param userId
+     */
     public void unbind(String type, String userId) {
         User user = getById(userId);
         int result = 0;
@@ -460,13 +458,13 @@ public class UserService extends BaseService {
     /**
      * 绑定手机号码
      */
-    public void bindPhone(String msgCode, String phoneNumber, String userId) {
+    public void bindPhone(String msgCode, String phoneNumber, String userId, int type) {
         User user = userService.selectOneByWhereString(User.Phone_number + " = ", phoneNumber, User.class);
         if (user != null) {
             throw new BusinessException("该手机号码已经绑定其它账号");
         }
         // TODO 安全性校验
-        userSendService.validateMsgCode(userId, phoneNumber, msgCode, UserConst.MSG_CODE_TYPE_BIND_PHONE);
+        userSendService.validateMsgCode(userId, phoneNumber, msgCode, type);
         User update = new User();
         update.setId(userId);
         update.setPhoneNumber(phoneNumber);
