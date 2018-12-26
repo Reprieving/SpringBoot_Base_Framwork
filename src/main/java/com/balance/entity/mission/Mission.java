@@ -53,6 +53,9 @@ public class Mission implements Serializable {
     @Column(name = If_valid)
     private Integer ifValid; //是否有效
 
+    @Column(name = Icon)
+    private String icon;  //图标链接
+
 
     //---扩展
     private Integer state; //状态
@@ -72,4 +75,5 @@ public class Mission implements Serializable {
     public static final String Redirect_type = "redirect_type";
     public static final String If_valid = "if_valid";
     public static final String Task_type = "task_type";
+    public static final String Icon = "icon";
 }
