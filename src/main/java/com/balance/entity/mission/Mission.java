@@ -47,8 +47,6 @@ public class Mission implements Serializable {
     @Column(name = Redirect_type)
     private Integer redirectType; //跳转类型
 
-    @Column(name = Task_type)
-    private Integer taskType; //任务类型
 
     @Column(name = If_valid)
     private Integer ifValid; //是否有效
