@@ -131,14 +131,11 @@ public class UserService extends BaseService {
 
         User user1 = selectOneByWhereMap(paramMap, User.class);
         Boolean ifRegister = true;
-        if (user1 == null && StringUtils.isBlank(user1.getWxOpenId())) {
+        if (user1 == null) {
             //手机号码第一次登录
             ifRegister = false;
             userService.createUser(user);
             user1 = selectOneById(user.getId(), User.class);
-        } else if(StringUtils.isBlank(user1.getPhoneNumber())){
-            //微信登录 没有绑定手机号码
-
         }
         user1.setAccessToken(JwtUtils.createToken(user1));
         user1.setIfRegister(ifRegister);
