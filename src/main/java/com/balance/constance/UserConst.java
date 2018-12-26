@@ -14,9 +14,10 @@ public class UserConst {
 
 
     //用户实名认证状态
-    public static final int USER_CERT_STATUS_NONE = 0;//认证中
-    public static final int USER_CERT_STATUS_PASS = 1;//认证通过
-    public static final int USER_CERT_STATUS_UNPASS = 2;//认证不通过
+    public static final int USER_CERT_STATUS_NONE = 0;//未认证
+    public static final int USER_CERT_STATUS_ING = 1;//认证中
+    public static final int USER_CERT_STATUS_PASS = 2;//认证通过
+    public static final int USER_CERT_STATUS_UNPASS = 3;//认证不通过
 
     //短信验证码类型
     public static final int MSG_CODE_TYPE_LOGINANDREGISTER = 1;//注册

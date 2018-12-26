@@ -38,8 +38,8 @@ public class WjSmsService {
      */
     public void sendSms(String phoneNumber, String msgContent) {
         HttpClient client = new HttpClient();
-        PostMethod post = new PostMethod("http://gbk.api.smschinese.cn");
-        post.addRequestHeader("Article_content-Type", "application/x-www-form-urlencoded;charset=gbk");//在头文件中设置转码
+        PostMethod post = new PostMethod("http://utf8.api.smschinese.cn");
+        post.addRequestHeader("Content-Type","application/x-www-form-urlencoded;charset=gbk");//在头文件中设置转码
         NameValuePair[] data = {new NameValuePair("Uid", Uid), new NameValuePair("Key", key), new NameValuePair("smsMob", phoneNumber), new NameValuePair("smsText", msgContent)};
         post.setRequestBody(data);
         String result = null;

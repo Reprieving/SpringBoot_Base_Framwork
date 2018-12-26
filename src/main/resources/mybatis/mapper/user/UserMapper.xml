@@ -37,6 +37,8 @@
 
     <resultMap id="inviteUserMap" type="InviteUserRecord">
         <result property="userName" column="user_name"></result>
+        <result property="headPicUrl" column="head_picture_url"></result>
+        <result property="memberType" column="member_type"></result>
         <result property="registerTime" column="register_time"></result>
         <result property="rewardValue" column="reward_value"></result>
     </resultMap>
@@ -66,9 +68,10 @@
 
     <select id="listInviteUser" resultMap="inviteUserMap">
       SELECT
-        b.user_name,a.register_time,a.reward_value
+        b.user_name,b.head_picture_url,b.member_type,a.register_time,a.reward_value
       FROM invite_user_record a
         LEFT JOIN user_info b ON a.user_id = b.id
+      WHERE a.invite_type = #{inviteType}
     </select>
 
 </mapper>

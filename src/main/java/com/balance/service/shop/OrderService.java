@@ -124,13 +124,15 @@ public class OrderService extends BaseService {
                     }
 
                     BigDecimal freight = goodsSpu.getFreight();
-                    //如果邮费等于0，则包邮
-                    if (BigDecimalUtils.ifZero(freight)) {
-                        freight = new BigDecimal(1);
+                    if (new BigDecimal(1).compareTo(freight) == -1 && freight.compareTo(new BigDecimal(0)) == 1) {
+                        throw new BusinessException("邮费异常");
                     }
 
                     BigDecimal spuTotalPrice = BigDecimalUtils.multiply(skuOrSpuPrice, skuNumber);
-                    spuTotalPrice = BigDecimalUtils.multiply(spuTotalPrice, freight);
+                    //如果邮费等于0，则包邮
+                    if (BigDecimalUtils.ifZero(freight)) {
+                        spuTotalPrice = BigDecimalUtils.multiply(spuTotalPrice, freight);
+                    }
 
                     //获取商铺信息
                     String shopId = goodsSpu.getShopId();
@@ -141,10 +143,10 @@ public class OrderService extends BaseService {
                     List<OrderItem> orderItemsList;
                     if (shopOrderItemMap.containsKey(shopId)) {
                         orderItemsList = shopOrderItemMap.get(shopId);
-                        orderItemsList.add(new OrderItem(spuId, skuOrSpuId, orderSkuReq.getNumber(), skuOrSpuPrice, spuTotalPrice));
+                        orderItemsList.add(new OrderItem(spuId, skuOrSpuId, orderSkuReq.getNumber(), skuOrSpuPrice, spuTotalPrice, freight));
                     } else {
                         orderItemsList = new ArrayList<>();
-                        orderItemsList.add(new OrderItem(spuId, skuOrSpuId, orderSkuReq.getNumber(), skuOrSpuPrice, spuTotalPrice));
+                        orderItemsList.add(new OrderItem(spuId, skuOrSpuId, orderSkuReq.getNumber(), skuOrSpuPrice, spuTotalPrice, freight));
                         shopOrderItemMap.put(shopId, orderItemsList);
                     }
                 }
@@ -152,16 +154,17 @@ public class OrderService extends BaseService {
                 //3.增加订单记录
                 for (Map.Entry<String, List<OrderItem>> entry : shopOrderItemMap.entrySet()) {
                     BigDecimal orderTotalPrice = BigDecimalUtils.newObject(0); // 订单总价格
+                    BigDecimal orderTotalFreight = BigDecimalUtils.newObject(0); // 订单总邮费
                     String shopId = entry.getKey(); //商铺id
                     List<OrderItem> orderItemList = entry.getValue();  //订单详情
                     //获取订单总价格
                     for (OrderItem orderItem : orderItemList) {
                         orderTotalPrice = BigDecimalUtils.add(orderTotalPrice, orderItem.getTotalPrice());
+                        orderTotalFreight = BigDecimalUtils.add(orderTotalFreight, orderItem.getFreight());
                     }
                     String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
-                    OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, orderTotalPrice);
+                    OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, orderTotalPrice, orderTotalFreight);
                     insertIfNotNull(orderInfo);
-
 
                     for (OrderItem orderItem : orderItemList) {
                         orderItem.setOrderId(orderInfo.getId());
@@ -221,7 +224,7 @@ public class OrderService extends BaseService {
                     if (codeEntity != null && codeEntity.getCode() != "00") {
                         throw new BusinessException("库存异常");
                     }
-                    missionService.finishMission(user,MissionConst.OBTAIN_BEAUTY,"APP线上领取小样");
+                    missionService.finishMission(user, MissionConst.OBTAIN_BEAUTY, "APP线上领取小样");
                 } catch (IOException e) {
                     logger.error(e.getMessage());
                 } finally {
@@ -230,7 +233,7 @@ public class OrderService extends BaseService {
                     }
                 }
 
-                //获取小样信息接口
+                //获取小样信息接口,创建订单
 
             }
         });
@@ -271,14 +274,13 @@ public class OrderService extends BaseService {
                     BigDecimal orderTotalPrice = goodsSpu.getLowPrice();
 
                     String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
-                    OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, orderTotalPrice);
+                    OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, orderTotalPrice, new BigDecimal(0));
 
                     if (insertIfNotNull(orderInfo) == 0) {
                         throw new BusinessException("兑换失败");
                     }
 
                     missionService.finishMission(user, MissionConst.EXCHANGE_PACKAGE, "兑换礼包");
-
                 } else {
                     throw new BusinessException("暂只支持年卡会员卡券，生日卡券使用");
                 }
@@ -292,16 +294,23 @@ public class OrderService extends BaseService {
      *
      * @param userId      用户id
      * @param orderStatus 订单状态
+     * @param ifScan      是否扫码领取小样的订单
      * @param pagination
      * @return
      */
-    public List<OrderGoodsInfo> listAppOrderGoodsInfo(String userId, Integer orderStatus, Pagination pagination) {
-        List<OrderGoodsInfo> orderGoodsInfoList = orderMapper.listUserOrderGoodsInfo(userId, orderStatus, pagination);
-        for (OrderGoodsInfo orderGoodsInfo : orderGoodsInfoList) {//订单列表
-            for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
-                orderItem.setSpecStr(goodsSpecService.strSpecIdToSpecValue(orderItem.getSpecJson()));
+    public List<OrderGoodsInfo> listAppOrderGoodsInfo(String userId, Integer orderStatus, Boolean ifScan, Pagination pagination) {
+        List<OrderGoodsInfo> orderGoodsInfoList;
+        if (ifScan != null && ifScan == true) {
+            orderGoodsInfoList = orderMapper.listUserBeautyGoodsInfo(userId, ifScan);
+        } else {
+            orderGoodsInfoList = orderMapper.listUserOrderGoodsInfo(userId, orderStatus, pagination);
+            for (OrderGoodsInfo orderGoodsInfo : orderGoodsInfoList) {//订单列表
+                for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
+                    orderItem.setSpecStr(goodsSpecService.strSpecIdToSpecValue(orderItem.getSpecJson()));
+                }
             }
         }
+
         return orderGoodsInfoList;
     }
 
@@ -313,9 +322,15 @@ public class OrderService extends BaseService {
      */
     public OrderGoodsInfo getAppOrderGoodsInfo(String orderId) {
         OrderGoodsInfo orderGoodsInfo = orderMapper.getUserOrderGoodsInfo(orderId);
+        ShoppingAddress shoppingAddress = selectOneById(orderGoodsInfo.getAddressId(), ShoppingAddress.class);
         for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
             orderItem.setSpecStr(goodsSpecService.strSpecIdToSpecValue(orderItem.getSpecJson()));
         }
+
+        orderGoodsInfo.setShoperName(shoppingAddress.getShoperName());
+        orderGoodsInfo.setPhoneNumber(shoppingAddress.getShoperTel());
+        orderGoodsInfo.setDetailAddress(shoppingAddress.getShoperProvince() + shoppingAddress.getShoperCity() + shoppingAddress.getShoperDistrict() + shoppingAddress.getShoperAddress());
+
         return orderGoodsInfo;
     }
 

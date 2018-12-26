@@ -44,12 +44,13 @@ public class OrderItem implements Serializable{
 
     public OrderItem(){}
 
-    public OrderItem(String goodsSpuId, String goodsSkuId, Integer number, BigDecimal price, BigDecimal totalPrice) {
+    public OrderItem(String goodsSpuId, String goodsSkuId, Integer number, BigDecimal price, BigDecimal totalPrice, BigDecimal freight) {
         this.goodsSpuId = goodsSpuId;
         this.goodsSkuId = goodsSkuId;
         this.number = number;
         this.price = price;
         this.totalPrice = totalPrice;
+        this.freight = freight;
     }
 
     //DB Column name
@@ -61,6 +62,7 @@ public class OrderItem implements Serializable{
     public static final String Price = "price";
     public static final String Total_price = "total_price";
     public static final String Status = "status";
+
 
     //----扩展属性
     //spu id
@@ -82,5 +84,8 @@ public class OrderItem implements Serializable{
     private String specStr;
 
     private Integer settlementId;
+
+    private String packageUnit;//包装单位
+    private BigDecimal freight;//运费
 
 }

@@ -49,7 +49,10 @@ public class InviteUserRecord implements Serializable {
 
     //扩展属性
     private String userName;//用户昵称
+    private String headPicUrl;//头像图
+    private Integer memberType;//头像图
 
+    public InviteUserRecord(){}
 
     public InviteUserRecord(String userId, String inviteUserId, Integer inviteType, BigDecimal rewardValue, Timestamp registerTime) {
         this.userId = userId;

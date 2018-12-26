@@ -18,9 +18,16 @@ public class AssetTurnoverConst {
 
     public final static int TURNOVER_TYPE_RECEIVE_MINING_REWARD = 10;//领取挖矿奖励
 
-    public final static int TURNOVER_TYPE_STEAL_MINING_REWARD = 10;//偷取挖矿奖励
+    public final static int TURNOVER_TYPE_STEAL_MINING_REWARD = 11;//偷取挖矿奖励
 
-    public final static int TURNOVER_TYPE_APPLET_REWARD = 11;//应用奖励
+    public final static int TURNOVER_TYPE_APPLET_REWARD = 12;//应用奖励
+
+    public final static int TURNOVER_TYPE_BEAUTY_OBTAIN = 13;//小样领取
+
+    public final static int TURNOVER_TYPE_MEMBER_BECOME = 14;//年卡会员办理
+
+    public final static int TURNOVER_TYPE_COMPUTE_RETURN = 15;//颜值返现
+
     //流水类型 end
 
 

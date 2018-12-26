@@ -29,6 +29,8 @@ import java.util.regex.Pattern;
 @Service
 public class SampleMachineService {
 
+    private static final String separator = "&&";
+
     private static final Logger logger = LoggerFactory.getLogger(SampleMachineService.class);
 
     @Autowired
@@ -36,12 +38,13 @@ public class SampleMachineService {
 
     /**
      * 查询市内小样机坐标
+     *
      * @param cityCode
      * @param coordinateX
      * @param coordinateY
      * @return
      */
-    public List<SampleMachineLocation> listSampleMachineLocation(String cityCode,Double coordinateX,Double coordinateY){
+    public List<SampleMachineLocation> listSampleMachineLocation(String cityCode, Double coordinateX, Double coordinateY) {
         List<SampleMachineLocation> machineLocation = new ArrayList<>();
         String redisKey = RedisKeyConst.buildSampleMachineId(cityCode);
         GeoResults<RedisGeoCommands.GeoLocation<Object>> radiusGeo = redisClient.radiusGeo(redisKey, coordinateX, coordinateY, 1000D, Sort.Direction.DESC, 100L);
@@ -49,9 +52,9 @@ public class SampleMachineService {
             Integer distance = Integer.parseInt(new java.text.DecimalFormat("0").format(geoResult.getDistance().getValue()));
             RedisGeoCommands.GeoLocation<Object> geoLocation = geoResult.getContent();
 
-            //[sampleName],[imgUrl],[coordinateX],[coordinateY]
-            String[] locationInfo = String.valueOf(geoLocation.getName()).split(":");
-            SampleMachineLocation sl = new SampleMachineLocation(locationInfo[0],locationInfo[1],Double.valueOf(locationInfo[2]),Double.valueOf(locationInfo[3]),distance);
+            //[sampleName],[address],[imgUrl],[coordinateX],[coordinateY]
+            String[] locationInfo = String.valueOf(geoLocation.getName()).split(separator);
+            SampleMachineLocation sl = new SampleMachineLocation(locationInfo[0], locationInfo[1], locationInfo[2], Double.valueOf(locationInfo[3]), Double.valueOf(locationInfo[4]), distance);
             machineLocation.add(sl);
         }
         return machineLocation;
@@ -60,11 +63,11 @@ public class SampleMachineService {
 
     /**
      * 更新市内小样机坐标
+     *
      * @param cityCode
      */
-    public void updateSampleMachineLocation(String cityCode){
+    public void updateSampleMachineLocation(String cityCode) {
         cityCode = "440300";//先默认为深圳
-
         //扫码接口
         GetMethod get = null;
         String result = null;
@@ -76,21 +79,24 @@ public class SampleMachineService {
         } catch (IOException e) {
             logger.error(e.getMessage());
         } finally {
-            if(get!=null){
+            if (get != null) {
                 get.releaseConnection();
             }
         }
 
-        result = result.replace("null(","").replace(")","");
-        SampleMachineSourceLocations sls = JSON.parseObject(result,SampleMachineSourceLocations.class);
-
+        //删除坐标列表
         String redisKey = RedisKeyConst.buildSampleMachineId(cityCode);
+        redisClient.removeRange(redisKey, 0, redisClient.sizeZset(redisKey));
+
+        //插入坐标
+        result = result.replace("null(", "").replace(")", "");
+        SampleMachineSourceLocations sls = JSON.parseObject(result, SampleMachineSourceLocations.class);
         sls.getDatas().forEach(sl -> {
-            //[sampleName],[imgUrl],[coordinateX],[coordinateY]
-            String member = sl.getName()+":"+" "+":"+sl.getLongitude()+":"+sl.getLatitude();
+            String imgUrl = sl.getImgUrl() == null ? "http://123.jpg" : sl.getImgUrl();
+            //[sampleName],[address],[imgUrl],[coordinateX],[coordinateY]
+            String member = sl.getName() + separator + sl.getAddress() + separator + imgUrl + separator + sl.getLongitude() + separator + sl.getLatitude();
             redisClient.cacheGeo(redisKey, sl.getLongitude(), sl.getLatitude(), member, -1L);
         });
-
     }
 
 }

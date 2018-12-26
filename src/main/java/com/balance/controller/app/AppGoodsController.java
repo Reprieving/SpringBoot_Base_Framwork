@@ -47,8 +47,9 @@ public class AppGoodsController {
      */
     @RequestMapping("spuList")
     public Result<?> spuList(GoodsSpu goodsSpu) {
+        Pagination pagination = goodsSpu.buildPagination();
         List<GoodsSpu> goodsSpuList = goodsSpuService.listGoodsSpu(goodsSpu, goodsSpu.buildPagination());
-        return ResultUtils.success(goodsSpuList);
+        return ResultUtils.success(goodsSpuList,pagination.getTotalRecordNumber());
     }
 
     /**

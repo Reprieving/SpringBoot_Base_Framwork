@@ -6,6 +6,7 @@ import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
 import com.balance.entity.user.AssetsTurnover;
+import com.balance.service.user.AssetsTurnoverService;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +22,7 @@ import java.util.Map;
 public class AppAssetsTurnoverController {
 
     @Autowired
-    private BaseService baseService;
+    private AssetsTurnoverService assetsTurnoverService;
 
     /**
      * 按类型查询活动记录
@@ -34,8 +35,9 @@ public class AppAssetsTurnoverController {
     @RequestMapping("list/{turnoverType}")
     public Result<?> list(HttpServletRequest request, @PathVariable("turnoverType") Integer turnoverType,Pagination pagination) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        Map<String,Object> whereMap= ImmutableMap.of(AssetsTurnover.User_id + "=", userId,AssetsTurnover.Turnover_type+" = ",turnoverType);
-        List<AssetsTurnover> list = baseService.selectListByWhereMap(whereMap,pagination,AssetsTurnover.class);
+
+        List<AssetsTurnover> list = assetsTurnoverService.listUserTurnover(userId,turnoverType,pagination);
+
         return ResultUtils.success(list);
     }
 

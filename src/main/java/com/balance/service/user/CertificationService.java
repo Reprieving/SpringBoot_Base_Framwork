@@ -62,7 +62,7 @@ public class CertificationService extends BaseService {
     public void createCert(String userId, String realName, String licenseNumber, MultipartFile frontFiles, MultipartFile backFiles) {
         Certification certificationPo = selectOneByWhereString(Certification.User_id + "= ", userId, Certification.class);
         if (certificationPo != null) {
-            if (UserConst.USER_CERT_STATUS_NONE == certificationPo.getStatus()) {
+            if (UserConst.USER_CERT_STATUS_ING == certificationPo.getStatus()) {
                 throw new BusinessException("该用户处于认证中状态,请勿重复提交");
             }
             if (UserConst.USER_CERT_STATUS_PASS == certificationPo.getStatus()) {
