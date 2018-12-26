@@ -35,10 +35,10 @@ public class AdminInformationController {
 
 
     @PostMapping("list")
-    public Result<?> articleList(@RequestBody Map<String, Object> params) {
-        Pagination pagination = articleService.getByPage(params);
-        return ResultUtils.success(pagination.getObjectList(), pagination.getTotalRecordNumber());
+    public Result<?> articleList(@RequestBody Pagination<Article> pagination) {
+        return ResultUtils.success(articleService.getByPage(pagination), pagination.getTotalRecordNumber());
     }
+
 
     @GetMapping("get/{id}")
     public Result<?> get(@PathVariable String id) {
@@ -92,8 +92,7 @@ public class AdminInformationController {
     }
 
     @PostMapping("investigationList")
-    public Result<?> list(@RequestBody Map<String, Object> params) {
-        Pagination pagination = investigationService.getByPage(params);
-        return ResultUtils.success(pagination.getObjectList(), pagination.getTotalRecordNumber());
+    public Result<?> list(@RequestBody Pagination<Investigation> pagination) {
+        return ResultUtils.success(investigationService.getByPage(pagination), pagination.getTotalRecordNumber());
     }
 }

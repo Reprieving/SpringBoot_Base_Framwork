@@ -6,15 +6,12 @@ import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ValueCheckUtils;
 import com.balance.constance.UserConst;
-import com.balance.entity.common.UserFreeCount;
 import com.balance.entity.user.MsgRecord;
 import com.balance.entity.user.User;
 import com.balance.mapper.user.UserFreeCountMapper;
-import com.balance.mapper.user.UserMapper;
 import com.balance.service.common.WjSmsService;
 import com.balance.utils.RandomUtil;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,6 +59,13 @@ public class UserSendService extends BaseService {
             case UserConst.MSG_CODE_TYPE_LOGINANDREGISTER:
                 msgTypeStr = "[注册/登陆]";
                 break;
+            case UserConst.MSG_CODE_TYPE_BINGD_PHONE:
+                user = userService.selectOneByWhereString(User.Phone_number + " = ", phoneNumber, User.class);
+                if (user != null) {
+                    throw new BusinessException("该手机号码已经绑定其它账号");
+                }
+                msgTypeStr = "[绑定手机号码]";
+                break;
             case UserConst.MSG_CODE_TYPE_RESET_LOGINPWD:
                 msgTypeStr = "[重置登录密码]";
                 break;
@@ -73,28 +77,28 @@ public class UserSendService extends BaseService {
                 break;
             case UserConst.MSG_CODE_TYPE_UNBIND_PHONE:
                 userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-                user = userService.selectOneById(userId, User.class);
+                user = userService.getById(userId);
                 if (user == null || !phoneNumber.equals(user.getPhoneNumber())) {
                     throw new BusinessException("解绑手机号码和已绑定手机号码不一致");
                 }
                 msgTypeStr = "[解绑手机号码]";
                 break;
-            case UserConst.MSG_CODE_TYPE_BIND_PHONE:
+            case UserConst.MSG_CODE_TYPE_CHANGE_PHONE:
                 userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
                 user = userService.selectOneByWhereString(User.Phone_number + " = ", phoneNumber, User.class);
                 if (user != null) {
                     throw new BusinessException("该手机号码已经绑定其它账号");
                 }
-                msgTypeStr = "[绑定手机号码]";
+                msgTypeStr = "[更改手机号码]";
                 break;
             case UserConst.MSG_CODE_TYPE_BIND_BANK:
                 userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-                phoneNumber = selectOneById(userId, User.class).getPhoneNumber();
+                phoneNumber = userService.getById(userId).getPhoneNumber();
                 msgTypeStr = "[绑定银行卡]";
                 break;
             case UserConst.MSG_CODE_TYPE_BANK_WITHDRAW:
                 userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-                phoneNumber = selectOneById(userId, User.class).getPhoneNumber();
+                phoneNumber = userService.getById(userId).getPhoneNumber();
                 msgTypeStr = "[银行卡提现]";
                 break;
         }
@@ -146,11 +150,11 @@ public class UserSendService extends BaseService {
         if (minutes > 15) {
             throw new BusinessException("短信验证码已经过期");
         }
-
+        // TODO 验证码 没有 置为无效
     }
 
     public void validateMsgCode(String userId, String msgCode, Integer msgType) {
-        validateMsgCode(userId, userService.selectOneById(userId, User.class).getPhoneNumber(), msgCode, msgType);
+        validateMsgCode(userId, userService.getById(userId).getPhoneNumber(), msgCode, msgType);
     }
 
 

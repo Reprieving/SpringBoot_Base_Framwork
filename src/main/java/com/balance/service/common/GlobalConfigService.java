@@ -46,40 +46,46 @@ public class GlobalConfigService extends BaseService{
      * @param key
      * @return
      */
-    public String get(String key) {
+    public String get(Enum key) {
         // 如果缓存数据为空，则初始化
         if (gCfgCache.size() == 0) {
             updateGlobalConfigCache();
         }
-        String value = gCfgCache.get(key);
+        String value = gCfgCache.get(key.toString());
 
         return value;
     }
 
-    public double getDouble (String key) {
+    public double getDouble (Enum key) {
         return Double.parseDouble(get(key));
     }
 
-    public static class Constance {
+    public enum Enum {
         //阿里云OSS配置
-        public final static String OSS_ACCESS_KEY_ID = "OSS_ACCESS_KEY_ID";
-        public final static String OSS_ACCESS_KEY_SECRET = "OSS_ACCESS_KEY_SECRET";
-        public final static String OSS_END_POINT = "OSS_END_POINT";
-        public final static String OSS_COMMON_BUCKET_NAME = "OSS_COMMON_BUCKET_NAME";
-        public final static String OSS_SENSITIVE_BUCKET_NAME = "OSS_SENSITIVE_BUCKET_NAME";
+        OSS_ACCESS_KEY_ID,
+        OSS_ACCESS_KEY_SECRET,
+        OSS_END_POINT,
+        OSS_COMMON_BUCKET_NAME,
+        OSS_SENSITIVE_BUCKET_NAME,
 
         //系统域名
-        public final static String SYSTEM_DOMAIN = "SYSTEM_DOMAIN";
+        SYSTEM_DOMAIN,
 
         //网建短信系统配置
-        public final static String WJ_SMS_ACCESS_KEY = "WJ_SMS_ACCESS_KEY";
-        public final static String WJ_SMS_UID = "WJ_SMS_UID";
+        WJ_SMS_ACCESS_KEY,
+        WJ_SMS_UID,
 
 
         /** 银行卡提现 最低额度 */
-        public final static String BANK_WITHDRAW_LOWEST = "BANK_WITHDRAW_LOWEST";
+        BANK_WITHDRAW_LOWEST,
         /** 银行卡提现 最高额度 */
-        public final static String BANK_WITHDRAW_HIGHEST = "BANK_WITHDRAW_HIGHEST";
+        BANK_WITHDRAW_HIGHEST,
+
+
+        /** app微信appID */
+        APP_WEIXIN_APP_ID,
+        /** app微信appSecret */
+        APP_WEIXIN_APP_SECRET
     }
 
 }

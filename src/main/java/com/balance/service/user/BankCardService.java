@@ -120,7 +120,7 @@ public class BankCardService extends BaseService {
      * 用户 申请银行卡提现
      */
     public void withdrawApply(String userId, String cardId, BigDecimal amount) {
-        double lowest = globalConfigService.getDouble(GlobalConfigService.Constance.BANK_WITHDRAW_LOWEST);
+        double lowest = globalConfigService.getDouble(GlobalConfigService.Enum.BANK_WITHDRAW_LOWEST);
         double amountDouble = amount.doubleValue();
         if (amountDouble < lowest) {
             throw new BusinessException("提现金额不能低于" + lowest + "元");
@@ -130,7 +130,7 @@ public class BankCardService extends BaseService {
         double dayAmount = NumberUtils.toDouble(
                 stringRedisTemplate.opsForValue().get(redisKey), 0)
                 + amountDouble;
-        double highest = globalConfigService.getDouble(GlobalConfigService.Constance.BANK_WITHDRAW_HIGHEST);
+        double highest = globalConfigService.getDouble(GlobalConfigService.Enum.BANK_WITHDRAW_HIGHEST);
         if (dayAmount > highest) {
             throw new BusinessException("今天提现不能超过" + highest + "元");
         }

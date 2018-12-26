@@ -3,6 +3,7 @@ package com.balance.architecture.utils;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.exception.LoginException;
@@ -41,22 +42,9 @@ public class JwtUtils {
      *
      * @param subscriber
      * @return
-     * @throws IllegalArgumentException
-     * @throws UnsupportedEncodingException
      */
-    public static String createToken(Subscriber subscriber) throws IllegalArgumentException, UnsupportedEncodingException {
-        Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
-        String userName = subscriber.getUserName();
-        String userId = subscriber.getId();
-        Map<String, Object> map = new HashMap<>();
-        map.put("alg", "HS256");
-        map.put("typ", "JWT");
-        String token = JWT.create().withHeader(map)
-                .withClaim(TOKEN_CLAIM_USERNAME, userName)
-                .withClaim(TOKEN_CLAIM_USERID, userId)
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME))
-                .sign(algorithm);
-        return token;
+    public static String createToken(Subscriber subscriber) {
+        return createToken(subscriber.getUserName(), subscriber.getId());
     }
 
     /**
@@ -64,21 +52,28 @@ public class JwtUtils {
      *
      * @param user
      * @return
-     * @throws IllegalArgumentException
-     * @throws UnsupportedEncodingException
      */
-    public static String createToken(User user) throws IllegalArgumentException, UnsupportedEncodingException {
-        Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
-        String userName = user.getUserName();
-        String userId = user.getId();
-        Map<String, Object> map = new HashMap<>();
-        map.put("alg", "HS256");
-        map.put("typ", "JWT");
-        String token = JWT.create().withHeader(map)
-                .withClaim(TOKEN_CLAIM_USERNAME, userName)
-                .withClaim(TOKEN_CLAIM_USERID, userId)
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME))
-                .sign(algorithm);
+    public static String createToken(User user) {
+        user.setPassword("");
+        user.setPayPassword("");
+        return createToken(user.getUserName(), user.getUserId());
+    }
+
+    public static String createToken(String userName, String userId) {
+        String token;
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
+            Map<String, Object> map = new HashMap<>();
+            map.put("alg", "HS256");
+            map.put("typ", "JWT");
+            token = JWT.create().withHeader(map)
+                    .withClaim(TOKEN_CLAIM_USERNAME, userName)
+                    .withClaim(TOKEN_CLAIM_USERID, userId)
+                    .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME))
+                    .sign(algorithm);
+        } catch (Exception e) {
+            throw new BusinessException("create token error");
+        }
         return token;
     }
 

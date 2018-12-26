@@ -3,6 +3,7 @@ package com.balance.controller.app;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.exception.BusinessException;
+import com.balance.architecture.exception.LoginException;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
 import com.balance.architecture.utils.ValueCheckUtils;
@@ -16,6 +17,7 @@ import com.balance.service.common.AddressService;
 import com.balance.service.common.AppUpgradeService;
 import com.balance.service.shop.SampleMachineService;
 import com.balance.service.user.*;
+import com.balance.utils.IPUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -62,6 +64,8 @@ public class AppUserController {
     @Autowired
     private FeedbackService feedbackService;
 
+    @Autowired
+    private ThirdPartyService thirdPartyService;
 
 
     /**
@@ -97,12 +101,15 @@ public class AppUserController {
      *
      * @param user
      * @return
-     * @throws BusinessException
-     * @throws UnsupportedEncodingException
      */
     @RequestMapping("login")
-    public Result<?> login(User user) throws BusinessException, UnsupportedEncodingException {
-        User userInfo = userService.login(user);
+    public Result<?> login(User user, String code, HttpServletRequest request)  {
+        User userInfo;
+        if (code != null) {
+            userInfo = thirdPartyService.wxLogin(code, IPUtils.getClientIP(request));
+        } else {
+            userInfo = userService.login(user);
+        }
         return ResultUtils.success(userInfo, "登录成功");
     }
 
@@ -303,21 +310,16 @@ public class AppUserController {
 
     /**
      * 绑定第三方
-     * @param type
-     * @param openId
-     * @return
      */
-    @GetMapping("binding/{type}/{openId}")
-    public Result<?> binding(@PathVariable String type, @PathVariable String openId, HttpServletRequest request) throws UnsupportedEncodingException {
-        userService.binding(type, openId, JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
+    @GetMapping("binding/{type}/{code}")
+    public Result<?> binding(@PathVariable String type, @PathVariable String code, HttpServletRequest request) throws UnsupportedEncodingException {
+        thirdPartyService.binding(type, code, JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
         return ResultUtils.success();
     }
 
 
     /**
      * 解绑第三方
-     * @param type
-     * @return
      */
     @GetMapping("unbind/{type}")
     public Result<?> unbind(@PathVariable String type, HttpServletRequest request) throws UnsupportedEncodingException {
@@ -335,7 +337,7 @@ public class AppUserController {
      */
     @GetMapping("checkMsgCode")
     public Result<?> checkMsgCode(HttpServletRequest request, Integer type, String msgCode) throws UnsupportedEncodingException {
-        userService.checkSmsCode(type, msgCode, JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
+        userSendService.validateMsgCode(JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId(), msgCode, type);
         return ResultUtils.success();
     }
 
@@ -348,11 +350,17 @@ public class AppUserController {
      * @throws UnsupportedEncodingException
      */
     @PostMapping("bindPhone")
-    public Result<?> bindPhone(HttpServletRequest request, String msgCode, String phoneNumber) throws UnsupportedEncodingException {
+    public Result<?> bindPhone(HttpServletRequest request, String msgCode, String phoneNumber, String userId) {
         if (StringUtils.isBlank(msgCode) || StringUtils.isBlank(phoneNumber)) {
             return ResultUtils.error("缺少必要参数");
         }
-        userService.bindPhone(msgCode, phoneNumber, JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
+        int type = UserConst.MSG_CODE_TYPE_CHANGE_PHONE;
+        try {
+            userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        } catch (Exception e) {
+            type = UserConst.MSG_CODE_TYPE_BINGD_PHONE;
+        }
+        userService.bindPhone(msgCode, phoneNumber, userId, type);
         return ResultUtils.success();
     }
 

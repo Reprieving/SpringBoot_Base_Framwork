@@ -1,7 +1,7 @@
 package com.balance.controller.admin;
 
 import com.balance.architecture.dto.Result;
-import com.balance.architecture.utils.Base64DecodedMultipartFile;
+import com.balance.utils.Base64DecodedMultipartFile;
 import com.balance.architecture.utils.ResultUtils;
 import com.balance.service.common.AliOSSBusiness;
 import com.google.common.collect.ImmutableMap;

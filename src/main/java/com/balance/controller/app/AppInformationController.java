@@ -33,7 +33,7 @@ public class AppInformationController {
      * @return
      */
     @RequestMapping("article/list/{articleType}")
-    public Result<?> articleList(@PathVariable Integer articleType, Pagination pagination) {
+    public Result<?> articleList(@PathVariable Integer articleType, Pagination<Article> pagination) {
         return ResultUtils.success(articleService.getListByType(articleType, pagination));
     }
 

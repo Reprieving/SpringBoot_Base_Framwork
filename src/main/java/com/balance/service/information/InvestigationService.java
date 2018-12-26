@@ -111,20 +111,14 @@ public class InvestigationService extends BaseService{
 
     }
 
-    public Pagination getByPage(Map<String, Object> params) {
-        Object templateId = params.get("templateId");
+    public List<Investigation> getByPage(Pagination<Investigation> pagination) {
+        String templateId = pagination.getParam().getTemplateId();
         List<Investigation> investigationList;
-        int total;
         if ("0".equals(templateId)) {
-            investigationList = investigationMapper.selectPageWithGoods(params);
-            total = investigationMapper.selectCountWithGoods(params);
+            investigationList = investigationMapper.selectPageWithGoods(pagination);
         } else {
-            investigationList = investigationMapper.selectPageWithUser(params);
-            total = investigationMapper.selectCountWithUser(params);
+            investigationList = investigationMapper.selectPageWithUser(pagination);
         }
-        Pagination pagination = new Pagination();
-        pagination.setObjectList(investigationList);
-        pagination.setTotalRecordNumber(total);
-        return pagination;
+        return investigationList;
     }
 }

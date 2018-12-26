@@ -21,14 +21,9 @@
       t.summary
     </sql>
 
-    <select id="selectByPage" resultMap="BaseResultMap" parameterType="map">
+    <select id="selectByPage" resultMap="BaseResultMap" parameterType="com.balance.architecture.dto.Pagination">
         select
         <include refid="Base_Column_List"/>
-        <include refid="pageSql"/>
-        ORDER BY t.sort DESC
-        LIMIT #{startRow,jdbcType=INTEGER}, #{pageSize,jdbcType=INTEGER}
-    </select>
-    <sql id="pageSql">
         from information_article t
         where 1 = 1
         <if test="startTime != null">
@@ -37,23 +32,19 @@
         <if test="endTime != null">
             and t.create_time &lt;= #{endTime}
         </if>
-        <if test="ifValid != null">
-            and t.if_valid = #{ifValid}
+        <if test="param.ifValid != null">
+            and t.if_valid = #{param.ifValid}
         </if>
-        <if test="articleType != null">
-            and t.article_type = #{articleType}
+        <if test="param.articleType != null">
+            and t.article_type = #{param.articleType}
         </if>
-        <if test="verifyStatus != null">
-            and t.verify_status = #{verifyStatus}
+        <if test="param.verifyStatus != null">
+            and t.verify_status = #{param.verifyStatus}
         </if>
-        <if test="articleTitle != null">
-            and t.article_title = #{articleTitle}
+        <if test="param.articleTitle != null">
+            and t.article_title = #{param.articleTitle}
         </if>
-    </sql>
-    <select id="selectCount" parameterType="map" resultType="int">
-        select count(*)
-        <include refid="pageSql"/>
+        ORDER BY t.sort DESC
     </select>
-
 
 </mapper>

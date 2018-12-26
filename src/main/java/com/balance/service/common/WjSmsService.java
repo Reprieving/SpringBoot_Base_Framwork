@@ -27,8 +27,8 @@ public class WjSmsService {
 
     @PostConstruct
     private void init() {
-        key = globalConfigService.get(GlobalConfigService.Constance.WJ_SMS_ACCESS_KEY);
-        Uid = globalConfigService.get(GlobalConfigService.Constance.WJ_SMS_UID);
+        key = globalConfigService.get(GlobalConfigService.Enum.WJ_SMS_ACCESS_KEY);
+        Uid = globalConfigService.get(GlobalConfigService.Enum.WJ_SMS_UID);
     }
 
     /**

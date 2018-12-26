@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class AssetsTurnoverService extends BaseService {
@@ -55,11 +54,8 @@ public class AssetsTurnoverService extends BaseService {
     }
 
 
-    public Pagination getByPage(Map<String, Object> params) {
-        Pagination pagination = new Pagination();
-        pagination.setTotalRecordNumber(assetsTurnoverMapper.selectCount(params));
-        pagination.setObjectList(assetsTurnoverMapper.selectByPage(params));
-        return pagination;
+    public List<AssetsTurnover> getByPage(Pagination<AssetsTurnover> pagination) {
+        return assetsTurnoverMapper.selectByPage(pagination);
     }
 
 
