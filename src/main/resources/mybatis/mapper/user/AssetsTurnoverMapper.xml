@@ -23,13 +23,9 @@
         t.target_id, t.settlement_id, t.create_time, t.detail_str
     </sql>
 
-    <select id="selectByPage" resultMap="BaseResultMap" parameterType="map">
+    <select id="selectByPage" resultMap="BaseResultMap" parameterType="com.balance.architecture.dto.Pagination">
         select
         <include refid="Base_Column_List"/>, ui.user_name, ui.head_picture_url, ui.phone_number
-        <include refid="pageSql"/>
-        LIMIT #{startRow,jdbcType=INTEGER}, #{pageSize,jdbcType=INTEGER}
-    </select>
-    <sql id="pageSql">
         from assets_turnover t
         join user_info ui on ui.id = t.user_id
         where 1 = 1
@@ -39,22 +35,18 @@
         <if test="endTime != null">
             and t.create_time &lt;= #{endTime}
         </if>
-        <if test="turnoverType != null">
-            and t.turnover_type = #{turnoverType}
+        <if test="param.turnoverType != null">
+            and t.turnover_type = #{param.turnoverType}
         </if>
-        <if test="settlementId != null">
-            and t.settlement_id = #{settlementId}
+        <if test="param.settlementId != null">
+            and t.settlement_id = #{param.settlementId}
         </if>
-        <if test="phoneNumber != null">
-            and ui.phone_number = #{phoneNumber}
+        <if test="param.phoneNumber != null">
+            and ui.phone_number = #{param.phoneNumber}
         </if>
-        <if test="userName != null">
-            and ui.user_name = #{userName}
+        <if test="param.userName != null">
+            and ui.user_name = #{param.userName}
         </if>
-    </sql>
-    <select id="selectCount" parameterType="map" resultType="int">
-        select count(*)
-        <include refid="pageSql"/>
     </select>
 
     <select id="listUserTurnover" resultMap="BaseResultMap">

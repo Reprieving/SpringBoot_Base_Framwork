@@ -5,6 +5,7 @@ import com.balance.architecture.dto.Result;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ResultUtils;
 import com.balance.constance.UserConst;
+import com.balance.entity.user.AssetsTurnover;
 import com.balance.entity.user.Certification;
 import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
@@ -106,9 +107,8 @@ public class AdminUserController {
      * @return
      */
     @PostMapping("assetsList")
-    public Result<?> assetsList(@RequestBody Map<String, Object> params) {
-        Pagination pagination = assetsTurnoverService.getByPage(params);
-        return ResultUtils.success(pagination.getObjectList(), pagination.getTotalRecordNumber());
+    public Result<?> assetsList(@RequestBody Pagination<AssetsTurnover> pagination) {
+        return ResultUtils.success(assetsTurnoverService.getByPage(pagination), pagination.getTotalRecordNumber());
     }
 
     /**

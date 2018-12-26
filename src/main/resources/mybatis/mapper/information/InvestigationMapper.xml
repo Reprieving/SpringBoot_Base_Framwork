@@ -20,41 +20,26 @@
     t.id, t.user_id, t.beauty_id, t.order_id, t.investigation_title, t.depict, t.template_id, t.create_time, t.investigation_content
   </sql>
 
-  <select id="selectPageWithGoods" resultMap="BaseResultMap" parameterType="map" >
+  <select id="selectPageWithGoods" resultMap="BaseResultMap" parameterType="com.balance.architecture.dto.Pagination" >
     select 
       <include refid="Base_Column_List" />, gs.goods_name
-    <include refid="pageSqlWithGoods"/>
-    order by t.create_time desc
-    LIMIT #{startRow,jdbcType=INTEGER}, #{pageSize,jdbcType=INTEGER}
-  </select>
-  <sql id="pageSqlWithGoods">
     from information_investigation t
     join goods_spu gs on gs.id = t.beauty_id
     where t.template_id = '0'
-    <if test="investigationTitle != null">
-      and t.investigation_title = #{investigationTitle}
+    <if test="param.investigationTitle != null">
+      and t.investigation_title = #{param.investigationTitle}
     </if>
-  </sql>
-  <select id="selectCountWithGoods" parameterType="map" resultType="int">
-    select count(*)
-    <include refid="pageSqlWithGoods"/>
+    order by t.create_time desc
   </select>
 
-  <select id="selectPageWithUser" resultMap="BaseResultMap" parameterType="map" >
+  <select id="selectPageWithUser" resultMap="BaseResultMap" parameterType="com.balance.architecture.dto.Pagination" >
     select
     <include refid="Base_Column_List" />, u.user_name
-    <include refid="pageSqlWithUser"/>
-    order by t.create_time desc
-    LIMIT #{startRow,jdbcType=INTEGER}, #{pageSize,jdbcType=INTEGER}
-  </select>
-  <sql id="pageSqlWithUser">
     from information_investigation t
     join user_info u on u.id = t.user_id
-    where t.template_id = #{templateId}
-  </sql>
-  <select id="selectCountWithUser" parameterType="map" resultType="int">
-    select count(*)
-    <include refid="pageSqlWithUser"/>
+    where t.template_id = #{param.templateId}
+    order by t.create_time desc
   </select>
+
 
 </mapper>

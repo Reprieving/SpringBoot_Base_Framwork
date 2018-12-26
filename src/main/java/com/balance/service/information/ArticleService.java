@@ -65,13 +65,12 @@ public class ArticleService extends BaseService {
         }
     }
 
-    public List<Article> getListByType(int articleType, Pagination pagination) {
-        HashMap<String, Object> params = Maps.newHashMap();
-        params.put("ifValid", 1);
-        params.put("articleType", articleType);
-        params.put("startRow", pagination.getStartRow());
-        params.put("pageSize", pagination.getPageSize());
-        return articleMapper.selectByPage(params);
+    public List<Article> getListByType(int articleType, Pagination<Article> pagination) {
+        Article article = new Article();
+        article.setIfValid(true);
+        article.setArticleType(articleType);
+        pagination.setParam(article);
+        return articleMapper.selectByPage(pagination);
     }
 
     /**
@@ -203,16 +202,13 @@ public class ArticleService extends BaseService {
     }
 
 
-    public Pagination getByPage(Map<String, Object> params) {
-        Pagination pagination = new Pagination();
-        List<Article> objectList = articleMapper.selectByPage(params);
-        for (Article article : objectList) {
+    public List<Article> getByPage(Pagination<Article> pagination) {
+        List<Article> articles = articleMapper.selectByPage(pagination);
+        for (Article article : articles) {
             if (article.getContentType() == InformationConst.CONTENT_TYPE_GOODS) {
                 article.setGoodsName(selectOneById(article.getArticleContent(), GoodsSpu.class).getGoodsName());
             }
         }
-        pagination.setObjectList(objectList);
-        pagination.setTotalRecordNumber(articleMapper.selectCount(params));
-        return pagination;
+        return articles;
     }
 }

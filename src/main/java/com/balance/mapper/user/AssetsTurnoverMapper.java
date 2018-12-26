@@ -10,9 +10,8 @@ import java.util.Map;
 
 public interface AssetsTurnoverMapper {
 
-    List<AssetsTurnover> selectByPage(Map<String, Object> param);
+    List<AssetsTurnover> selectByPage(Pagination<AssetsTurnover> pagination);
 
-    int selectCount(Map<String, Object> param);
 
     /**
      * 查询用户的账单记录

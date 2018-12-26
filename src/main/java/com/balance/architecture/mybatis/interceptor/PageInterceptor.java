@@ -1,7 +1,6 @@
 package com.balance.architecture.mybatis.interceptor;
 
 
-import com.balance.architecture.constance.MybatisConst;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.mybatis.MybatisMapperParam;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
@@ -11,14 +10,12 @@ import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.reflection.DefaultReflectorFactory;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
-import org.springframework.data.domain.Page;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 @Intercepts({@Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})})
 public class PageInterceptor implements Interceptor {
@@ -34,15 +31,17 @@ public class PageInterceptor implements Interceptor {
         Object parameterObject = boundSql.getParameterObject();
         if (parameterObject instanceof MybatisMapperParam) {
             pagination = ((MybatisMapperParam) parameterObject).getPagination();
-        } else if(parameterObject instanceof Map){
+        } else if (parameterObject instanceof Pagination) {
+            pagination = (Pagination) parameterObject;
+        } else if (parameterObject instanceof Map) {
             Map<String, Object> params = (Map<String, Object>) boundSql.getParameterObject();
             Boolean flag = false;
-            for(Map.Entry<String,Object> entry :params.entrySet()){
-                if(entry.getKey().equals("pagination")){
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                if (entry.getKey().equals("pagination")) {
                     flag = true;
                 }
             }
-            if(!flag){
+            if (!flag) {
                 return invocation.proceed();
             }
             pagination = (Pagination) params.get("pagination");
