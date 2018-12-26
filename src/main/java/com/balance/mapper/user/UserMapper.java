@@ -51,4 +51,11 @@ public interface UserMapper {
      * @return
      */
     List<InviteUserRecord> listInviteUser(@Param("userId")String userId, @Param("inviteType")Integer inviteType,@Param("pagination")Pagination pagination);
+
+    /**
+     * 删除微信信息
+     * @param userId
+     * @return
+     */
+    int deleteWeixin(String userId);
 }

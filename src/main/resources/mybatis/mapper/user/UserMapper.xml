@@ -75,4 +75,9 @@
       WHERE a.invite_type = #{inviteType}
     </select>
 
+    <update id="deleteWeixin">
+      UPDATE user_info SET wx_open_id = NULL, wx_nickname = NULL
+      WHERE id = #{id}
+    </update>
+
 </mapper>

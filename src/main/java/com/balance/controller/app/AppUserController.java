@@ -114,7 +114,7 @@ public class AppUserController {
     }
 
     /**
-     * 修改用户信息`
+     * 修改用户信息
      *
      * @param request
      * @return
@@ -313,8 +313,7 @@ public class AppUserController {
      */
     @GetMapping("binding/{type}/{code}")
     public Result<?> binding(@PathVariable String type, @PathVariable String code, HttpServletRequest request) throws UnsupportedEncodingException {
-        thirdPartyService.binding(type, code, JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
-        return ResultUtils.success();
+        return ResultUtils.success(thirdPartyService.binding(type, code, JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId()));
     }
 
 
@@ -342,26 +341,29 @@ public class AppUserController {
     }
 
     /**
-     * 绑定新手机号码
+     * 绑定/更改 手机号码
      * @param request
      * @param msgCode
      * @param phoneNumber
      * @return
-     * @throws UnsupportedEncodingException
      */
     @PostMapping("bindPhone")
     public Result<?> bindPhone(HttpServletRequest request, String msgCode, String phoneNumber, String userId) {
         if (StringUtils.isBlank(msgCode) || StringUtils.isBlank(phoneNumber)) {
             return ResultUtils.error("缺少必要参数");
         }
+        User user = null;
         int type = UserConst.MSG_CODE_TYPE_CHANGE_PHONE;
         try {
             userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+            userService.bindPhone(msgCode, phoneNumber, userId, type);
         } catch (Exception e) {
             type = UserConst.MSG_CODE_TYPE_BINGD_PHONE;
+            user = userService.bindPhone(msgCode, phoneNumber, userId, type);
+            user.setAccessToken(JwtUtils.createToken(user));
+            user.setIfRegister(false);
         }
-        userService.bindPhone(msgCode, phoneNumber, userId, type);
-        return ResultUtils.success();
+        return ResultUtils.success(user, "登录成功");
     }
 
     /**
