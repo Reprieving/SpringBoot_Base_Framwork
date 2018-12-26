@@ -1,7 +1,5 @@
 package com.balance.constance;
 
-import java.math.BigDecimal;
-
 public class MissionConst {
     //任务领取状态 start
     public final static int MISSION_COMPLETE_STATE_NONE = 0;//未完成

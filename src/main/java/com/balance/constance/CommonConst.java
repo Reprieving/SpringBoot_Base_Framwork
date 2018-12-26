@@ -12,4 +12,10 @@ public class CommonConst {
     //微信用户数据同步开关
     public static Boolean WX_USER_SYNCHRONIZED = true;
 
+    public static final int OPERATOR_TYPE_INSERT = 1;//新增
+    public static final int OPERATOR_TYPE_DELETE = 2;//删除
+    public static final int OPERATOR_TYPE_UPDATE = 3;//更新
+    public static final int OPERATOR_TYPE_QUERY_LIST = 4;//查询列表
+    public static final int OPERATOR_TYPE_QUERY_DETAIL = 5;//查询单个
+
 }

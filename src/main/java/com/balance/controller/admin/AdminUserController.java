@@ -5,16 +5,21 @@ import com.balance.architecture.dto.Result;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ResultUtils;
 import com.balance.constance.UserConst;
+import com.balance.entity.shop.GoodsCategory;
 import com.balance.entity.user.Certification;
 import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
+import com.balance.entity.user.UserMerchantRuler;
 import com.balance.service.user.AssetsTurnoverService;
 import com.balance.service.user.CertificationService;
+import com.balance.service.user.UserMerchantRulerService;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +39,9 @@ public class AdminUserController {
 
     @Autowired
     private CertificationService certificationService;
+
+    @Autowired
+    private UserMerchantRulerService userMerchantRulerService;
 
     /**
      * 会员列表
@@ -121,5 +129,24 @@ public class AdminUserController {
         return ResultUtils.success(baseService.selectOneByWhereString(UserAssets.User_id + " = ", id, UserAssets.class));
     }
 
+
+    /**
+     * 商户规则操作
+     *
+     * @param userMerchantRuler
+     * @param operatorType
+     * @return
+     */
+    @RequestMapping("merchantRuler/operator/{operatorType}")
+    public Result<?> operatorMerchant(HttpServletRequest request, @RequestBody UserMerchantRuler userMerchantRuler, @PathVariable Integer operatorType) throws UnsupportedEncodingException {
+        Pagination pagination = userMerchantRuler.getPagination();
+        Object object = userMerchantRulerService.operatorUserMerchantRuler(userMerchantRuler, operatorType);
+        if (object instanceof String) {
+            String message = String.valueOf(object);
+            return ResultUtils.success(message);
+        }
+        Integer count = pagination == null ? 0 : pagination.getTotalRecordNumber();
+        return ResultUtils.success(object, count);
+    }
 
 }
