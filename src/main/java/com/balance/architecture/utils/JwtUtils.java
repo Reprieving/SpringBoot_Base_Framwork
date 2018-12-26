@@ -56,7 +56,7 @@ public class JwtUtils {
     public static String createToken(User user) {
         user.setPassword("");
         user.setPayPassword("");
-        return createToken(user.getUserName(), user.getUserId());
+        return createToken(user.getUserName(), user.getId());
     }
 
     public static String createToken(String userName, String userId) {
