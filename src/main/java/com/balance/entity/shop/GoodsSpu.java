@@ -76,6 +76,8 @@ public class GoodsSpu implements Serializable{
     private Boolean ifValid;//是否有效
 
     //扩展属性
+    //spuId
+    private String spuId;
     //类目名
     private String categoryName;
     //品牌名
@@ -104,7 +106,8 @@ public class GoodsSpu implements Serializable{
     private Timestamp endTime;
     //规格名Id
     private List<String> specNameIdList;
-
+    private Integer countCollection;    //收藏数
+    private Integer countBuy;    //购买数
 
 
     //DB Column name

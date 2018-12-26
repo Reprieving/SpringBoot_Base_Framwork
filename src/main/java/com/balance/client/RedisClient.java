@@ -1011,7 +1011,7 @@ public class RedisClient {
     /**
      * 获取附近坐标
      *
-     * @param key 用户坐标
+     * @param key       用户坐标
      * @param x
      * @param y
      * @param distance  距离
@@ -1034,9 +1034,16 @@ public class RedisClient {
 
         GeoResults<RedisGeoCommands.GeoLocation<Object>> radiusGeo = geoOps.radius(key, new Circle(new Point(x, y), new Distance(distance, RedisGeoCommands.DistanceUnit.KILOMETERS)), geoRadiusArgs);
 
-
         return radiusGeo;
     }
 
-
+    /**
+     * 坐标删除
+     *
+     * @param key
+     * @param member
+     */
+    public void removeGeo(String key, String member) {
+        redisTemplate.opsForGeo().remove(key, member);
+    }
 }

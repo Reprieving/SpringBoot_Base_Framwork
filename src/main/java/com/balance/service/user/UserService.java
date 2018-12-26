@@ -392,6 +392,10 @@ public class UserService extends BaseService {
      * @return
      */
     public User allUserInfo(String userId) {
+        User user = userMapper.getUserInfo(userId);
+        if(user.getCertStatus() == null){
+            user.setCertStatus(0);
+        }
         return userMapper.getUserInfo(userId);
     }
 

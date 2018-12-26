@@ -8,11 +8,13 @@
         <result property="userName" column="user_name"></result>
         <result property="settlementId" column="settlement_id"></result>
         <result property="orderPrice" column="order_price"></result>
+        <result property="orderFreight" column="order_freight"></result>
         <result property="status" column="order_status"></result>
         <result property="ifInvestigation" column="If_investigation"></result>
         <result property="ifScan" column="if_scan"></result>
         <result property="logisticNumber" column="logistic_number"></result>
         <result property="createTime" column="create_time"></result>
+        <result property="addressId" column="address_id"></result>
         <collection property="orderItemList" ofType="OrderItem">
             <result property="goodsSpuId" column="spu_id"></result>
             <result property="goodsSkuId" column="sku_id"></result>
@@ -24,6 +26,7 @@
             <result property="imgUrl" column="default_img_url"></result>
             <result property="specJson" column="spec_json"></result>
             <result property="status" column="order_item_status"></result>
+            <result property="packageUnit" column="package_unit"></result>
         </collection>
     </resultMap>
     
@@ -34,19 +37,22 @@
             a.order_no,
             a.settlement_id,
             a.price as order_price,
+            a.freight as order_freight,
             a.create_time,
             a.user_name,
             a.status as order_status,
             a.logistic_number,
             a.If_investigation,
             a.if_scan,
+            a.address_id,
             b.number,
             b.total_price,
             b.status as order_item_status,
             c.id as spu_id,
             c.goods_name as spu_name,
-            c.goods_description as spu_description
+            c.goods_description as spu_description,
             c.default_img_url,
+            c.package_unit,
             d.id as sku_id,
             d.spec_json
         FROM
@@ -95,5 +101,10 @@
         </if>
     </select>
 
-
+    <select id="listUserBeautyGoodsInfo" resultMap="OrderGoodsInfoMap">
+        <include refid="listOrderGoodsInfo"/>
+        WHERE
+        a.user_id = #{userId}
+        AND a.if_scan = #{ifScan}
+    </select>
 </mapper>

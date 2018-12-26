@@ -58,6 +58,8 @@ public class AssetsTurnover implements Serializable { //资产流水
     private String userName;
     private String headPictureUrl;
     private String phoneNumber;
+    private String settlementUnit; //支付单位
+    private String typeStr; //类型描述
 
     //DB Column name
     public static final String Id = "id";

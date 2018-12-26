@@ -44,6 +44,9 @@ public class OrderInfo implements Serializable {
     @Column(name = Address_id)
     private String addressId;//地址id
 
+    @Column(name = Freight)
+    private BigDecimal freight;//运费
+
     @Column(name = Price)
     private BigDecimal price; //订单金额
 
@@ -63,7 +66,6 @@ public class OrderInfo implements Serializable {
     private Timestamp createTime;
 
 
-
     //扩展属性
     private Timestamp startTime;
     private Timestamp endTime;
@@ -71,7 +73,7 @@ public class OrderInfo implements Serializable {
 
     public OrderInfo() {}
 
-    public OrderInfo(String orderNo, Integer settlementId, String userId, String shopId, String userName, String addressId, BigDecimal orderTotalPrice) {
+    public OrderInfo(String orderNo, Integer settlementId, String userId, String shopId, String userName, String addressId, BigDecimal orderTotalPrice,BigDecimal orderTotalFreight) {
         this.orderNo = orderNo;
         this.settlementId = settlementId;
         this.userId = userId;
@@ -79,6 +81,7 @@ public class OrderInfo implements Serializable {
         this.userName = userName;
         this.addressId = addressId;
         this.price = orderTotalPrice;
+        this.freight = orderTotalFreight;
     }
 
     //DB Column name
@@ -91,6 +94,7 @@ public class OrderInfo implements Serializable {
     public static final String User_name = "user_name";
     public static final String Address_id = "address_id";
     public static final String Price = "price";
+    public static final String Freight = "freight";
     public static final String Status = "status";
     public static final String If_investigation = "if_investigation";
     public static final String If_scan = "if_scan";

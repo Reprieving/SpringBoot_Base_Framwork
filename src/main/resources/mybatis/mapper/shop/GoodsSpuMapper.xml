@@ -4,6 +4,7 @@
 <mapper namespace="com.balance.mapper.shop.GoodsSpuMapper">
     <resultMap id="goodsSpuSimpleMap" type="GoodsSpu">
         <id property="id" column="id"></id>
+        <result property="spuId" column="id"></result>
         <result property="spuNo" column="spu_no"></result>
         <result property="goodsName" column="goods_name"></result>
         <result property="lowPrice" column="low_price"></result>
@@ -21,6 +22,8 @@
         <result property="packageUnit" column="package_unit"></result>
         <result property="freight" column="freight"></result>
         <result property="backgroundColor" column="background_color"></result>
+        <result property="countCollection" column="count_collection"></result>
+        <result property="countBuy" column="count_buy"></result>
     </resultMap>
 
     <resultMap id="goodsSpuDetailMap" type="GoodsSpu" extends="goodsSpuSimpleMap">
@@ -56,6 +59,7 @@
         <result property="goodsDescription" column="goods_description"></result>
         <result property="backgroundColor" column="background_color"></result>
         <result property="countCollection" column="count_collection"></result>
+        <result property="countBuy" column="count_buy"></result>
     </resultMap>
     
     
@@ -69,7 +73,9 @@
 
     <select id="listGoodsSpu" resultMap="goodsSpuSimpleMap">
         SELECT
-        a.id,a.spu_no,a.goods_name,a.low_price,a.settlement_id,c.category_name,d.brand_name,a.default_img_url,a.create_time,a.status,a.spu_type, a.background_color
+        a.id,a.spu_no,a.goods_name,a.low_price,a.settlement_id,c.category_name,d.brand_name,a.default_img_url,a.create_time,a.status,a.spu_type, a.background_color,
+        (SELECT COUNT(*) FROM goods_collection WHERE spu_id = a.id) AS count_collection,
+        (SELECT COUNT(*) FROM order_item WHERE goods_spu_id = a.id) AS count_buy
         FROM goods_spu a
         LEFT JOIN goods_category c on a.category_id = c.id
         LEFT JOIN goods_brand d on a.brand_id = d.id

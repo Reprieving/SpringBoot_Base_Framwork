@@ -57,5 +57,13 @@
         <include refid="pageSql"/>
     </select>
 
+    <select id="listUserTurnover" resultMap="BaseResultMap">
+      SELECT
+        a.id, a.user_id, a.turnover_type, a.turnover_amount, a.before_amount, a.after_amount,a.source_id,
+        a.target_id, a.settlement_id, a.create_time, a.detail_str,b.user_name
+      FROM assets_turnover a LEFT JOIN user_info b ON a.user_id = b.id
+      WHERE a.user_id = #{userId} AND a.turnover_type = #{turnoverType}
+    </select>
+
 
 </mapper>

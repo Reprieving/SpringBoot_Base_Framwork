@@ -46,4 +46,12 @@ public interface OrderMapper {
     List<OrderGoodsInfo> listAdminOrderGoodsInfo(@Param("orderNo") String orderNo, @Param("userName") String userName, @Param("settlementId") Integer settlementId,
                                                  @Param("logisticNumber") String logisticNumber, @Param("startTime") Timestamp startTime, @Param("endTime") Timestamp endTime,
                                                  @Param("status") Integer status, @Param("pagination") Pagination pagination);
+
+    /**
+     * 扫码领取小样订单
+     * @param userId
+     * @param ifScan
+     * @return
+     */
+    List<OrderGoodsInfo> listUserBeautyGoodsInfo(@Param("userId")String userId, @Param("ifScan")Boolean ifScan);
 }
