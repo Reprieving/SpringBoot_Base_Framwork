@@ -393,7 +393,7 @@ public class UserService extends BaseService {
         if(user.getCertStatus() == null){
             user.setCertStatus(0);
         }
-        return userMapper.getUserInfo(userId);
+        return user;
     }
 
     /**

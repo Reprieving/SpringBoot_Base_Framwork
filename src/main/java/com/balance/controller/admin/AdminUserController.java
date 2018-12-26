@@ -4,8 +4,6 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ResultUtils;
-import com.balance.constance.UserConst;
-import com.balance.entity.shop.GoodsCategory;
 import com.balance.entity.user.AssetsTurnover;
 import com.balance.entity.user.Certification;
 import com.balance.entity.user.User;
@@ -13,7 +11,7 @@ import com.balance.entity.user.UserAssets;
 import com.balance.entity.user.UserMerchantRuler;
 import com.balance.service.user.AssetsTurnoverService;
 import com.balance.service.user.CertificationService;
-import com.balance.service.user.UserMerchantRulerService;
+import com.balance.service.user.UserMerchantService;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 用户 会员
@@ -42,10 +39,11 @@ public class AdminUserController {
     private CertificationService certificationService;
 
     @Autowired
-    private UserMerchantRulerService userMerchantRulerService;
+    private UserMerchantService userMerchantRulerService;
 
     /**
      * 会员列表
+     *
      * @param pagination
      * @param userName
      * @param phoneNumber
@@ -54,16 +52,16 @@ public class AdminUserController {
     @GetMapping("list")
     public Result<?> list(Pagination pagination, String userName, String phoneNumber, Integer type, Integer level) {
         HashMap<String, Object> whereMap = Maps.newHashMap();
-        if(StringUtils.isNotBlank(userName)) {
+        if (StringUtils.isNotBlank(userName)) {
             whereMap.put(User.User_name + " = ", userName);
         }
-        if(StringUtils.isNotBlank(phoneNumber)) {
+        if (StringUtils.isNotBlank(phoneNumber)) {
             whereMap.put(User.Phone_number + " = ", phoneNumber);
         }
-        if(type != null) {
+        if (type != null) {
             whereMap.put(User.Type + " = ", type);
         }
-        if(level != null) {
+        if (level != null) {
             whereMap.put(User.Level + " = ", level);
         }
         List<User> userList = baseService.selectListByWhereMap(whereMap, pagination, User.class);
@@ -72,6 +70,7 @@ public class AdminUserController {
 
     /**
      * 更新会员状态
+     *
      * @param id
      * @param status
      * @return
@@ -88,30 +87,33 @@ public class AdminUserController {
 
     /**
      * 实名认证列表
+     *
      * @param certification
      * @return
      */
     @RequestMapping("cert/list")
     public Result<?> certificationList(@RequestBody Certification certification) {
         Pagination pagination = certification.getPagination();
-        List<Certification> certificationList = certificationService.listCertification(certification,pagination);
-        return ResultUtils.success(certificationList,pagination.getTotalRecordNumber());
+        List<Certification> certificationList = certificationService.listCertification(certification, pagination);
+        return ResultUtils.success(certificationList, pagination.getTotalRecordNumber());
     }
 
     /**
      * 实名审核
+     *
      * @param certId
      * @param status
      * @return
      */
     @RequestMapping("cert/{certId}/{status}")
     public Result<?> auth(@PathVariable String certId, @PathVariable Integer status) {
-        certificationService.updateCert(certId,status);
+        certificationService.updateCert(certId, status);
         return ResultUtils.success("审核成功");
     }
 
     /**
      * 会员 流水列表
+     *
      * @return
      */
     @PostMapping("assetsList")
@@ -121,6 +123,7 @@ public class AdminUserController {
 
     /**
      * 会员资产详细
+     *
      * @param id
      * @return
      */
@@ -147,6 +150,19 @@ public class AdminUserController {
         }
         Integer count = pagination == null ? 0 : pagination.getTotalRecordNumber();
         return ResultUtils.success(object, count);
+    }
+
+    /**
+     * 更改商户节点
+     *
+     * @param request
+     * @param user
+     * @return
+     */
+    @RequestMapping("userType/update")
+    public Result<?> userTypeUpdate(HttpServletRequest request, @RequestBody User user) {
+        System.out.println(user);
+        return ResultUtils.success("设置商户节点成功");
     }
 
 }

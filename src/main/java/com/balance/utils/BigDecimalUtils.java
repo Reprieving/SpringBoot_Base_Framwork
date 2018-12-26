@@ -64,8 +64,22 @@ public class BigDecimalUtils {
         return bigDecimal1.subtract(bigDecimal2);
     }
 
-    public static Boolean ifZero(BigDecimal bigDecimal) {
+    /**
+     * 判断是否为0
+     * @param bigDecimal
+     * @return
+     */
+    public static Boolean ifNegative(BigDecimal bigDecimal) {
         return (zeroBigDecimal.compareTo(bigDecimal) == 0);
+    }
+
+    /**
+     * 判断是否为负数
+     * @param bigDecimal
+     * @return
+     */
+    public static Boolean ifZero(BigDecimal bigDecimal) {
+        return (zeroBigDecimal.compareTo(bigDecimal) == 1);
     }
 
 

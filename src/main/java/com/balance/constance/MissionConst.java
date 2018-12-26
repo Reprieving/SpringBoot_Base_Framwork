@@ -1,5 +1,7 @@
 package com.balance.constance;
 
+import java.math.BigDecimal;
+
 public class MissionConst {
     //任务领取状态 start
     public final static int MISSION_COMPLETE_STATE_NONE = 0;//未完成
@@ -8,7 +10,6 @@ public class MissionConst {
     //任务领取情况 end
 
     //对应关系在e_mission的task_code字段
-    public final static int INVITE_USER_REGISTER = 1; //邀请用户注册
     public final static int DIRECT_INVITE = 1; //直接邀请
     public final static int INDIRECT_INVITE = 1; //间接邀请
     public final static int APPLY_YEAR_CARD = 2;//办年卡
@@ -17,9 +18,9 @@ public class MissionConst {
     public final static int SIGN_WEEK = 5;//每周签到
     public final static int SIGN_MONTH = 6;//每月签到
     public final static int OBTAIN_BEAUTY = 7;//线上领取小样
-    public final static int EXCHANGE_PACKAGE = 7;//兑换礼包
-    public final static int JOIN_INVESTIGATION = 8; //参与问卷调查
-    public final static int CERTIFICATION = 9; //实名认证
+    public final static int EXCHANGE_PACKAGE = 8;//兑换礼包
+    public final static int JOIN_INVESTIGATION = 9; //参与问卷调查
+    public final static int CERTIFICATION = 10; //实名认证
 
 
     public final static int FIRST_WITHDRAW = 3; //首次充值

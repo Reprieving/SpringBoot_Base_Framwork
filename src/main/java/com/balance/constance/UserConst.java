@@ -52,4 +52,9 @@ public class UserConst {
     public static final Integer USER_MEMBER_TYPE_NONE = 0;//非会员
     public static final Integer USER_MEMBER_TYPE_COMMON = 1;//普通会员
     public static final Integer USER_MEMBER_TYPE_SUPER = 2;//超级会员
+
+    //用户类型
+    public static final Integer USER_MERCHANT_TYPE_NONE = 1;//普通用户
+    public static final Integer USER_MERCHANT_TYPE_BEING = 2;//商户用户
+
 }
