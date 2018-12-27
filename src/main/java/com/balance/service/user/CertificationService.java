@@ -81,6 +81,7 @@ public class CertificationService extends BaseService {
         certification.setUserId(userId);
         certification.setRealName(realName);
         certification.setLicenseNumber(licenseNumber);
+        certification.setStatus(UserConst.USER_CERT_STATUS_ING);
 
         Integer i = insertIfNotNull(certification);
         if (i == 0) {

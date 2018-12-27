@@ -34,7 +34,7 @@ public class UserAssetsService extends BaseService {
     public String getSettlementNameById(Integer settlementId) {
         switch (settlementId) {
             case SettlementConst.SETTLEMENT_IH:
-                return "IH";
+                return "PT";
 
             case SettlementConst.SETTLEMENT_ETH:
                 return "ETH";
@@ -43,7 +43,7 @@ public class UserAssetsService extends BaseService {
                 return "矿石";
 
             case SettlementConst.SETTLEMENT_COMPUTING_POWER:
-                return "算力";
+                return "颜值";
 
             case SettlementConst.SETTLEMENT_CANDY:
                 return "糖果";
