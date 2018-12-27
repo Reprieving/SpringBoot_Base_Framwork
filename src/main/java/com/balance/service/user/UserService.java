@@ -205,8 +205,8 @@ public class UserService extends BaseService {
      *
      * @return
      */
-    public List<User> listUser4InviteRecord() {
-        return userMapper.listUser4InviteRecord();
+    public List<User> listUser4InviteRecord(Integer memberType) {
+        return userMapper.listUser4InviteRecord(memberType);
     }
 
     /**

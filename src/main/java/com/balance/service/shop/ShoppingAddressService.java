@@ -69,7 +69,11 @@ public class ShoppingAddressService extends BaseService {
             case ShopConst.SHOPPING_ADDRESS_OPERATOR_TYPE_UPDATE: //编辑
                 ValueCheckUtils.notEmpty(shoperAddressId, "收货地址id不能为空");
                 i = updateIfNotNull(shoppingAddress);
-                i = updateDefaultAddress(shoperAddressId, userId);
+
+                if(shoppingAddress.getIfDefault()){
+                    updateDefaultAddress(shoperAddressId, userId);
+                }
+
                 if (i == 0) {
                     throw new BusinessException("保存收货地址失败");
                 }

@@ -16,7 +16,7 @@ public interface UserMapper {
      * 获取所有用户（用于展示邀请记录）
      * @return
      */
-    List<User> listUser4InviteRecord();
+    List<User> listUser4InviteRecord(@Param("memberType") Integer memberType);
 
     /**
      * 根据更新字段重置密码

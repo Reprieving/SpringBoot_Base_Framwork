@@ -38,7 +38,7 @@ public class UserServiceTest {
 
     @Test
     public void filterUserDownTreeNode() {
-        List<User> allUser = userService.listUser4InviteRecord();
+        List<User> allUser = userService.listUser4InviteRecord(0);
         List<User> UserDownTreeNodeList = new ArrayList<>();
         TreeNodeUtils.filterUserDownTreeNode("05c55b1df93011e8854100163e0c24cd", allUser, UserDownTreeNodeList);
         System.out.println(UserDownTreeNodeList);

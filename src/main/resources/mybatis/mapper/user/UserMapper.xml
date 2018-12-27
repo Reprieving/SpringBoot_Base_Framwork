@@ -52,6 +52,7 @@
       SELECT
         a.id,a.user_name,a.invite_id,a.create_time,a.status AS cert_status
       FROM user_info a LEFT JOIN user_certification b ON a.id = b.user_id
+      WHERE a.member_type = #{memberType}
     </select>
 
     <select id="getUserToUpdatePwd" resultMap="userMap">

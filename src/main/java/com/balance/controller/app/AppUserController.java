@@ -18,6 +18,7 @@ import com.balance.service.common.AppUpgradeService;
 import com.balance.service.shop.SampleMachineService;
 import com.balance.service.user.*;
 import com.balance.utils.IPUtils;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("app/user")
@@ -120,15 +122,16 @@ public class AppUserController {
      * @return
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping("treeDownNode")
-    public Result<?> treeDownNode(HttpServletRequest request) throws UnsupportedEncodingException {
+    @RequestMapping("treeDownNode/{memberType}")
+    public Result<?> treeDownNode(HttpServletRequest request,@PathVariable Integer memberType) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
 
-        List<User> allUser = userService.listUser4InviteRecord();
+        List<User> allUser = userService.listUser4InviteRecord(memberType);
         List<User> treeUser = new ArrayList<>();
         TreeNodeUtils.filterUserDownTreeNode(userId,allUser,treeUser);
 
-        return ResultUtils.success(treeUser);
+        Map<String,Object> map = ImmutableMap.of("count",treeUser.size(),"dataList",treeUser);
+        return ResultUtils.success(map);
     }
 
     /**
