@@ -2,7 +2,7 @@ package com.balance.service.shop;
 
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
-import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.utils.ValueCheckUtils;
 import com.balance.constance.CommonConst;
 import com.balance.constance.ShopConst;
 import com.balance.entity.shop.ShoppingAddress;

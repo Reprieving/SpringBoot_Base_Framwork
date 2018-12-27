@@ -113,19 +113,23 @@ public class UserAssetsService extends BaseService {
         String assetColumnName = null;
         switch (settlementId) {
             case SettlementConst.SETTLEMENT_IH:
-                assetColumnName = "ih";
+                assetColumnName = UserAssets.Id;
                 break;
 
             case SettlementConst.SETTLEMENT_ETH:
-                assetColumnName = "eth";
+                assetColumnName = UserAssets.Eth;
                 break;
 
             case SettlementConst.SETTLEMENT_ORE:
-                assetColumnName = "ore";
+                assetColumnName = UserAssets.Ore;
                 break;
 
             case SettlementConst.SETTLEMENT_COMPUTING_POWER:
-                assetColumnName = "compute_power";
+                assetColumnName = UserAssets.Compute_power;
+                break;
+
+            case SettlementConst.SETTLEMENT_RMB:
+                assetColumnName = UserAssets.RMB;
                 break;
         }
 

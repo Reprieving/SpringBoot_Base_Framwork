@@ -6,7 +6,7 @@ import com.balance.architecture.mybatis.MybatisBuildUtil;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.utils.UUIDUtils;
-import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.utils.ValueCheckUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
 

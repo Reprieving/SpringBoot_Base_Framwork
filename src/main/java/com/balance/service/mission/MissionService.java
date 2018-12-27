@@ -2,7 +2,7 @@ package com.balance.service.mission;
 
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
-import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.utils.ValueCheckUtils;
 import com.balance.constance.AssetTurnoverConst;
 import com.balance.constance.MissionConst;
 import com.balance.constance.UserConst;
@@ -12,8 +12,8 @@ import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
 import com.balance.service.user.AssetsTurnoverService;
 import com.balance.service.user.UserAssetsService;
-import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -40,7 +40,7 @@ public class MissionService extends BaseService {
      *
      * @return
      */
-    public List<Mission> getMissionList() {
+    public List<Mission> allMissionList() {
         return selectAll(null, Mission.class);
     }
 
@@ -104,11 +104,7 @@ public class MissionService extends BaseService {
         String userId = user.getId();
         Mission mission = filterTaskByCode(missionCode, selectAll(null, Mission.class));
         UserAssets userAssets = userAssetsService.getAssetsByUserId(userId);
-        BigDecimal rewardValue = mission.getRewardValue();
-
-        if(user.getMemberType()== UserConst.USER_MEMBER_TYPE_COMMON && mission.getMemberRewardValue()!=null){
-            rewardValue = mission.getMemberRewardValue();
-        }
+        BigDecimal rewardValue = getMissionRewardByMemberType(user.getMemberType(),mission);
 
         Integer settlementId = mission.getSettlementId();
         userAssetsService.changeUserAssets(userId, rewardValue, settlementId, userAssets);
@@ -116,6 +112,23 @@ public class MissionService extends BaseService {
                 userId, AssetTurnoverConst.TURNOVER_TYPE_MISSION_REWARD, rewardValue, AssetTurnoverConst.COMPANY_ID, userId, userAssets, settlementId, turnoverDesc
         );
     }
+
+    /**
+     * 根据会员类型获取任务奖励值
+     * @param memberType
+     * @param mission
+     * @return
+     */
+    public BigDecimal getMissionRewardByMemberType(Integer memberType,Mission mission){
+        BigDecimal rewardValue = mission.getRewardValue();
+        ValueCheckUtils.notEmpty(memberType,"会员类型不能为空");
+        if(memberType == UserConst.USER_MEMBER_TYPE_COMMON){
+            rewardValue = mission.getMemberRewardValue();
+        }
+        ValueCheckUtils.notEmpty(rewardValue,"任务会员奖励值异常");
+        return rewardValue;
+    }
+
 
     /**
      * 完成任务并领取奖励
@@ -135,7 +148,6 @@ public class MissionService extends BaseService {
                 userId, AssetTurnoverConst.TURNOVER_TYPE_MISSION_REWARD, rewardValue, AssetTurnoverConst.COMPANY_ID, userId, userAssets, settlementId, turnoverDesc
         );
     }
-
 
 
     /**

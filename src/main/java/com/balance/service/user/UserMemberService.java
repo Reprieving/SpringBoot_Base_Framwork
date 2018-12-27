@@ -2,33 +2,46 @@ package com.balance.service.user;
 
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
-import com.balance.constance.MissionConst;
-import com.balance.constance.ShopConst;
+import com.balance.constance.*;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.shop.ShopVoucher;
-import com.balance.entity.user.User;
-import com.balance.entity.user.UserVoucherRecord;
+import com.balance.entity.user.*;
 import com.balance.service.mission.MissionService;
+import com.balance.service.shop.OrderService;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateUtils;
 import org.checkerframework.checker.units.qual.A;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Map;
 
 @Service
 public class UserMemberService extends BaseService {
+    private static final Logger logger = LoggerFactory.getLogger(UserMemberService.class);
+
     @Autowired
     private TransactionTemplate transactionTemplate;
 
     @Autowired
     private MissionService missionService;
+
+    @Autowired
+    private UserMerchantService userMerchantService;
+
+    @Autowired
+    private UserAssetsService userAssetsService;
+
+    @Autowired
+    private AssetsTurnoverService assetsTurnoverService;
 
     /**
      * 办理年卡
@@ -66,10 +79,40 @@ public class UserMemberService extends BaseService {
                     throw new BusinessException("办理会员失败");
                 }
 
+
                 //完成任务
                 missionService.finishMission(userId, MissionConst.APPLY_YEAR_CARD,"办理年卡");
 
-                //支付对接
+                //年卡分润
+                if (user.getType() == UserConst.USER_MERCHANT_TYPE_BEING) {
+                    //查询用户商户签约记录
+                    Map<String, Object> whereMap = ImmutableMap.of(UserMerchantRecord.User_id + "=", userId, UserMerchantRecord.If_valid + "=", true);
+                    UserMerchantRecord userMerchantRecord = selectOneByWhereMap(whereMap, UserMerchantRecord.class);
+
+                    if (userMerchantRecord != null) {
+                        UserMerchantRuler userMerchantRuler = userMerchantService.filterMerchantRulerById(userMerchantRecord.getMerchantRulerId());
+                        if (userMerchantRuler != null) {
+
+                            String inviteId = user.getInviteId();
+                            UserAssets userAssets = userAssetsService.getAssetsByUserId(inviteId);
+
+                            //增加用户人民币资产
+                            BigDecimal memberShareProfit = userMerchantRuler.getBecomeMemberProfit();
+                            Integer rmbSettlementId = SettlementConst.SETTLEMENT_RMB;
+                            //增加邀请用户人民币
+                            userAssetsService.changeUserAssets(inviteId, memberShareProfit, rmbSettlementId, userAssets);
+                            assetsTurnoverService.createAssetsTurnover(
+                                    inviteId, AssetTurnoverConst.TURNOVER_TYPE_MEMBER_BECOME, memberShareProfit, AssetTurnoverConst.COMPANY_ID,
+                                    inviteId, userAssets, rmbSettlementId, "被邀请用户线上领取美妆样品服务费"
+                            );
+                        }
+
+                    }else {
+                        logger.error("用户id为：" + userId + "的用户类型异常，该用户现用户类型为商户，但在商户签约表中无有效记录");
+                    }
+                }
+
+               //支付对接
 
 
             }

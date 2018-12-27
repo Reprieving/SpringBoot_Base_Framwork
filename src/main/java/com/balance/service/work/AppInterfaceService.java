@@ -1,7 +1,7 @@
 package com.balance.service.work;
 
 import com.balance.architecture.utils.ParamStatementUtils;
-import com.balance.architecture.utils.TreeNodeUtils;
+import com.balance.utils.TreeNodeUtils;
 import com.balance.architecture.utils.UUIDUtils;
 import com.balance.entity.work.ApiTreeNode;
 import com.balance.entity.work.AppInterface;

@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 public class BigDecimalUtils {
 
     private static final BigDecimal zeroBigDecimal = new BigDecimal(0);
+    private static final BigDecimal hundredBigDecimal = new BigDecimal(100);
+
 
     /**
      * 相乘
@@ -52,6 +54,16 @@ public class BigDecimalUtils {
     public static BigDecimal divide(BigDecimal bigDecimal1, BigDecimal bigDecimal2) {
         return bigDecimal1.divide(bigDecimal2, SCALE_EIGHT);
     }
+
+    /**
+     * 百分比转比例
+     * @param bigDecimal
+     * @return
+     */
+    public static BigDecimal percentToRate(BigDecimal bigDecimal){
+        return divide(bigDecimal, hundredBigDecimal);
+    }
+
 
     /**
      * 相减

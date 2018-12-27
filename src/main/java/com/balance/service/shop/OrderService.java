@@ -4,22 +4,17 @@ import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
-import com.balance.architecture.utils.ValueCheckUtils;
-import com.balance.constance.AssetTurnoverConst;
-import com.balance.constance.MissionConst;
-import com.balance.constance.SettlementConst;
-import com.balance.constance.ShopConst;
+import com.balance.constance.*;
+import com.balance.entity.mission.Mission;
+import com.balance.entity.user.*;
+import com.balance.service.user.UserMerchantService;
+import com.balance.utils.ValueCheckUtils;
 import com.balance.controller.app.req.ShopOrderSkuReq;
 import com.balance.entity.common.CodeEntity;
-import com.balance.entity.mission.Mission;
 import com.balance.entity.shop.*;
-import com.balance.entity.user.User;
-import com.balance.entity.user.UserAssets;
-import com.balance.entity.user.UserVoucherRecord;
 import com.balance.mapper.shop.OrderMapper;
 import com.balance.mapper.user.UserMapper;
 import com.balance.mapper.user.UserVoucherMapper;
-import com.balance.service.common.WjSmsService;
 import com.balance.service.mission.MissionService;
 import com.balance.service.user.AssetsTurnoverService;
 import com.balance.service.user.UserAssetsService;
@@ -33,8 +28,6 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -42,8 +35,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,6 +71,9 @@ public class OrderService extends BaseService {
 
     @Autowired
     private MissionService missionService;
+
+    @Autowired
+    private UserMerchantService userMerchantService;
 
     /**
      * 商城下单
@@ -200,12 +194,10 @@ public class OrderService extends BaseService {
      * @param machineCode 小样机器编码
      */
     public void scanBeauty(String userId, String aisleCode, String machineCode) {
-
         User user = selectOneById(userId, User.class);
         if (StringUtils.isBlank(user.getWxOpenId())) {
             throw new BusinessException("请绑定微信号后再扫码领取");
         }
-
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
@@ -224,12 +216,54 @@ public class OrderService extends BaseService {
                     if (codeEntity != null && codeEntity.getCode() != "00") {
                         throw new BusinessException("库存异常");
                     }
+                    //完成任务，并增加颜值
                     missionService.finishMission(user, MissionConst.OBTAIN_BEAUTY, "APP线上领取小样");
                 } catch (IOException e) {
                     logger.error(e.getMessage());
                 } finally {
                     if (post != null) {
                         post.releaseConnection();
+                    }
+                }
+
+                if (user.getType() == UserConst.USER_MERCHANT_TYPE_BEING) {
+                    //查询用户商户签约记录
+                    Map<String, Object> whereMap = ImmutableMap.of(UserMerchantRecord.User_id + "=", userId, UserMerchantRecord.If_valid + "=", true);
+                    UserMerchantRecord userMerchantRecord = selectOneByWhereMap(whereMap, UserMerchantRecord.class);
+
+                    if (userMerchantRecord != null) {
+                        Mission mission = missionService.filterTaskByCode(MissionConst.OBTAIN_BEAUTY, missionService.allMissionList()); //颜值任务奖励
+                        UserMerchantRuler userMerchantRuler = userMerchantService.filterMerchantRulerById(userMerchantRecord.getMerchantRulerId());
+                        if (userMerchantRuler != null) {
+                            String inviteId = user.getInviteId();
+                            UserAssets userAssets = userAssetsService.getAssetsByUserId(inviteId);
+
+                            //颜值分润值
+                            BigDecimal computeShareProfit = BigDecimalUtils.multiply(
+                                    missionService.getMissionRewardByMemberType(user.getMemberType(), mission),
+                                    BigDecimalUtils.percentToRate(userMerchantRuler.getComputeReturnRate()
+                                    ));
+                            //增加邀请用户颜值
+                            Integer computeSettlementId = mission.getSettlementId();
+                            userAssetsService.changeUserAssets(inviteId, computeShareProfit, computeSettlementId, userAssets);
+                            assetsTurnoverService.createAssetsTurnover(
+                                    inviteId, AssetTurnoverConst.TURNOVER_TYPE_COMPUTE_RETURN, computeShareProfit, AssetTurnoverConst.COMPANY_ID,
+                                    inviteId, userAssets, computeSettlementId, "被邀请用户线上领取美妆样品颜值返现分利"
+                            );
+
+                            //样品红利
+                            BigDecimal beautyServiceShareProfit = userMerchantRuler.getBeautyServiceProfit();
+                            Integer rmbSettlementId = SettlementConst.SETTLEMENT_RMB;
+                            //增加邀请用户人民币
+                            userAssetsService.changeUserAssets(inviteId, beautyServiceShareProfit, rmbSettlementId, userAssets);
+                            assetsTurnoverService.createAssetsTurnover(
+                                    inviteId, AssetTurnoverConst.TURNOVER_TYPE_BEAUTY_OBTAIN, beautyServiceShareProfit, AssetTurnoverConst.COMPANY_ID,
+                                    inviteId, userAssets, computeSettlementId, "被邀请用户线上领取美妆样品服务费"
+                            );
+                        }
+
+                    } else {
+                        logger.error("用户id为：" + userId + "的用户类型异常，该用户现用户类型为商户，但在商户签约表中无有效记录");
                     }
                 }
 
@@ -273,14 +307,47 @@ public class OrderService extends BaseService {
                     Integer settlementId = SettlementConst.SETTLEMENT_VOUCHER;
                     BigDecimal orderTotalPrice = goodsSpu.getLowPrice();
 
+
                     String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
-                    OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, orderTotalPrice, new BigDecimal(0));
+                    OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, new BigDecimal(0), orderTotalPrice);
 
                     if (insertIfNotNull(orderInfo) == 0) {
                         throw new BusinessException("兑换失败");
                     }
 
                     missionService.finishMission(user, MissionConst.EXCHANGE_PACKAGE, "兑换礼包");
+
+                    if (user.getType() == UserConst.USER_MERCHANT_TYPE_BEING) {
+                        //查询用户商户签约记录
+                        Map<String, Object> whereMap = ImmutableMap.of(UserMerchantRecord.User_id + "=", userId, UserMerchantRecord.If_valid + "=", true);
+                        UserMerchantRecord userMerchantRecord = selectOneByWhereMap(whereMap, UserMerchantRecord.class);
+                        if (userMerchantRecord != null) {
+                            Mission mission = missionService.filterTaskByCode(MissionConst.EXCHANGE_PACKAGE, missionService.allMissionList()); //兑换礼包奖励值
+                            UserMerchantRuler userMerchantRuler = userMerchantService.filterMerchantRulerById(userMerchantRecord.getMerchantRulerId());
+                            if (userMerchantRuler != null) {
+                                String inviteId = user.getInviteId();
+                                UserAssets userAssets = userAssetsService.getAssetsByUserId(inviteId);
+
+                                //颜值分润值
+                                BigDecimal computeShareProfit = BigDecimalUtils.multiply(
+                                        missionService.getMissionRewardByMemberType(user.getMemberType(), mission),
+                                        BigDecimalUtils.percentToRate(userMerchantRuler.getComputeReturnRate()
+                                        ));
+
+                                //增加邀请用户颜值
+                                Integer computeSettlementId = mission.getSettlementId();
+                                userAssetsService.changeUserAssets(inviteId, computeShareProfit, computeSettlementId, userAssets);
+                                assetsTurnoverService.createAssetsTurnover(
+                                        inviteId, AssetTurnoverConst.TURNOVER_TYPE_COMPUTE_RETURN, computeShareProfit, AssetTurnoverConst.COMPANY_ID,
+                                        inviteId, userAssets, computeSettlementId, "被邀请用户线上兑换礼包颜值返现分利"
+                                );
+                            }
+
+                        }else {
+                            logger.error("用户id为：" + userId + "的用户类型异常，该用户现用户类型为商户，但在商户签约表中无有效记录");
+                        }
+                    }
+
                 } else {
                     throw new BusinessException("暂只支持年卡会员卡券，生日卡券使用");
                 }

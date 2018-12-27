@@ -5,7 +5,6 @@ import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.mission.SignInfo;
-import com.balance.entity.user.User;
 import com.balance.service.mission.MissionService;
 import com.balance.service.mission.SignInService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,7 @@ public class AppMissionController {
     @ResponseBody
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     public Result<?> list() throws UnsupportedEncodingException {
-        List<Mission> missions = missionService.getMissionList();
+        List<Mission> missions = missionService.allMissionList();
         return ResultUtils.success(missions);
     }
 

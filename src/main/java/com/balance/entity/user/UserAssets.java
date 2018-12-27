@@ -36,6 +36,9 @@ public class UserAssets implements Serializable{ //用户资产
     @Column(name = Ore)
     private BigDecimal ore; //矿石
 
+    @Column(name = RMB)
+    private BigDecimal rmb; //人民币
+
     @Column(name = Version)
     private Integer version; //版本
 
@@ -50,6 +53,7 @@ public class UserAssets implements Serializable{ //用户资产
     public static final String Ih = "ih";
     public static final String Eth = "eth";
     public static final String Ore = "ore";
+    public static final String RMB = "rmb";
     public static final String Version = "version";
 
     public UserAssets(){

@@ -7,7 +7,7 @@ import com.balance.architecture.utils.JwtUtils;
 import com.balance.client.RedisClient;
 import com.balance.constance.RedisKeyConst;
 import com.balance.utils.HttpClientUtils;
-import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.utils.ValueCheckUtils;
 import com.balance.entity.user.User;
 import com.balance.service.common.GlobalConfigService;
 import lombok.extern.slf4j.Slf4j;

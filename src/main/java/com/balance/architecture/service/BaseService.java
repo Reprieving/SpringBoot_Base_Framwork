@@ -2,8 +2,7 @@ package com.balance.architecture.service;
 
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.mybatis.mapper.BaseMapper;
-import com.balance.architecture.utils.MineClassUtils;
-import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.utils.ValueCheckUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;

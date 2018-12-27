@@ -4,7 +4,7 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
-import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.utils.ValueCheckUtils;
 import com.balance.constance.UserConst;
 import com.balance.entity.user.MsgRecord;
 import com.balance.entity.user.User;
@@ -34,9 +34,10 @@ public class UserSendService extends BaseService {
 
     /**
      * 新建短信发送记录
+     *
      * @throws BusinessException
      */
-    public String createMsgRecord(HttpServletRequest request,User userReq) throws BusinessException, UnsupportedEncodingException {
+    public String createMsgRecord(HttpServletRequest request, User userReq) throws BusinessException, UnsupportedEncodingException {
         String msgCode = RandomUtil.randomNumber(6);
         String userId;
         Integer msgType = userReq.getMsgType();
@@ -51,7 +52,7 @@ public class UserSendService extends BaseService {
             userId = userReq.getUserId();
         }
 
-        ValueCheckUtils.notEmpty(userId,"用户id不能为空");
+        ValueCheckUtils.notEmpty(userId, "用户id不能为空");
 
         User user;
         String msgTypeStr = "";
@@ -114,7 +115,7 @@ public class UserSendService extends BaseService {
         String content = "美妆连" + msgTypeStr + "验证码： " + msgCode + "，十五分钟内有效。【美妆连】";
         wjSmsService.sendSms(userReq.getPhoneNumber(), content);
         MsgRecord msgRecord = new MsgRecord(userId, phoneNumber, msgCode, msgType, new Timestamp(System.currentTimeMillis()), true);
-        if(insertIfNotNull(msgRecord)==0){
+        if (insertIfNotNull(msgRecord) == 0) {
             throw new BusinessException("发送短信验证码失败");
         }
 
@@ -150,7 +151,9 @@ public class UserSendService extends BaseService {
         if (minutes > 15) {
             throw new BusinessException("短信验证码已经过期");
         }
-        // TODO 验证码 没有 置为无效
+
+        msgRecord.setIfValid(false);
+        updateIfNotNull(msgRecord);
     }
 
     public void validateMsgCode(String userId, String msgCode, Integer msgType) {

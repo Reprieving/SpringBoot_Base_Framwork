@@ -5,7 +5,7 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
-import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.utils.ValueCheckUtils;
 import com.balance.client.RedisClient;
 import com.balance.constance.*;
 import com.balance.entity.common.UserFreeCount;
@@ -464,7 +464,6 @@ public class UserService extends BaseService {
         if (user != null) {
             throw new BusinessException("该手机号码已经绑定其它账号");
         }
-        // TODO 安全性校验
         userSendService.validateMsgCode(userId, phoneNumber, msgCode, type);
         User update = new User();
         update.setId(userId);

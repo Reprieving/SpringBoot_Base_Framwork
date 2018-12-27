@@ -3,7 +3,9 @@ package com.balance.service.user;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
-import com.balance.architecture.utils.ValueCheckUtils;
+import com.balance.constance.AssetTurnoverConst;
+import com.balance.entity.user.UserAssets;
+import com.balance.utils.ValueCheckUtils;
 import com.balance.constance.CommonConst;
 import com.balance.constance.SettlementConst;
 import com.balance.constance.UserConst;
@@ -14,7 +16,6 @@ import com.balance.utils.BigDecimalUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -35,6 +36,9 @@ public class UserMerchantService extends BaseService {
 
     @Autowired
     private UserAssetsService userAssetsService;
+
+    @Autowired
+    private AssetsTurnoverService assetsTurnoverService;
 
     @Autowired
     private UserService userService;
@@ -115,7 +119,7 @@ public class UserMerchantService extends BaseService {
     }
 
 
-    public List list(UserMerchantRuler userMerchantRuler, Pagination pagination) {
+    public List<UserMerchantRuler> list(UserMerchantRuler userMerchantRuler, Pagination pagination) {
         Class clazz = UserMerchantRuler.class;
         String machineRankName = userMerchantRuler.getMachineRankName();
         Map<String, Object> whereMap;
@@ -154,45 +158,42 @@ public class UserMerchantService extends BaseService {
         User user = selectOneById(userId, User.class);
         ValueCheckUtils.notEmpty(user, "未找到该用户信息");
 
-        UserMerchantRuler merchantRuler = filterMatcherMerchantRuler(machineCount);
+        UserMerchantRuler merchantRuler = filterMerchantRulerByMachineCount(machineCount);
         ValueCheckUtils.notEmpty(merchantRuler, "未找到匹配的商户节点规则");
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                Integer i = 0;
                 //更改用户的用户类型
                 User updateUser = new User();
                 updateUser.setId(userId);
                 updateUser.setType(UserConst.USER_MERCHANT_TYPE_BEING);
-                if (updateIfNotNull(updateUser) == 0) {
-                    throw new BusinessException("设置商户失败");
-                }
+                i = updateIfNotNull(updateUser);
 
                 Long currentTimeMillis = System.currentTimeMillis();
                 Timestamp createTimestamp = new Timestamp(currentTimeMillis);
                 Timestamp expireTimestamp = new Timestamp(DateUtils.addYears(new Date(), merchantRuler.getContractYearTimes()).getTime());
 
-
                 //增加用户签约商户记录
                 UserMerchantRecord userMerchantRecord = new UserMerchantRecord(userId, merchantRankName, merchantRuler.getId(), createTimestamp, expireTimestamp, true);
-                if (insertIfNotNull(userMerchantRecord) == 0) {
+                i = insertIfNotNull(userMerchantRecord);
+
+                //赠送用户颜值
+                BigDecimal giftCompute = BigDecimalUtils.multiply(
+                        BigDecimalUtils.multiply(merchantRuler.getMachinePrice(), new BigDecimal(machineCount)),
+                        BigDecimalUtils.percentToRate(merchantRuler.getComputeRewardRate())
+                );
+                UserAssets userAssets = userAssetsService.getAssetsByUserId(userId);
+                i = assetsTurnoverService.createAssetsTurnover(
+                        userId, AssetTurnoverConst.TURNOVER_TYPE_MEMBER_BECOME, giftCompute, AssetTurnoverConst.COMPANY_ID,
+                        userId, userAssets, SettlementConst.SETTLEMENT_COMPUTING_POWER, "办理年卡会员赠送颜值"
+                );
+                i = userAssetsService.changeUserAssets(userId, giftCompute, SettlementConst.SETTLEMENT_COMPUTING_POWER, userAssets);
+
+                if (i == 0) {
                     throw new BusinessException("设置商户失败");
                 }
-
-
-                BigDecimal totalPrice = BigDecimalUtils.multiply(merchantRuler.getMachinePrice(), new BigDecimal(machineCount));    //机器单价X租赁机器数量
-                BigDecimal giftCompute = BigDecimalUtils.multiply(totalPrice, merchantRuler.getComputeRewardRate());                 //赠送用户颜值
-                if (userAssetsService.changeUserAssets(userId, giftCompute, SettlementConst.SETTLEMENT_COMPUTING_POWER) == 0) {
-                    throw new BusinessException("设置商户失败");
-                }
-
-                //颜值分润
-//                List<User> allUser = userService.listUser4InviteRecord();
-//                for(User user1:allUser){
-//                    if(user1.getInviteId().equals(userId)){
-//
-//                    }
-//                }
 
             }
         });
@@ -204,7 +205,7 @@ public class UserMerchantService extends BaseService {
      * @param machineCount
      * @return
      */
-    public UserMerchantRuler filterMatcherMerchantRuler(Integer machineCount) {
+    public UserMerchantRuler filterMerchantRulerByMachineCount(Integer machineCount) {
         List<UserMerchantRuler> userMerchantRulers = list(null, null);
         for (UserMerchantRuler ur : userMerchantRulers) {
             if (machineCount <= ur.getMachineEndCount()) {
@@ -213,5 +214,21 @@ public class UserMerchantService extends BaseService {
         }
         return null;
     }
+
+
+    /**
+     * 通过id获取指定的商户等级规则
+     * @param userMerchantRulerId
+     * @return
+     */
+    public UserMerchantRuler filterMerchantRulerById(String userMerchantRulerId){
+        for(UserMerchantRuler ur :list(null,null)){
+            if(ur.getId().equals(userMerchantRulerId)){
+                return ur;
+            }
+        }
+        return null;
+    }
+
 
 }

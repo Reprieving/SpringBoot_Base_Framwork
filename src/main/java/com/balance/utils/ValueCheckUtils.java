@@ -1,4 +1,4 @@
-package com.balance.architecture.utils;
+package com.balance.utils;
 
 import com.balance.architecture.exception.BusinessException;
 

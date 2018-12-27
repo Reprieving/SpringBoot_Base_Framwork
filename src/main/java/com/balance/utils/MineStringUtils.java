@@ -1,4 +1,4 @@
-package com.balance.architecture.utils;
+package com.balance.utils;
 
 public class MineStringUtils {
     public static String firstCharToUpperCase(String str) {
