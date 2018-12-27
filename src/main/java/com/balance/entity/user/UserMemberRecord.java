@@ -3,6 +3,7 @@ package com.balance.entity.user;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
@@ -31,10 +32,14 @@ public class UserMemberRecord implements Serializable{
     @Column(name = Expire_time)
     public Integer expireTime;
 
+    @Column(name = If_valid)
+    public Boolean ifValid;
+
     //DB Column name
     public static final String Id = "id";
     public static final String User_id = "user_id";
     public static final String Pay_amount = "pay_amount";
     public static final String Member_type = "member_type";
     public static final String Expire_time = "expire_time";
+    public static final String If_valid = "if_valid";
 }

@@ -105,7 +105,7 @@ public class InvestigationService extends BaseService{
                     throw new BusinessException("提交问卷失败");
                 }
                 //完成任务
-                
+                missionService.finishMission(userId, MissionConst.JOIN_INVESTIGATION,"办理年卡");
             }
         });
 

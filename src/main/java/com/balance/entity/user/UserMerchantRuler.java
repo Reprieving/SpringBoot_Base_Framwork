@@ -19,6 +19,9 @@ public class UserMerchantRuler implements Serializable{
     @Column(name = Id)
     private String id;
 
+    @Column(name = Machine_price)
+    private BigDecimal machinePrice;//小样机单价
+
     @Column(name = Machine_rank_name)
     private String machineRankName;//商户等级名称
 
@@ -43,14 +46,14 @@ public class UserMerchantRuler implements Serializable{
     @Column(name = Compute_return_rate)
     private BigDecimal computeReturnRate;//线上颜值返现
 
-    @Column(name = Invite_profit_rate)
-    private BigDecimal inviteProfitRate;//邀请人分红百分比
-
     @Column(name = If_valid)
     private Boolean ifValid;//是否有效
 
     //扩展属性
     private Pagination pagination;
+
+
+
 
     //DB Column name
     public static final String Id = "id";
@@ -62,7 +65,7 @@ public class UserMerchantRuler implements Serializable{
     public static final String Beauty_service_profit = "beauty_service_profit";
     public static final String Become_member_profit = "become_member_profit";
     public static final String Compute_return_rate = "compute_return_rate";
-    public static final String Invite_profit_rate = "invite_profit_rate";
+    public static final String Machine_price = "machine_price";
     public static final String If_valid = "if_valid";
 
 

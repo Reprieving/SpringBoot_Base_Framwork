@@ -94,6 +94,8 @@ public class User implements Serializable{ //用户信息
     private BigDecimal totalIncome = new BigDecimal(0);//总收益
     private BigDecimal todayIncome = new BigDecimal(0);//今日收益
     private Integer countMachine = 0;//小样机数量
+    private String merchantRankName;//商户等级名称
+
 
     //DB Column name
     public static final String Id = "id";

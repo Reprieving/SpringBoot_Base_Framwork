@@ -70,6 +70,8 @@ public class UserMemberService extends BaseService {
                 missionService.finishMission(userId, MissionConst.APPLY_YEAR_CARD,"办理年卡");
 
                 //支付对接
+
+
             }
         });
     }
