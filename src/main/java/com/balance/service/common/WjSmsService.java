@@ -19,33 +19,40 @@ public class WjSmsService {
 
     private static final Logger logger = LoggerFactory.getLogger(WjSmsService.class);
 
-    private static String key;
-    private static String Uid;
+    private static String token;
+    private static String sign;
 
     @Autowired
     private GlobalConfigService globalConfigService;
 
     @PostConstruct
     private void init() {
-        key = globalConfigService.get(GlobalConfigService.Enum.WJ_SMS_ACCESS_KEY);
-        Uid = globalConfigService.get(GlobalConfigService.Enum.WJ_SMS_UID);
+        token = globalConfigService.get(GlobalConfigService.Enum.WJ_SMS_TOKEN);
+        sign = globalConfigService.get(GlobalConfigService.Enum.WJ_SMS_SIGN);
     }
 
     /**
      * 发送短信
-     * @param phoneNumber 手机号
-     * @param msgContent 短信内容
+     *
+     * @param phoneNumber  手机号
+     * @param tpl_id       模板id
+     * @param params       模板内容
+     * @param country_code 国家代码
      */
-    public void sendSms(String phoneNumber, String msgContent) {
+    public void sendSms(String phoneNumber, String tpl_id, String params, String country_code) {
         HttpClient client = new HttpClient();
-        PostMethod post = new PostMethod("http://utf8.api.smschinese.cn");
-        post.addRequestHeader("Content-Type","application/x-www-form-urlencoded;charset=gbk");//在头文件中设置转码
-        NameValuePair[] data = {new NameValuePair("Uid", Uid), new NameValuePair("Key", key), new NameValuePair("smsMob", phoneNumber), new NameValuePair("smsText", msgContent)};
+        PostMethod post = new PostMethod("http://www.api51.cn/api/smsApi/sendcode");
+        post.addRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");//在头文件中设置转码
+        NameValuePair[] data = {
+                new NameValuePair("token", token), new NameValuePair("sign", sign),
+                new NameValuePair("mobile", phoneNumber), new NameValuePair("tpl_id", tpl_id),
+                new NameValuePair("params", params), new NameValuePair("country_code", country_code),
+        };
         post.setRequestBody(data);
         String result = null;
         try {
             client.executeMethod(post);
-            result = new String(post.getResponseBodyAsString().getBytes("gbk"));
+            result = new String(post.getResponseBodyAsString().getBytes("utf-8"));
         } catch (IOException e) {
             logger.error(e.getMessage());
         }

@@ -5,6 +5,7 @@ import com.balance.architecture.dto.Result;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.utils.JwtUtils;
 import com.balance.architecture.utils.ResultUtils;
+import com.balance.utils.TreeNodeUtils;
 import com.balance.utils.ValueCheckUtils;
 import com.balance.client.RedisClient;
 import com.balance.constance.RedisKeyConst;
@@ -24,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -110,6 +112,23 @@ public class AppUserController {
             userInfo = userService.login(user);
         }
         return ResultUtils.success(userInfo, "登录成功");
+    }
+
+    /**
+     *
+     * @param request
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @RequestMapping("treeDownNode")
+    public Result<?> treeDownNode(HttpServletRequest request) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+
+        List<User> allUser = userService.listUser4InviteRecord();
+        List<User> treeUser = new ArrayList<>();
+        TreeNodeUtils.filterUserDownTreeNode(userId,allUser,treeUser);
+
+        return ResultUtils.success(treeUser);
     }
 
     /**

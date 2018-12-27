@@ -58,11 +58,11 @@ public class TreeNodeUtils {
     }
 
 
-    public static void filterInviteUserId(String inviteUserId, List<User> users, List<String> ids) {
+    public static void filterUserDownTreeNode(String userId, List<User> users, List<User> userList) {
         for (User user : users) {
-            if (inviteUserId.equals(user.getId())) {
-                ids.add(user.getId());
-                filterInviteUserId(user.getInviteId(), users, ids);
+            if (userId.equals(user.getInviteId())) {
+                userList.add(user);
+                filterUserDownTreeNode(user.getId(), users, userList);
             }
         }
     }

@@ -72,8 +72,8 @@ public class GlobalConfigService extends BaseService{
         SYSTEM_DOMAIN,
 
         //网建短信系统配置
-        WJ_SMS_ACCESS_KEY,
-        WJ_SMS_UID,
+        WJ_SMS_TOKEN,
+        WJ_SMS_SIGN,
 
 
         /** 银行卡提现 最低额度 */

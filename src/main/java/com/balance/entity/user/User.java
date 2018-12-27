@@ -78,6 +78,7 @@ public class User implements Serializable{ //用户信息
     private String userId;
     private String accessToken; //访问token
     private String msgCode; //短信验证码
+    private String countryCode; //国家代码
     private Integer msgType; //UserConst.MSG_CODE_TYPE_* 短信验证码类型
     private List<User> directUserList; //直接邀请用户记录
     private List<User> inDirectUserList; //间接邀请用户记录

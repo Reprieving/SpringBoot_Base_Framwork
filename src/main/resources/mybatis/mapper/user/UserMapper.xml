@@ -49,7 +49,9 @@
     </update>
 
     <select id="listUser4InviteRecord" resultMap="userMap">
-      SELECT id,user_name,invite_id FROM user_info
+      SELECT
+        a.id,a.user_name,a.invite_id,a.create_time,a.status AS cert_status
+      FROM user_info a LEFT JOIN user_certification b ON a.id = b.user_id
     </select>
 
     <select id="getUserToUpdatePwd" resultMap="userMap">

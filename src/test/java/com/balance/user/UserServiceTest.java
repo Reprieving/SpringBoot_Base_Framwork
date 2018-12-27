@@ -23,20 +23,24 @@ public class UserServiceTest {
     private WjSmsService wjSmsService;
 
     @Test
-    public void nearUserListTest(){
+    public void nearUserListTest() {
         System.out.println(1);
     }
 
     @Test
-    public void sendMsgTest(){
-        wjSmsService.sendSms("13432280678","【签名内容签名内容签名内容】");
+    public void sendMsgTest() {
+        String msgCode = "123";
+        String msgTypeStr = "【银行卡提现】";
+
+        String content = "：【" + msgCode + "】 正在尝试" + msgTypeStr + "。 验证码十五分钟内有效 ";
+        wjSmsService.sendSms("13432280678", "46792", content, "86");
     }
 
     @Test
-    public void filterInviteUserId(){
+    public void filterUserDownTreeNode() {
         List<User> allUser = userService.listUser4InviteRecord();
-        List<String> ids = new ArrayList<>();
-        TreeNodeUtils.filterInviteUserId("f42973aba7db484a81a4f319b9e74463",allUser,ids);
-        System.out.println(ids);
+        List<User> UserDownTreeNodeList = new ArrayList<>();
+        TreeNodeUtils.filterUserDownTreeNode("05c55b1df93011e8854100163e0c24cd", allUser, UserDownTreeNodeList);
+        System.out.println(UserDownTreeNodeList);
     }
 }

@@ -58,23 +58,23 @@ public class UserSendService extends BaseService {
         String msgTypeStr = "";
         switch (msgType) {
             case UserConst.MSG_CODE_TYPE_LOGINANDREGISTER:
-                msgTypeStr = "[注册/登陆]";
+                msgTypeStr = "【注册/登陆】";
                 break;
             case UserConst.MSG_CODE_TYPE_BINGD_PHONE:
                 user = userService.selectOneByWhereString(User.Phone_number + " = ", phoneNumber, User.class);
                 if (user != null) {
                     throw new BusinessException("该手机号码已经绑定其它账号");
                 }
-                msgTypeStr = "[绑定手机号码]";
+                msgTypeStr = "【绑定手机号码】";
                 break;
             case UserConst.MSG_CODE_TYPE_RESET_LOGINPWD:
-                msgTypeStr = "[重置登录密码]";
+                msgTypeStr = "【重置登录密码】";
                 break;
             case UserConst.MSG_CODE_TYPE_SETTLE_PAYPWD:
-                msgTypeStr = "[设置支付密码]";
+                msgTypeStr = "【设置支付密码】";
                 break;
             case UserConst.MSG_CODE_TYPE_RESET_PAYPWD:
-                msgTypeStr = "[重置支付密码]";
+                msgTypeStr = "【重置支付密码】";
                 break;
             case UserConst.MSG_CODE_TYPE_UNBIND_PHONE:
                 userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
@@ -82,7 +82,7 @@ public class UserSendService extends BaseService {
                 if (user == null || !phoneNumber.equals(user.getPhoneNumber())) {
                     throw new BusinessException("解绑手机号码和已绑定手机号码不一致");
                 }
-                msgTypeStr = "[解绑手机号码]";
+                msgTypeStr = "【解绑手机号码】";
                 break;
             case UserConst.MSG_CODE_TYPE_CHANGE_PHONE:
                 userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
@@ -90,17 +90,17 @@ public class UserSendService extends BaseService {
                 if (user != null) {
                     throw new BusinessException("该手机号码已经绑定其它账号");
                 }
-                msgTypeStr = "[更改手机号码]";
+                msgTypeStr = "【更改手机号码】";
                 break;
             case UserConst.MSG_CODE_TYPE_BIND_BANK:
                 userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
                 phoneNumber = userService.getById(userId).getPhoneNumber();
-                msgTypeStr = "[绑定银行卡]";
+                msgTypeStr = "【绑定银行卡】";
                 break;
             case UserConst.MSG_CODE_TYPE_BANK_WITHDRAW:
                 userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
                 phoneNumber = userService.getById(userId).getPhoneNumber();
-                msgTypeStr = "[银行卡提现]";
+                msgTypeStr = "【银行卡提现】";
                 break;
         }
 
@@ -112,8 +112,8 @@ public class UserSendService extends BaseService {
 //                throw new BusinessException("当天发送短信次数已到达上限3条");
 //            }
 //        }
-        String content = "美妆连" + msgTypeStr + "验证码： " + msgCode + "，十五分钟内有效。【美妆连】";
-        wjSmsService.sendSms(userReq.getPhoneNumber(), content);
+        String content = "【" + msgCode + "】。正在尝试" + msgTypeStr + "。验证码十五分钟内有效";
+//        wjSmsService.sendSms(userReq.getPhoneNumber(), "46792", content, userReq.getCountryCode());
         MsgRecord msgRecord = new MsgRecord(userId, phoneNumber, msgCode, msgType, new Timestamp(System.currentTimeMillis()), true);
         if (insertIfNotNull(msgRecord) == 0) {
             throw new BusinessException("发送短信验证码失败");
