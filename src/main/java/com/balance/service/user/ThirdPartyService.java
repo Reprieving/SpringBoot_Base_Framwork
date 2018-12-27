@@ -10,10 +10,13 @@ import com.balance.utils.HttpClientUtils;
 import com.balance.utils.ValueCheckUtils;
 import com.balance.entity.user.User;
 import com.balance.service.common.GlobalConfigService;
+import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 /**
  * 第三方 账号相关 (微信、微博、QQ)
@@ -39,14 +42,12 @@ public class ThirdPartyService {
     /** 微信 通过access_token和openId获取用户信息 的 url, 请格式化字符串: 1. access_token, 2.openid */
     private static final String WX_USERINFO_URL = "https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=zh_CN";
 
-    public void binding(String type, String code, String userId) {
-        int result = 0;
+    public Map<String, String> binding(String type, String code, String userId) {
         switch (type) {
             case "wx":
-                result = bindWx(userId, code);
-                break;
+                return ImmutableMap.of("nickname", bindWx(userId, code));
         }
-        ValueCheckUtils.notZero(result, "绑定失败");
+        return null;
     }
 
     /**
@@ -75,6 +76,7 @@ public class ThirdPartyService {
     public WeiXinInfo getWxInfo(WeiXinInfo weiXinInfo) {
         String userInfoRes = HttpClientUtils.doGetSSL(String.format(WX_USERINFO_URL,
                 weiXinInfo.getAccessToken(), weiXinInfo.getOpenId()));
+        log.info("userInfoRes: {}", userInfoRes);
         if (!userInfoRes.contains("openid")) {
             throw new BusinessException("获取微信用户信息错误");
         }
@@ -87,7 +89,7 @@ public class ThirdPartyService {
      * @param code
      * @return
      */
-    public int bindWx(String userId, String code) {
+    public String bindWx(String userId, String code) {
         // 获取openId
         WeiXinInfo weiXinInfo = getAccessToken4Wx(code);
         User user = userService.getById(userId);
@@ -104,8 +106,10 @@ public class ThirdPartyService {
         user = new User();
         user.setId(userId);
         user.setWxOpenId(openId);
-        user.setWxNickname(weiXinInfo.getNickname());
-        return userService.updateIfNotNull(user);
+        String nickname = weiXinInfo.getNickname();
+        user.setWxNickname(nickname);
+        ValueCheckUtils.notZero(userService.updateIfNotNull(user), "绑定失败");
+        return nickname;
     }
 
     /**
@@ -116,12 +120,16 @@ public class ThirdPartyService {
     public User wxLogin(String code, String ip) {
         WeiXinInfo accessToken4Wx = getAccessToken4Wx(code);
         User user = userService.selectOneByWhereString(User.Wx_open_id + " = ", accessToken4Wx.getOpenId(), User.class);
-        Boolean isReg = user != null && StringUtils.isNotBlank(user.getPhoneNumber());
-        if (isReg) {
-            //已经 注册 并绑定了手机号码
-            user.setAccessToken(JwtUtils.createToken(user));
+        Boolean isReg = false;
+        if (user != null) {
+            if (StringUtils.isNotBlank(user.getPhoneNumber())) {
+                //已经 注册 并绑定了手机号码
+                user.setAccessToken(JwtUtils.createToken(user));
+                isReg = true;
+            }
         } else {
             //没有注册 创建用户 要求绑定手机号码
+            accessToken4Wx = getWxInfo(accessToken4Wx);
             user = new User();
             user.setWxNickname(accessToken4Wx.getNickname());
             user.setWxOpenId(accessToken4Wx.getOpenId());

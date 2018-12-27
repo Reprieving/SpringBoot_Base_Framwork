@@ -20,8 +20,8 @@ import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.GeoResult;
@@ -363,14 +363,13 @@ public class UserService extends BaseService {
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                 ValueCheckUtils.notEmpty(inviteCode, "邀请码不能为空");
                 User directInviteUser = selectOneByWhereString(User.Invite_code + " = ", inviteCode, User.class); //直接邀请用户
-                String directInviteId = directInviteUser.getId();
-
                 if (directInviteUser == null) {
                     throw new BusinessException("邀请码错误,请重新输入");
                 }
+                String directInviteId = directInviteUser.getId();
 
                 User user = selectOneById(userId, User.class);
-                if (user.getInviteId() != null) {
+                if (StringUtils.isNotBlank(user.getInviteId())) {
                     throw new BusinessException("该用户已设置邀请人");
                 }
                 user.setId(userId);
@@ -446,10 +445,7 @@ public class UserService extends BaseService {
                 if (StringUtils.isBlank(user.getWxOpenId())) {
                     throw new BusinessException("您还没有绑定微信");
                 }
-                User update = new User();
-                update.setWxOpenId(StringUtils.EMPTY);
-                update.setWxNickname(StringUtils.EMPTY);
-                userService.updateIfNotNull(update);
+                result = userMapper.deleteWeixin(userId);
                 break;
         }
         ValueCheckUtils.notZero(result, "解绑失败");
@@ -459,18 +455,20 @@ public class UserService extends BaseService {
     /**
      * 绑定手机号码
      */
-    public void bindPhone(String msgCode, String phoneNumber, String userId, int type) {
+    public User bindPhone(String msgCode, String phoneNumber, String userId, int type) {
         User user = userService.selectOneByWhereString(User.Phone_number + " = ", phoneNumber, User.class);
         if (user != null) {
             throw new BusinessException("该手机号码已经绑定其它账号");
         }
         userSendService.validateMsgCode(userId, phoneNumber, msgCode, type);
-        User update = new User();
-        update.setId(userId);
-        update.setPhoneNumber(phoneNumber);
-        if (userService.updateIfNotNull(update) < 1) {
+        user = new User();
+        user.setId(userId);
+        user.setPhoneNumber(phoneNumber);
+        if (userService.updateIfNotNull(user) < 1) {
             throw new BusinessException("绑定失败");
         }
+        user = getById(userId);
+        return user;
     }
 
     public User getById(String userId) {

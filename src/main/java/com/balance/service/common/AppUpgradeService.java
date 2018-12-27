@@ -23,7 +23,8 @@ public class AppUpgradeService extends BaseService {
         }
         boolean latest = true;
         boolean isCompel = false;
-        if (!version.equals(appUpgrade.getVersion())) {
+        String latestVer = appUpgrade.getVersion();
+        if (!version.equals(latestVer)) {
             latest = false;
             String compelVersion = appUpgrade.getCompelVersion();
             if ("all".equalsIgnoreCase(compelVersion)) {
@@ -43,6 +44,7 @@ public class AppUpgradeService extends BaseService {
         whereMap.put("url", appUpgrade.getUrl());
         whereMap.put("compel", isCompel);
         whereMap.put("log", appUpgrade.getLog());
+        whereMap.put("version", latestVer);
         return whereMap;
     }
 
