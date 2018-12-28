@@ -126,7 +126,7 @@ public class SignInService extends BaseService {
      */
     public SignInfo getSignList(String userId) {
         SignInfo signInfo = new SignInfo();
-        Map<String, Object> orderMap = ImmutableMap.of(SignIn.User_id, CommonConst.MYSQL_DESC);
+        Map<String, Object> orderMap = ImmutableMap.of(SignIn.Sign_time, CommonConst.MYSQL_DESC);
         List<SignIn> signList = selectListByWhereString("user_id = ", userId, null, SignIn.class, orderMap);
 
         List<SignIn> signListAppReturn = new ArrayList<>();//用户最近30天签到信息(用于返回移动端)
