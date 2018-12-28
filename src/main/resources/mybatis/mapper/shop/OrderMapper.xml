@@ -15,6 +15,9 @@
         <result property="logisticNumber" column="logistic_number"></result>
         <result property="createTime" column="create_time"></result>
         <result property="addressId" column="address_id"></result>
+        <result property="payTime" column="pay_time"></result>
+        <result property="orderType" column="order_type"></result>
+        <result property="ifValid" column="if_valid"></result>
         <collection property="orderItemList" ofType="OrderItem">
             <result property="goodsSpuId" column="spu_id"></result>
             <result property="goodsSkuId" column="sku_id"></result>
@@ -29,7 +32,7 @@
             <result property="packageUnit" column="package_unit"></result>
         </collection>
     </resultMap>
-    
+
 
     <sql id="listOrderGoodsInfo">
         SELECT
@@ -45,6 +48,9 @@
             a.If_investigation,
             a.if_scan,
             a.address_id,
+            a.pay_time,
+            a.order_type,
+            a.if_valid,
             b.number,
             b.total_price,
             b.status as order_item_status,
@@ -62,17 +68,23 @@
             LEFT JOIN goods_sku d on b.goods_sku_id = d.id
     </sql>
 
+
+    <update id="updateOrderHadPay">
+      UPDATE order_info SET if_pay = TRUE ,pay_time = NOW() WHERE id = #{orderId} AND user_id = #{userId} AND if_pay = FALSE;
+    </update>
+
     <select id="listUserOrderGoodsByStatus" resultMap="OrderGoodsInfoMap">
         <include refid="listOrderGoodsInfo"/>
         WHERE
-          a.user_id = #{userId}
-          AND a.status = #{orderStatus}
+        a.user_id = #{userId}
+        AND a.status = #{orderStatus}
     </select>
 
     <select id="getUserOrderGoodsInfo" resultMap="OrderGoodsInfoMap">
         <include refid="listOrderGoodsInfo"/>
         WHERE
-          a.id = #{orderId}
+        a.id = #{orderId}
+        AND a.user_id = #{userId}
     </select>
 
     <select id="listAdminOrderGoodsInfo" resultMap="OrderGoodsInfoMap">
@@ -108,15 +120,4 @@
         AND a.if_scan = #{ifScan}
     </select>
 
-
-    <select id="listUserOrderGoodsByOrderIds" resultMap="OrderGoodsInfoMap">
-        <include refid="listOrderGoodsInfo"/>
-        WHERE
-        a.user_id = #{userId}
-        AND a.id IN
-        <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
-            #{orderId}
-        </foreach>
-        AND a.
-    </select>
 </mapper>

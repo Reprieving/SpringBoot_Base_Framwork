@@ -56,14 +56,23 @@ public class OrderInfo implements Serializable {
     @Column(name = If_investigation)
     private Boolean ifInvestigation; //是否已提交问卷调查
 
-    @Column(name = If_scan)
-    private Boolean ifScan;//是否通过扫码创建
+    @Column(name = If_pay)
+    private Boolean ifPay;//是否已支付
+
+    @Column(name = If_valid)
+    private Boolean ifValid;//是否有效
 
     @Column(name = Logistic_number)
     private String logisticNumber; //物流编码
 
     @Column(name = Create_time)
-    private Timestamp createTime;
+    private Timestamp createTime;//创建时间
+
+    @Column(name = Pay_time)
+    private Timestamp payTime;//支付时间
+
+    @Column(name = Order_type)
+    private Integer orderType;//订单类型
 
 
     //扩展属性
@@ -73,7 +82,10 @@ public class OrderInfo implements Serializable {
 
     public OrderInfo() {}
 
-    public OrderInfo(String orderNo, Integer settlementId, String userId, String shopId, String userName, String addressId, BigDecimal orderTotalPrice,BigDecimal orderTotalFreight) {
+    public OrderInfo(
+            String orderNo, Integer settlementId, String userId, String shopId, String userName, String addressId, BigDecimal orderTotalPrice,BigDecimal orderTotalFreight,
+            Integer orderType,Timestamp createTime
+    ) {
         this.orderNo = orderNo;
         this.settlementId = settlementId;
         this.userId = userId;
@@ -82,6 +94,8 @@ public class OrderInfo implements Serializable {
         this.addressId = addressId;
         this.price = orderTotalPrice;
         this.freight = orderTotalFreight;
+        this.orderType = orderType;
+        this.createTime = createTime;
     }
 
     //DB Column name
@@ -97,7 +111,10 @@ public class OrderInfo implements Serializable {
     public static final String Freight = "freight";
     public static final String Status = "status";
     public static final String If_investigation = "if_investigation";
-    public static final String If_scan = "if_scan";
+    public static final String If_pay = "if_pay";
     public static final String Logistic_number = "logistic_number";
     public static final String Create_time = "create_time";
+    public static final String If_valid = "if_valid";
+    public static final String Pay_time = "pay_time";
+    public static final String Order_type = "order_type";
 }

@@ -35,13 +35,7 @@ public class UserMemberService extends BaseService {
     private MissionService missionService;
 
     @Autowired
-    private UserMerchantService userMerchantService;
-
-    @Autowired
     private UserAssetsService userAssetsService;
-
-    @Autowired
-    private AssetsTurnoverService assetsTurnoverService;
 
     /**
      * 办理年卡
@@ -79,42 +73,11 @@ public class UserMemberService extends BaseService {
                     throw new BusinessException("办理会员失败");
                 }
 
-
                 //完成任务
-                missionService.finishMission(userId, MissionConst.APPLY_YEAR_CARD,"办理年卡");
+                missionService.finishMission(userId, MissionConst.APPLY_YEAR_CARD, "办理年卡");
 
                 //年卡分润
-                if (user.getType() == UserConst.USER_MERCHANT_TYPE_BEING) {
-                    //查询用户商户签约记录
-                    Map<String, Object> whereMap = ImmutableMap.of(UserMerchantRecord.User_id + "=", userId, UserMerchantRecord.If_valid + "=", true);
-                    UserMerchantRecord userMerchantRecord = selectOneByWhereMap(whereMap, UserMerchantRecord.class);
-
-                    if (userMerchantRecord != null) {
-                        UserMerchantRuler userMerchantRuler = userMerchantService.filterMerchantRulerById(userMerchantRecord.getMerchantRulerId());
-                        if (userMerchantRuler != null) {
-
-                            String inviteId = user.getInviteId();
-                            UserAssets userAssets = userAssetsService.getAssetsByUserId(inviteId);
-
-                            //增加用户人民币资产
-                            BigDecimal memberShareProfit = userMerchantRuler.getBecomeMemberProfit();
-                            Integer rmbSettlementId = SettlementConst.SETTLEMENT_RMB;
-                            //增加邀请用户人民币
-                            userAssetsService.changeUserAssets(inviteId, memberShareProfit, rmbSettlementId, userAssets);
-                            assetsTurnoverService.createAssetsTurnover(
-                                    inviteId, AssetTurnoverConst.TURNOVER_TYPE_MEMBER_BECOME, memberShareProfit, AssetTurnoverConst.COMPANY_ID,
-                                    inviteId, userAssets, rmbSettlementId, "被邀请用户线上领取美妆样品服务费"
-                            );
-                        }
-
-                    }else {
-                        logger.error("用户id为：" + userId + "的用户类型异常，该用户现用户类型为商户，但在商户签约表中无有效记录");
-                    }
-                }
-
-               //支付对接
-
-
+                userAssetsService.updateRMBAssetsByTurnoverType(user,AssetTurnoverConst.TURNOVER_TYPE_MEMBER_BECOME,"邀请的用户办理年卡分润");
             }
         });
     }

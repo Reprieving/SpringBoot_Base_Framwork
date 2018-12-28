@@ -12,7 +12,7 @@ public class AssetTurnoverConst {
 
     public final static int TURNOVER_TYPE_APPLY_TRANSFER = 7;//申请充值
 
-    public final static int TURNOVER_TYPE_SHOPPING_ORDER_PAY = 8;//商城订单支付
+    public final static int TURNOVER_TYPE_SHOPPING_ORDER_PAY = 8;//订单支付
 
     public final static int TURNOVER_TYPE_MISSION_REWARD = 9;//领取任务奖励
 
@@ -22,7 +22,7 @@ public class AssetTurnoverConst {
 
     public final static int TURNOVER_TYPE_APPLET_REWARD = 12;//应用奖励
 
-    public final static int TURNOVER_TYPE_BEAUTY_OBTAIN = 13;//小样领取
+    public final static int TURNOVER_TYPE_BEAUTY_RECEIVE = 13;//小样线上领取
 
     public final static int TURNOVER_TYPE_MEMBER_BECOME = 14;//年卡会员办理
 

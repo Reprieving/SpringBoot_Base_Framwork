@@ -44,7 +44,8 @@ public class AppOrderController {
      */
     @RequestMapping("detail/{orderId}")
     public Result<?> detail(HttpServletRequest request, @PathVariable("orderId")String orderId){
-        OrderGoodsInfo orderGoodsInfo = orderService.getAppOrderGoodsInfo(orderId);
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        OrderGoodsInfo orderGoodsInfo = orderService.getAppOrderGoodsInfo(userId,orderId);
         return ResultUtils.success(orderGoodsInfo);
     }
 
@@ -58,7 +59,7 @@ public class AppOrderController {
     @RequestMapping("create")
     public Result<?> create(HttpServletRequest request,ShopOrderPayReq shopOrderPayReq) throws UnsupportedEncodingException {
         User user = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME));
-        orderService.createOrder(shopOrderPayReq.getOrderSkuReqList(),user,shopOrderPayReq.getAddressId(),shopOrderPayReq.getSettlementId());
+        orderService.shoppingOrder(shopOrderPayReq.getOrderSkuReqList(),user,shopOrderPayReq.getAddressId(),shopOrderPayReq.getSettlementId());
         return ResultUtils.success();
     }
 }

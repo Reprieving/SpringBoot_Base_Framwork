@@ -28,7 +28,7 @@ public interface OrderMapper {
      * @param orderId
      * @return
      */
-    OrderGoodsInfo getUserOrderGoodsInfo(@Param("orderId") String orderId);
+    OrderGoodsInfo getUserOrderGoodsInfo(@Param("userId") String userId,@Param("orderId") String orderId);
 
     /**
      * 后台条件查询订单列表
@@ -56,13 +56,12 @@ public interface OrderMapper {
      */
     List<OrderGoodsInfo> listUserBeautyGoodsInfo(@Param("userId") String userId, @Param("ifScan") Boolean ifScan);
 
+
     /**
-     * 查询用户指定待支付订单
-     *
-     * @param userId   用户id
-     * @param orderIds 待支付
+     * 设置订单为已支付状态
+     * @param orderId
+     * @param userId
      * @return
      */
-    List<OrderGoodsInfo> listUserOrderGoodsByOrderIds(@Param("userId") String userId, @Param("orderIds") List<String> orderIds);
-
+    Integer updateOrderHadPay(@Param("orderId")String orderId, @Param("userId")String userId);
 }

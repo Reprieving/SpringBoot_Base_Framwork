@@ -72,7 +72,7 @@ public class User implements Serializable{ //用户信息
     private Timestamp birthday;//生日时间戳
 
     @Column(name = Member_type)
-    private Integer memberType;//是否为会员
+    private Integer memberType;//会员类型
 
     //扩展属性
     private String userId;

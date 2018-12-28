@@ -5,10 +5,16 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.constance.*;
+import com.balance.entity.common.WeChatPayNotifyRecord;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.mission.MissionReward;
 import com.balance.entity.user.*;
+import com.balance.exception.WechatPayNotifyException;
+import com.balance.service.common.GlobalConfigService;
+import com.balance.service.common.WeChatPayService;
+import com.balance.service.user.UserMemberService;
 import com.balance.service.user.UserMerchantService;
+import com.balance.utils.WeChatPayCommonUtils;
 import com.balance.utils.ValueCheckUtils;
 import com.balance.controller.app.req.ShopOrderSkuReq;
 import com.balance.entity.common.CodeEntity;
@@ -26,6 +32,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.jdom.JDOMException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,17 +41,19 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.Timestamp;
+import java.util.*;
 
 @Service
 public class OrderService extends BaseService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
+
+    @Autowired
+    private GlobalConfigService globalConfigService;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -76,6 +85,77 @@ public class OrderService extends BaseService {
     @Autowired
     private UserMerchantService userMerchantService;
 
+    @Autowired
+    private UserMemberService userMemberService;
+
+    @Autowired
+    private WeChatPayService weChatPayService;
+
+    /**
+     * 第三方支付订单
+     *
+     * @param userId  用户id
+     * @param orderId 订单id
+     */
+    public void thirdPartyPayOrder(String userId, String orderId) {
+        OrderGoodsInfo orderGoodsInfo = orderMapper.getUserOrderGoodsInfo(userId, orderId);
+        ValueCheckUtils.notEmpty(orderGoodsInfo, "未找到订单或订单已失效");
+
+        if (orderGoodsInfo.getIfPay()) {//如果订单已支付，直接返回
+            return;
+        }
+
+        Integer orderType = orderGoodsInfo.getOrderType();
+        ValueCheckUtils.notEmpty(orderType, "订单状态异常");
+        switch (orderType) {
+//            case ShopConst.ORDER_TYPE_SHOPPING: //商城代币购物
+//                break;
+
+            case ShopConst.ORDER_TYPE_RECEIVE_BEAUTY://线上领取小样
+                break;
+
+//            case ShopConst.ORDER_TYPE_SCAN_BEAUTY://线下扫码领取小样
+//                break;
+//
+//            case ShopConst.ORDER_TYPE_EXCHANGE_BEAUTY://线上兑换小样礼包
+//                break;
+
+            case ShopConst.ORDER_TYPE_BECOME_MEMBER://办理年卡会员
+                break;
+        }
+
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                //扣除用户资产
+                Integer settlementId = orderGoodsInfo.getSettlementId();
+                BigDecimal orderTotalPrice = orderGoodsInfo.getOrderPrice();
+                UserAssets userAssets = selectOneByWhereString(UserAssets.User_id + " = ", userId, UserAssets.class);
+                BigDecimal assets = userAssetsService.getAssetsBySettlementId(userAssets, settlementId);
+                if (assets.compareTo(orderTotalPrice) == -1) {
+                    throw new BusinessException("用户资产不足");
+                }
+
+                if (userAssetsService.changeUserAssets(userId, orderTotalPrice, settlementId, userAssets) == 0) {
+                    throw new BusinessException("支付失败");
+                }
+
+                if (orderMapper.updateOrderHadPay(orderId, userId) == 0) {
+                    throw new BusinessException("订单数据异常");
+                }
+
+                //增加流水记录
+                String detailStr = "订单结算，订单号为:" + orderGoodsInfo.getOrderNo();
+                assetsTurnoverService.createAssetsTurnover(
+                        userId, AssetTurnoverConst.TURNOVER_TYPE_SHOPPING_ORDER_PAY, orderTotalPrice, userId, AssetTurnoverConst.COMPANY_ID, userAssets, settlementId, detailStr
+                );
+            }
+        });
+
+    }
+
+
     /**
      * 商城下单(限用于APP代币支付)
      *
@@ -85,7 +165,7 @@ public class OrderService extends BaseService {
      * @param settlementId    支付id
      * @throws BusinessException
      */
-    public void createOrder(List<ShopOrderSkuReq> orderSkuReqList, User user, String addressId, Integer settlementId) throws BusinessException {
+    public void shoppingOrder(List<ShopOrderSkuReq> orderSkuReqList, User user, String addressId, Integer settlementId) throws BusinessException {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
@@ -158,8 +238,12 @@ public class OrderService extends BaseService {
                         orderTotalFreight = BigDecimalUtils.add(orderTotalFreight, orderItem.getFreight());
                         orderTotalPrice = BigDecimalUtils.add(orderTotalPrice, orderTotalFreight);
                     }
+
+                    Timestamp createTime = new Timestamp(System.currentTimeMillis());
                     String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
-                    OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, orderTotalPrice, orderTotalFreight);
+                    OrderInfo orderInfo = new OrderInfo(
+                            orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, orderTotalPrice, orderTotalFreight, ShopConst.ORDER_TYPE_SHOPPING, createTime
+                    );
                     insertIfNotNull(orderInfo);
 
                     for (OrderItem orderItem : orderItemList) {
@@ -189,40 +273,79 @@ public class OrderService extends BaseService {
         });
     }
 
-//    public void
-
 
     /**
-     * 第三方支付订单
+     * 创建线上领取小样订单
      *
-     * @param userId       用户id
-     * @param settlementId 第三方支付类型
-     * @param orderIds     订单id列表
+     * @param user         用户id
+     * @param spuId        spuId
+     * @param settlementId 支付类型
      */
-    public void thirdPartyPayOrder(String userId, Integer settlementId, List<String> orderIds) {
-        List<OrderGoodsInfo> orderGoodsInfoList = orderMapper.listUserOrderGoodsByOrderIds(userId, orderIds);
-        ValueCheckUtils.notEmpty(orderGoodsInfoList, "未找到订单或订单已失效");
+    public Map<String, String> receiveBeautyOrder(User user, String spuId, String addressId, Integer settlementId, HttpServletRequest request) {
+        GoodsSpu goodsSpu = selectOneById(spuId, GoodsSpu.class);
+        ValueCheckUtils.notEmpty(goodsSpu, "未找到商品记录");
 
-        //扣除库存
+        //小样邮费
+        BigDecimal freight = goodsSpu.getFreight();
+        if (user.getMemberType() == UserConst.USER_MEMBER_TYPE_COMMON) {
+            freight = BigDecimalUtils.multiply(freight, new BigDecimal(0.95));
+        }
 
+        switch (settlementId) {
+            case SettlementConst.SETTLEMENT_WECHAT_PAY://微信支付对接
 
-//        //扣除用户资产
-//        UserAssets userAssets = selectOneByWhereString(UserAssets.User_id + " = ", userId, UserAssets.class);
-//        BigDecimal assets = userAssetsService.getAssetsBySettlementId(userAssets, settlementId);
-//        int a = assets.compareTo(orderTotalPrice);
-//        if (a == -1) {
-//            throw new BusinessException("用户资产不足");
-//        }
-//        Integer i = userAssetsService.changeUserAssets(userId, orderTotalPrice, settlementId, userAssets);
-//        if (i == 0) {
-//            throw new BusinessException("支付失败");
-//        }
-//
-//        //增加流水记录
-//        String detailStr = "商城购物支付,订单号为:" + orderNumber;
-//        assetsTurnoverService.createAssetsTurnover(
-//                userId, AssetTurnoverConst.TURNOVER_TYPE_SHOPPING_ORDER_PAY, orderTotalPrice, userId, AssetTurnoverConst.COMPANY_ID, userAssets, settlementId, detailStr
-//        );
+                //TODO 领取小样回调URL
+                String receiveBeautyNotifyUrl = "";
+
+                String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
+                Timestamp createTime = new Timestamp(System.currentTimeMillis());
+                OrderInfo orderInfo = new OrderInfo(
+                        orderNumber, settlementId, user.getId(), ShopConst.SHOP_OFFICIAL, user.getUserName(), addressId, freight, BigDecimal.ZERO, ShopConst.ORDER_TYPE_BECOME_MEMBER,
+                        createTime
+                );
+                orderInfo.setIfPay(false);
+                insertIfNotNull(orderInfo);
+
+                OrderItem orderItem = new OrderItem(spuId, "", 1, BigDecimal.ZERO, freight, freight);
+                insertIfNotNull(orderItem);
+
+                return weChatPayService.weChatPrePay(
+                        orderInfo.getId(), freight, "美妆链年卡会员办理", WeChatPayCommonUtils.getRemoteHost(request), receiveBeautyNotifyUrl
+                );
+
+            case SettlementConst.SETTLEMENT_ALI_PAY://支付宝对接
+                break;
+
+            default:
+                throw new BusinessException("错误支付方式");
+        }
+        return null;
+    }
+
+    /**
+     * 线上领取小样微信支付通知
+     *
+     * @param request
+     * @throws IOException
+     * @throws JDOMException
+     */
+    public void receiveBeautyWechatPayNotify(HttpServletRequest request) throws IOException {
+        WeChatPayNotifyRecord weChatPayNotifyRecord = weChatPayService.notifyAnalyse(request.getInputStream());
+        OrderInfo orderInfo = selectOneById(weChatPayNotifyRecord.getMchOrderId(), OrderInfo.class);
+        if (orderInfo == null) {
+            throw new WechatPayNotifyException("未找到订单信息");
+        }
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                String userId = orderInfo.getUserId();
+                orderMapper.updateOrderHadPay(orderInfo.getId(), userId);
+                insert(weChatPayNotifyRecord);
+                User user = selectOneById(userId, User.class);
+                userAssetsService.updateRMBAssetsByTurnoverType(user, AssetTurnoverConst.TURNOVER_TYPE_BEAUTY_RECEIVE, "被邀请用户线上领取美妆样品服务费");
+            }
+        });
+
     }
 
 
@@ -233,7 +356,7 @@ public class OrderService extends BaseService {
      * @param aisleCode   小样编码
      * @param machineCode 小样机器编码
      */
-    public void scanBeauty(String userId, String aisleCode, String machineCode) {
+    public void scanBeautyOrder(String userId, String aisleCode, String machineCode) {
         User user = selectOneById(userId, User.class);
         if (StringUtils.isBlank(user.getWxOpenId())) {
             throw new BusinessException("请绑定微信号后再扫码领取");
@@ -297,7 +420,7 @@ public class OrderService extends BaseService {
                             //增加邀请用户人民币
                             userAssetsService.changeUserAssets(inviteId, beautyServiceShareProfit, rmbSettlementId, userAssets);
                             assetsTurnoverService.createAssetsTurnover(
-                                    inviteId, AssetTurnoverConst.TURNOVER_TYPE_BEAUTY_OBTAIN, beautyServiceShareProfit, AssetTurnoverConst.COMPANY_ID,
+                                    inviteId, AssetTurnoverConst.TURNOVER_TYPE_BEAUTY_RECEIVE, beautyServiceShareProfit, AssetTurnoverConst.COMPANY_ID,
                                     inviteId, userAssets, computeSettlementId, "被邀请用户线上领取美妆样品服务费"
                             );
                         }
@@ -321,7 +444,7 @@ public class OrderService extends BaseService {
      * @param userId 用户id
      * @param spuId  商品id
      */
-    public void exchangeSpuPackage(String userId, String voucherId, String spuId, String addressId) {
+    public void exchangeSpuPackageOrder(String userId, String voucherId, String spuId, String addressId) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
@@ -348,10 +471,16 @@ public class OrderService extends BaseService {
                     BigDecimal orderTotalPrice = goodsSpu.getLowPrice();
 
 
+                    Timestamp createTime = new Timestamp(System.currentTimeMillis());
                     String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
-                    OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, new BigDecimal(0), orderTotalPrice);
+                    OrderInfo orderInfo = new OrderInfo(
+                            orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, new BigDecimal(0), orderTotalPrice, ShopConst.ORDER_TYPE_EXCHANGE_BEAUTY,
+                            createTime
+                    );
 
-                    if (insertIfNotNull(orderInfo) == 0) {
+                    OrderItem orderItem = new OrderItem(spuId, "", 1, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+
+                    if (insertIfNotNull(orderInfo) == 0 || insertIfNotNull(orderItem) == 0) {
                         throw new BusinessException("兑换失败");
                     }
 
@@ -398,6 +527,71 @@ public class OrderService extends BaseService {
 
 
     /**
+     * 创建办理年卡订单
+     *
+     * @param userId 用户id
+     */
+    public Map<String, String> becomeMemberOrder(String userId, Integer settlementId, HttpServletRequest request) {
+        User user = selectOneById(userId, User.class);
+        if (Objects.equals(user.getMemberType(), UserConst.USER_MEMBER_TYPE_COMMON)) {
+            throw new BusinessException("您已是PINKER年卡会员，无须重复办理");
+        }
+
+        //TODO 办理年卡回调URL
+        String becomeMemberNotifyUrl = "";
+
+        switch (settlementId) {
+            case SettlementConst.SETTLEMENT_WECHAT_PAY://微信支付对接
+                //年卡会员费用
+                BigDecimal bigDecimal = new BigDecimal(globalConfigService.get(GlobalConfigService.Enum.MEMBER_FREE));
+                String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
+                Timestamp createTime = new Timestamp(System.currentTimeMillis());
+                OrderInfo orderInfo = new OrderInfo(
+                        orderNumber, settlementId, userId, ShopConst.SHOP_OFFICIAL, user.getUserName(), "", bigDecimal, BigDecimal.ZERO, ShopConst.ORDER_TYPE_BECOME_MEMBER,
+                        createTime
+                );
+                orderInfo.setIfPay(false);
+
+                return weChatPayService.weChatPrePay(
+                        orderInfo.getId(), bigDecimal, "美妆链年卡会员办理", WeChatPayCommonUtils.getRemoteHost(request), becomeMemberNotifyUrl
+                );
+
+            case SettlementConst.SETTLEMENT_ALI_PAY://支付宝对接
+                break;
+
+            default:
+                throw new BusinessException("错误支付方式");
+        }
+        return null;
+    }
+
+    /**
+     * 办理年卡微信支付通知
+     *
+     * @param request
+     */
+    public void becomeMemberWechatPayNotify(HttpServletRequest request) throws IOException {
+        WeChatPayNotifyRecord weChatPayNotifyRecord = weChatPayService.notifyAnalyse(request.getInputStream());
+        OrderInfo orderInfo = selectOneById(weChatPayNotifyRecord.getMchOrderId(), OrderInfo.class);
+        if (orderInfo == null) {
+            throw new WechatPayNotifyException("未找到订单信息");
+        }
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+
+                String userId = orderInfo.getUserId();
+                orderMapper.updateOrderHadPay(orderInfo.getId(), orderInfo.getUserId());
+                insert(weChatPayNotifyRecord);
+
+                userMemberService.becomeMember(userId, UserConst.USER_MEMBER_TYPE_COMMON);
+            }
+        });
+
+    }
+
+
+    /**
      * APP用户的订单列表
      *
      * @param userId      用户id
@@ -428,8 +622,8 @@ public class OrderService extends BaseService {
      * @param orderId
      * @return
      */
-    public OrderGoodsInfo getAppOrderGoodsInfo(String orderId) {
-        OrderGoodsInfo orderGoodsInfo = orderMapper.getUserOrderGoodsInfo(orderId);
+    public OrderGoodsInfo getAppOrderGoodsInfo(String userId, String orderId) {
+        OrderGoodsInfo orderGoodsInfo = orderMapper.getUserOrderGoodsInfo(userId, orderId);
         ShoppingAddress shoppingAddress = selectOneById(orderGoodsInfo.getAddressId(), ShoppingAddress.class);
         for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
             orderItem.setSpecStr(goodsSpecService.strSpecIdToSpecValue(orderItem.getSpecJson()));

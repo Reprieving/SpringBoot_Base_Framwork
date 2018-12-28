@@ -117,7 +117,7 @@ public class AppUserController {
     }
 
     /**
-     *
+     * 用户节点下数据
      * @param request
      * @return
      * @throws UnsupportedEncodingException

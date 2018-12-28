@@ -121,7 +121,7 @@ public class AssetsTurnoverService extends BaseService {
             case AssetTurnoverConst.TURNOVER_TYPE_APPLET_REWARD:
                 return "应用奖励";
 
-            case AssetTurnoverConst.TURNOVER_TYPE_BEAUTY_OBTAIN:
+            case AssetTurnoverConst.TURNOVER_TYPE_BEAUTY_RECEIVE:
                 return "线上小样领取";
 
             case AssetTurnoverConst.TURNOVER_TYPE_MEMBER_BECOME:

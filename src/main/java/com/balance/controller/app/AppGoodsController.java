@@ -120,7 +120,7 @@ public class AppGoodsController {
     @RequestMapping("beauty/exchange")
     public Result<?> exchangeBeauty(HttpServletRequest request, GoodsExchangeReq paramReq) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        orderService.exchangeSpuPackage(userId, paramReq.getVoucherId(), paramReq.getSpuId(), paramReq.getAddressId());
+        orderService.exchangeSpuPackageOrder(userId, paramReq.getVoucherId(), paramReq.getSpuId(), paramReq.getAddressId());
         return ResultUtils.success();
     }
 
@@ -134,7 +134,7 @@ public class AppGoodsController {
     @RequestMapping("beauty/scan")
     public Result<?> scanBeauty(HttpServletRequest request, GoodsScanReq paramReq) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        orderService.scanBeauty(userId, paramReq.getAisleCode(), paramReq.getMachineCode());
+        orderService.scanBeautyOrder(userId, paramReq.getAisleCode(), paramReq.getMachineCode());
         return ResultUtils.success();
     }
 }

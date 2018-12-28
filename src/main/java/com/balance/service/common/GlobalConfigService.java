@@ -79,6 +79,10 @@ public class GlobalConfigService extends BaseService{
         WJ_SMS_TOKEN,
         WJ_SMS_SIGN,
 
+        //微信支付APPID
+        WECHAT_PAY_APP_ID,
+        //微信商户Id
+        WECHAT_MCH_ID,
 
         /** 银行卡提现 最低额度 */
         BANK_WITHDRAW_LOWEST,
@@ -93,6 +97,9 @@ public class GlobalConfigService extends BaseService{
 
         /** 每天分享最多次数 */
         DAILY_SHARE_TIME,
+
+        //年卡会员办理费用
+        MEMBER_FREE
     }
 
 }
