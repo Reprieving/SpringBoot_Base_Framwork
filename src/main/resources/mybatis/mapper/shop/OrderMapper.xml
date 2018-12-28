@@ -62,7 +62,7 @@
             LEFT JOIN goods_sku d on b.goods_sku_id = d.id
     </sql>
 
-    <select id="listUserOrderGoodsInfo" resultMap="OrderGoodsInfoMap">
+    <select id="listUserOrderGoodsByStatus" resultMap="OrderGoodsInfoMap">
         <include refid="listOrderGoodsInfo"/>
         WHERE
           a.user_id = #{userId}
@@ -106,5 +106,16 @@
         WHERE
         a.user_id = #{userId}
         AND a.if_scan = #{ifScan}
+    </select>
+
+
+    <select id="listUserOrderGoodsByOrderIds" resultMap="OrderGoodsInfoMap">
+        <include refid="listOrderGoodsInfo"/>
+        WHERE
+        a.user_id = #{userId}
+        AND a.id IN
+        <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
+            #{orderId}
+        </foreach>
     </select>
 </mapper>
