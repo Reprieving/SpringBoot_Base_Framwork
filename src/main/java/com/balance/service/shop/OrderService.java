@@ -76,7 +76,7 @@ public class OrderService extends BaseService {
     private UserMerchantService userMerchantService;
 
     /**
-     * 商城下单
+     * 商城下单(限用于APP代币支付)
      *
      * @param orderSkuReqList
      * @param user            用户
@@ -155,7 +155,7 @@ public class OrderService extends BaseService {
                     for (OrderItem orderItem : orderItemList) {
                         orderTotalPrice = BigDecimalUtils.add(orderTotalPrice, orderItem.getTotalPrice());
                         orderTotalFreight = BigDecimalUtils.add(orderTotalFreight, orderItem.getFreight());
-                        orderTotalPrice = BigDecimalUtils.add(orderTotalPrice,orderTotalFreight);
+                        orderTotalPrice = BigDecimalUtils.add(orderTotalPrice, orderTotalFreight);
                     }
                     String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
                     OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, orderTotalPrice, orderTotalFreight);
@@ -166,27 +166,43 @@ public class OrderService extends BaseService {
                     }
                     insertBatch(orderItemList, false);
 
+                    //扣除用户资产
+                    UserAssets userAssets = selectOneByWhereString(UserAssets.User_id + " = ", userId, UserAssets.class);
+                    BigDecimal assets = userAssetsService.getAssetsBySettlementId(userAssets, settlementId);
+                    int a = assets.compareTo(orderTotalPrice);
+                    if (a == -1) {
+                        throw new BusinessException("用户资产不足");
+                    }
+                    Integer i = userAssetsService.changeUserAssets(userId, orderTotalPrice, settlementId, userAssets);
+                    if (i == 0) {
+                        throw new BusinessException("支付失败");
+                    }
 
+                    //增加流水记录
+                    String detailStr = "商城购物支付,订单号为:" + orderNumber;
+                    assetsTurnoverService.createAssetsTurnover(
+                            userId, AssetTurnoverConst.TURNOVER_TYPE_SHOPPING_ORDER_PAY, orderTotalPrice, userId, AssetTurnoverConst.COMPANY_ID, userAssets, settlementId, detailStr
+                    );
                 }
             }
         });
     }
 
+//    public void
+
 
     /**
-     * 支付订单
+     * 第三方支付订单
      *
-     * @param userId   用户id
-     * @param orderIds 订单id列表
+     * @param userId       用户id
+     * @param settlementId 第三方支付类型
+     * @param orderIds     订单id列表
      */
-    public void payOrder(String userId, List<String> orderIds) {
-        List<OrderGoodsInfo> orderGoodsInfoList = orderMapper.listUserOrderGoodsByOrderIds(userId,orderIds);
-
-
+    public void thirdPartyPayOrder(String userId, Integer settlementId, List<String> orderIds) {
+        List<OrderGoodsInfo> orderGoodsInfoList = orderMapper.listUserOrderGoodsByOrderIds(userId, orderIds);
+        ValueCheckUtils.notEmpty(orderGoodsInfoList, "未找到订单或订单已失效");
 
         //扣除库存
-
-
 
 
 //        //扣除用户资产
