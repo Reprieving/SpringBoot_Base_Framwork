@@ -20,7 +20,7 @@ public interface OrderMapper {
      * @param pagination
      * @return
      */
-    List<OrderGoodsInfo> listUserOrderGoodsInfo(@Param("userId") String userId, @Param("orderStatus") Integer orderStatus, @Param("pagination") Pagination pagination);
+    List<OrderGoodsInfo> listUserOrderGoodsByStatus(@Param("userId") String userId, @Param("orderStatus") Integer orderStatus, @Param("pagination") Pagination pagination);
 
     /**
      * 用户订单详情
@@ -49,9 +49,20 @@ public interface OrderMapper {
 
     /**
      * 扫码领取小样订单
+     *
      * @param userId
      * @param ifScan
      * @return
      */
-    List<OrderGoodsInfo> listUserBeautyGoodsInfo(@Param("userId")String userId, @Param("ifScan")Boolean ifScan);
+    List<OrderGoodsInfo> listUserBeautyGoodsInfo(@Param("userId") String userId, @Param("ifScan") Boolean ifScan);
+
+    /**
+     * 查询用户订单
+     *
+     * @param userId   用户id
+     * @param orderIds 用户
+     * @return
+     */
+    List<OrderGoodsInfo> listUserOrderGoodsByOrderIds(@Param("userId") String userId, @Param("orderIds") List<String> orderIds);
+
 }

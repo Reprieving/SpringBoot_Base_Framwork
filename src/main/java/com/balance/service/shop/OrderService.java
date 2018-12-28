@@ -155,6 +155,7 @@ public class OrderService extends BaseService {
                     for (OrderItem orderItem : orderItemList) {
                         orderTotalPrice = BigDecimalUtils.add(orderTotalPrice, orderItem.getTotalPrice());
                         orderTotalFreight = BigDecimalUtils.add(orderTotalFreight, orderItem.getFreight());
+                        orderTotalPrice = BigDecimalUtils.add(orderTotalPrice,orderTotalFreight);
                     }
                     String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
                     OrderInfo orderInfo = new OrderInfo(orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, orderTotalPrice, orderTotalFreight);
@@ -165,24 +166,46 @@ public class OrderService extends BaseService {
                     }
                     insertBatch(orderItemList, false);
 
-                    //4.扣除用户资产
-                    UserAssets userAssets = selectOneByWhereString(UserAssets.User_id + " = ", userId, UserAssets.class);
-                    BigDecimal assets = userAssetsService.getAssetsBySettlementId(userAssets, settlementId);
-                    int a = assets.compareTo(orderTotalPrice);
-                    if (a == -1) {
-                        throw new BusinessException("用户资产不足");
-                    }
-                    Integer i = userAssetsService.changeUserAssets(userId, orderTotalPrice, settlementId, userAssets);
-                    if (i == 0) {
-                        throw new BusinessException("支付失败");
-                    }
 
-                    //5.增加流水记录
-                    String detailStr = "商城购物支付,订单号为:" + orderNumber;
-                    assetsTurnoverService.createAssetsTurnover(userId, AssetTurnoverConst.TURNOVER_TYPE_SHOPPING_ORDER_PAY, orderTotalPrice, userId, AssetTurnoverConst.COMPANY_ID, userAssets, settlementId, detailStr);
                 }
             }
         });
+    }
+
+
+    /**
+     * 支付订单
+     *
+     * @param userId   用户id
+     * @param orderIds 订单id列表
+     */
+    public void payOrder(String userId, List<String> orderIds) {
+        List<OrderGoodsInfo> orderGoodsInfoList = orderMapper.listUserOrderGoodsByOrderIds(userId,orderIds);
+
+
+
+        //扣除库存
+
+
+
+
+//        //扣除用户资产
+//        UserAssets userAssets = selectOneByWhereString(UserAssets.User_id + " = ", userId, UserAssets.class);
+//        BigDecimal assets = userAssetsService.getAssetsBySettlementId(userAssets, settlementId);
+//        int a = assets.compareTo(orderTotalPrice);
+//        if (a == -1) {
+//            throw new BusinessException("用户资产不足");
+//        }
+//        Integer i = userAssetsService.changeUserAssets(userId, orderTotalPrice, settlementId, userAssets);
+//        if (i == 0) {
+//            throw new BusinessException("支付失败");
+//        }
+//
+//        //增加流水记录
+//        String detailStr = "商城购物支付,订单号为:" + orderNumber;
+//        assetsTurnoverService.createAssetsTurnover(
+//                userId, AssetTurnoverConst.TURNOVER_TYPE_SHOPPING_ORDER_PAY, orderTotalPrice, userId, AssetTurnoverConst.COMPANY_ID, userAssets, settlementId, detailStr
+//        );
     }
 
 
@@ -343,7 +366,7 @@ public class OrderService extends BaseService {
                                 );
                             }
 
-                        }else {
+                        } else {
                             logger.error("用户id为：" + userId + "的用户类型异常，该用户现用户类型为商户，但在商户签约表中无有效记录");
                         }
                     }
@@ -367,10 +390,10 @@ public class OrderService extends BaseService {
      */
     public List<OrderGoodsInfo> listAppOrderGoodsInfo(String userId, Integer orderStatus, Boolean ifScan, Pagination pagination) {
         List<OrderGoodsInfo> orderGoodsInfoList;
-        if (ifScan != null && ifScan == true) {
+        if (ifScan != null && ifScan) {
             orderGoodsInfoList = orderMapper.listUserBeautyGoodsInfo(userId, ifScan);
         } else {
-            orderGoodsInfoList = orderMapper.listUserOrderGoodsInfo(userId, orderStatus, pagination);
+            orderGoodsInfoList = orderMapper.listUserOrderGoodsByStatus(userId, orderStatus, pagination);
             for (OrderGoodsInfo orderGoodsInfo : orderGoodsInfoList) {//订单列表
                 for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
                     orderItem.setSpecStr(goodsSpecService.strSpecIdToSpecValue(orderItem.getSpecJson()));
