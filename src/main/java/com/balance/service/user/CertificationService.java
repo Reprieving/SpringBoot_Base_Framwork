@@ -129,34 +129,34 @@ public class CertificationService extends BaseService {
                     //增加邀请记录
                     //直接邀请
                     User directInviteUser = selectOneById(user.getInviteId(), User.class);
+                    BigDecimal directRewardValue = BigDecimal.ZERO;
                     if (directInviteUser != null) {
-                        missionService.finishMission(directInviteUser, MissionConst.DIRECT_INVITE, "直接邀请实名认证");
-                    }
-                    Mission directMission = missionService.filterTaskByCode(MissionConst.DIRECT_INVITE, selectAll(null, Mission.class));//直接邀请任务
-                    BigDecimal directRewardValue = directMission.getRewardValue();
-
-                    if (directInviteUser.getMemberType() == UserConst.USER_MEMBER_TYPE_COMMON && directMission.getMemberRewardValue() != null) {
-                        directRewardValue = directMission.getMemberRewardValue();
+                        directRewardValue = missionService.finishMission(directInviteUser, MissionConst.DIRECT_INVITE, "直接邀请实名认证");
                     }
                     InviteUserRecord directInviteRecord = new InviteUserRecord(userId, directInviteUser.getId(), UserConst.USER_INVITE_TYPE_DIRECT, directRewardValue, directInviteUser.getCreateTime());
                     insertIfNotNull(directInviteRecord);
 
                     //间接邀请
+                    BigDecimal inDirectRewardValue = BigDecimal.ZERO;
                     User inDirectInviteUser = selectOneById(directInviteUser.getInviteId(), User.class);
                     if (inDirectInviteUser != null) {
-                        missionService.finishMission(inDirectInviteUser, MissionConst.INDIRECT_INVITE, "间接邀请实名认证");
-                    }
-                    Mission inDirectMission = missionService.filterTaskByCode(MissionConst.DIRECT_INVITE, selectAll(null, Mission.class));//直接邀请任务
-                    BigDecimal inDirectRewardValue = inDirectMission.getRewardValue();
-                    if (directInviteUser.getMemberType() == UserConst.USER_MEMBER_TYPE_COMMON && inDirectMission.getMemberRewardValue() != null) {
-                        inDirectRewardValue = inDirectMission.getMemberRewardValue();
+                        inDirectRewardValue = missionService.finishMission(inDirectInviteUser, MissionConst.INDIRECT_INVITE, "间接邀请实名认证");
                     }
                     InviteUserRecord inDirectInviteRecord = new InviteUserRecord(userId, inDirectInviteUser.getId(), UserConst.USER_INVITE_TYPE_INDIRECT, inDirectRewardValue, inDirectInviteUser.getCreateTime());
                     insertIfNotNull(inDirectInviteRecord);
-
                 }
             }
         });
+    }
+
+    /**
+     * 是否已通过实名审核
+     * @param userId
+     * @return
+     */
+    public boolean isPassed (String userId) {
+        Certification certification = selectOneByWhereString(Certification.User_id + "= ", userId, Certification.class);
+        return certification != null && certification.getStatus() == UserConst.USER_CERT_STATUS_PASS;
     }
 
 

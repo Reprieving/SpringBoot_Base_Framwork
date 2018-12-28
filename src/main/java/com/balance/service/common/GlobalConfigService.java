@@ -15,7 +15,7 @@ import java.util.Map;
 @Service
 public class GlobalConfigService extends BaseService{
 
-    private static Map<String, String> gCfgCache = new HashMap<>();
+    private static Map<String, String> gCfgCache;
 
     @PostConstruct
     private void init(){
@@ -28,10 +28,10 @@ public class GlobalConfigService extends BaseService{
         return globalConfigList;
     }
 
-    private void updateGlobalConfigCache() {
+    public void updateGlobalConfigCache() {
         List<GlobalConfig> cfgList = this.getAll();
-
         if (cfgList != null) {
+            gCfgCache = new HashMap<>();
             Iterator<GlobalConfig> it = cfgList.iterator();
             while (it.hasNext()) {
                 GlobalConfig globalConfig = it.next();
@@ -48,7 +48,7 @@ public class GlobalConfigService extends BaseService{
      */
     public String get(Enum key) {
         // 如果缓存数据为空，则初始化
-        if (gCfgCache.size() == 0) {
+        if (gCfgCache == null || gCfgCache.size() == 0) {
             updateGlobalConfigCache();
         }
         String value = gCfgCache.get(key.toString());
@@ -58,6 +58,10 @@ public class GlobalConfigService extends BaseService{
 
     public double getDouble (Enum key) {
         return Double.parseDouble(get(key));
+    }
+
+    public double getInt (Enum key) {
+        return Integer.parseInt(get(key));
     }
 
     public enum Enum {
@@ -85,7 +89,10 @@ public class GlobalConfigService extends BaseService{
         /** app微信appID */
         APP_WEIXIN_APP_ID,
         /** app微信appSecret */
-        APP_WEIXIN_APP_SECRET
+        APP_WEIXIN_APP_SECRET,
+
+        /** 每天分享最多次数 */
+        DAILY_SHARE_TIME,
     }
 
 }

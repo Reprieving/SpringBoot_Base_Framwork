@@ -5,6 +5,7 @@ import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ResultUtils;
 import com.balance.entity.common.GlobalConfig;
 import com.balance.entity.mission.Mission;
+import com.balance.service.common.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,8 @@ public class AdminConfigController {
     @Autowired
     private BaseService baseService;
 
+    @Autowired
+    private GlobalConfigService globalConfigService;
 
     /**
      * 全局配置项 列表
@@ -44,6 +47,7 @@ public class AdminConfigController {
             result = baseService.insert(globalConfig);
         }
         if (result > 0) {
+            globalConfigService.updateGlobalConfigCache();
             return ResultUtils.success();
         } else {
             return ResultUtils.error("保存失败");

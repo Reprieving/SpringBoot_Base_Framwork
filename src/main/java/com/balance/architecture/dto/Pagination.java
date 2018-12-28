@@ -12,6 +12,14 @@ public class Pagination<T> {
     private String endTime;
     private T param;
 
+    public Pagination() {
+    }
+
+    public Pagination(int pageNum, int pageSize) {
+        this.pageNum = pageNum;
+        this.pageSize = pageSize;
+    }
+
     public int getPageNum() {
         return pageNum;
     }

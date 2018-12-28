@@ -6,6 +6,7 @@ import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.constance.*;
 import com.balance.entity.mission.Mission;
+import com.balance.entity.mission.MissionReward;
 import com.balance.entity.user.*;
 import com.balance.service.user.UserMerchantService;
 import com.balance.utils.ValueCheckUtils;
@@ -230,21 +231,21 @@ public class OrderService extends BaseService {
                     //查询用户商户签约记录
                     Map<String, Object> whereMap = ImmutableMap.of(UserMerchantRecord.User_id + "=", userId, UserMerchantRecord.If_valid + "=", true);
                     UserMerchantRecord userMerchantRecord = selectOneByWhereMap(whereMap, UserMerchantRecord.class);
-
                     if (userMerchantRecord != null) {
-                        Mission mission = missionService.filterTaskByCode(MissionConst.OBTAIN_BEAUTY, missionService.allMissionList()); //颜值任务奖励
                         UserMerchantRuler userMerchantRuler = userMerchantService.filterMerchantRulerById(userMerchantRecord.getMerchantRulerId());
                         if (userMerchantRuler != null) {
                             String inviteId = user.getInviteId();
                             UserAssets userAssets = userAssetsService.getAssetsByUserId(inviteId);
 
+                            Mission mission = missionService.filterTaskByCode(MissionConst.OBTAIN_BEAUTY); //颜值任务奖励
                             //颜值分润值
+                            MissionReward missionReward = missionService.getMissionRewardByMemberType(user.getMemberType(), mission);
                             BigDecimal computeShareProfit = BigDecimalUtils.multiply(
-                                    missionService.getMissionRewardByMemberType(user.getMemberType(), mission),
+                                    missionReward.getValue(),
                                     BigDecimalUtils.percentToRate(userMerchantRuler.getComputeReturnRate()
                                     ));
                             //增加邀请用户颜值
-                            Integer computeSettlementId = mission.getSettlementId();
+                            Integer computeSettlementId = missionReward.getSettlementId();
                             userAssetsService.changeUserAssets(inviteId, computeShareProfit, computeSettlementId, userAssets);
                             assetsTurnoverService.createAssetsTurnover(
                                     inviteId, AssetTurnoverConst.TURNOVER_TYPE_COMPUTE_RETURN, computeShareProfit, AssetTurnoverConst.COMPANY_ID,
@@ -322,20 +323,21 @@ public class OrderService extends BaseService {
                         Map<String, Object> whereMap = ImmutableMap.of(UserMerchantRecord.User_id + "=", userId, UserMerchantRecord.If_valid + "=", true);
                         UserMerchantRecord userMerchantRecord = selectOneByWhereMap(whereMap, UserMerchantRecord.class);
                         if (userMerchantRecord != null) {
-                            Mission mission = missionService.filterTaskByCode(MissionConst.EXCHANGE_PACKAGE, missionService.allMissionList()); //兑换礼包奖励值
+                            Mission mission = missionService.filterTaskByCode(MissionConst.EXCHANGE_PACKAGE); //兑换礼包奖励值
                             UserMerchantRuler userMerchantRuler = userMerchantService.filterMerchantRulerById(userMerchantRecord.getMerchantRulerId());
                             if (userMerchantRuler != null) {
                                 String inviteId = user.getInviteId();
                                 UserAssets userAssets = userAssetsService.getAssetsByUserId(inviteId);
 
                                 //颜值分润值
+                                MissionReward missionReward = missionService.getMissionRewardByMemberType(user.getMemberType(), mission);
                                 BigDecimal computeShareProfit = BigDecimalUtils.multiply(
-                                        missionService.getMissionRewardByMemberType(user.getMemberType(), mission),
+                                        missionReward.getValue(),
                                         BigDecimalUtils.percentToRate(userMerchantRuler.getComputeReturnRate()
                                         ));
 
                                 //增加邀请用户颜值
-                                Integer computeSettlementId = mission.getSettlementId();
+                                Integer computeSettlementId = missionReward.getSettlementId();
                                 userAssetsService.changeUserAssets(inviteId, computeShareProfit, computeSettlementId, userAssets);
                                 assetsTurnoverService.createAssetsTurnover(
                                         inviteId, AssetTurnoverConst.TURNOVER_TYPE_COMPUTE_RETURN, computeShareProfit, AssetTurnoverConst.COMPANY_ID,

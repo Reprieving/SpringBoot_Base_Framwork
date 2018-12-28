@@ -21,21 +21,22 @@ public class MissionCompleteService extends BaseService {
      * @param mission 任务实体
      */
     public void createOrUpdateMissionComplete(String userId, Mission mission) {
-        if(mission==null){
+        if (mission == null) {
             return;
         }
         Map<String, Object> whereMap = ImmutableMap.of(MissionComplete.User_id + "=", userId, MissionComplete.Mission_id + "=", mission.getId());
         MissionComplete missionComplete = selectOneByWhereMap(whereMap, MissionComplete.class);
-        Integer integer;
-        if (missionComplete == null) {
-            missionComplete = new MissionComplete(mission.getId(), userId, mission.getRewardValue(), MissionConst.MISSION_COMPLETE_STATE_FINISH);
-            integer = insert(missionComplete);
-        }else{
-            missionComplete.setStatus(MissionConst.MISSION_COMPLETE_STATE_FINISH);
-            integer = update(missionComplete);
-        }
-        if(integer == 0){
-            throw new BusinessException("完成任务异常");
-        }
+        // TODO 任务奖励
+//        Integer integer;
+//        if (missionComplete == null) {
+//            missionComplete = new MissionComplete(mission.getId(), userId, mission.getRewardValue(), MissionConst.MISSION_COMPLETE_STATE_FINISH);
+//            integer = insert(missionComplete);
+//        } else {
+//            missionComplete.setStatus(MissionConst.MISSION_COMPLETE_STATE_FINISH);
+//            integer = update(missionComplete);
+//        }
+//        if (integer == 0) {
+//            throw new BusinessException("完成任务异常");
+//        }
     }
 }

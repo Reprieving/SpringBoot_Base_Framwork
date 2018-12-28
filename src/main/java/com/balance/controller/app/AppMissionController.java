@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @RequestMapping(value = "/app/mission")
@@ -24,35 +23,42 @@ public class AppMissionController {
     @Autowired
     private SignInService signInService;
 
-    @ResponseBody
-    @RequestMapping(value = "/list", method = RequestMethod.POST)
-    public Result<?> list() throws UnsupportedEncodingException {
-        List<Mission> missions = missionService.allMissionList();
+    /**
+     * 有效的任务列表
+     */
+    @RequestMapping(value = "/list")
+    public Result<?> list(HttpServletRequest request) {
+        List<Mission> missions = missionService.getValidList(JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
         return ResultUtils.success(missions);
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/reward/{missionCompleteId}", method = RequestMethod.POST)
-    public Result<?> reward(HttpServletRequest request, @PathVariable String missionCompleteId) throws UnsupportedEncodingException {
+    /**
+     * 任务完成 领取奖励
+     */
+    @RequestMapping(value = "/reward/{missionCompleteId}")
+    public Result<?> reward(HttpServletRequest request, @PathVariable String missionCompleteId) {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         missionService.obtainMissionReward(missionCompleteId, userId);
         return ResultUtils.success();
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/sign/list", method = RequestMethod.POST)
-    public Result<?> signList(HttpServletRequest request) throws UnsupportedEncodingException {
+    /**
+     * 签到列表
+     */
+    @RequestMapping(value = "/sign/list")
+    public Result<?> signList(HttpServletRequest request) {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         SignInfo signList = signInService.getSignList(userId);
         return ResultUtils.success(signList);
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/sign/in", method = RequestMethod.POST)
-    public Result<?> signIn(HttpServletRequest request) throws UnsupportedEncodingException {
+    /**
+     * 签到
+     */
+    @RequestMapping(value = "/sign/in")
+    public Result<?> signIn(HttpServletRequest request) {
         String userId =  JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        signInService.signIn(userId);
-        return ResultUtils.success();
+        return ResultUtils.success(signInService.signIn(userId));
     }
 
 }

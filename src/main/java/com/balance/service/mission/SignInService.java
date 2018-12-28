@@ -3,16 +3,11 @@ package com.balance.service.mission;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
-import com.balance.constance.AssetTurnoverConst;
 import com.balance.constance.CommonConst;
 import com.balance.constance.MissionConst;
-import com.balance.entity.mission.Mission;
 import com.balance.entity.mission.SignIn;
 import com.balance.entity.mission.SignInfo;
-import com.balance.entity.user.UserAssets;
 import com.balance.mapper.mission.MissionMapper;
-import com.balance.service.user.AssetsTurnoverService;
-import com.balance.service.user.UserAssetsService;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +15,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -41,14 +36,11 @@ public class SignInService extends BaseService {
      *
      * @param userId
      */
-    public void signIn(String userId) {
+    public SignInfo signIn(String userId) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                String today = sdf.format(new Date());
-                Integer i = missionMapper.selectCountTodaySign(userId, today);
-                if (i > 0) {
+                if (getToDayIsSign(userId)) {
                     throw new BusinessException("今天已签到了");
                 }
 
@@ -105,17 +97,18 @@ public class SignInService extends BaseService {
                 missionService.finishMission(userId,MissionConst.SIGN_DAY,"每日签到");
 
                 //完成7天连续签到
-                if (seriesSignCount % 7 == 0) {
+                if (seriesSignCount > 6 && seriesSignCount % 7 == 0) {
                     missionService.finishMission(userId,MissionConst.SIGN_WEEK,"每周签到");
                 }
 
                 //完成30天连续签到
-                if (seriesSignCount % 30 == 0) {
+                if (seriesSignCount > 29 && seriesSignCount % 30 == 0) {
                     missionService.finishMission(userId,MissionConst.SIGN_MONTH,"每月签到");
                 }
 
             }
         });
+        return getSignList(userId);
     }
 
     /**
@@ -127,7 +120,7 @@ public class SignInService extends BaseService {
     public SignInfo getSignList(String userId) {
         SignInfo signInfo = new SignInfo();
         Map<String, Object> orderMap = ImmutableMap.of(SignIn.Sign_time, CommonConst.MYSQL_DESC);
-        List<SignIn> signList = selectListByWhereString("user_id = ", userId, null, SignIn.class, orderMap);
+        List<SignIn> signList = selectListByWhereString(SignIn.User_id + " = ", userId, null, SignIn.class, orderMap);
 
         List<SignIn> signListAppReturn = new ArrayList<>();//用户最近30天签到信息(用于返回移动端)
 
@@ -151,10 +144,12 @@ public class SignInService extends BaseService {
             Date d = c.getTime();
             String day = format.format(d);
             for (SignIn signIn : signList) {
-                String signDay = format.format(signIn.getSignTime());
-                if (day.equals(signDay)) {
-                    signInApp.setHasSign(true);
+                boolean hasSign = false;
+                Timestamp signTime = signIn.getSignTime();
+                if (signTime != null && day.equals(format.format(signTime))) {
+                    hasSign = true;
                 }
+                signInApp.setHasSign(hasSign);
             }
             signInApp.setSignTimeStr(day);
             signListAppReturn.add(signInApp);
@@ -196,5 +191,11 @@ public class SignInService extends BaseService {
         signInfo.setSeriesSignCount(seriesSignCount);
 
         return signInfo;
+    }
+
+    public boolean getToDayIsSign(String userId) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String today = sdf.format(new Date());
+        return missionMapper.selectCountTodaySign(userId, today) > 0;
     }
 }
