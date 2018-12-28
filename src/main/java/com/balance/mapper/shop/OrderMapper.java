@@ -57,10 +57,10 @@ public interface OrderMapper {
     List<OrderGoodsInfo> listUserBeautyGoodsInfo(@Param("userId") String userId, @Param("ifScan") Boolean ifScan);
 
     /**
-     * 查询用户订单
+     * 查询用户指定待支付订单
      *
      * @param userId   用户id
-     * @param orderIds 用户
+     * @param orderIds 待支付
      * @return
      */
     List<OrderGoodsInfo> listUserOrderGoodsByOrderIds(@Param("userId") String userId, @Param("orderIds") List<String> orderIds);

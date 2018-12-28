@@ -117,5 +117,6 @@
         <foreach collection="orderIds" item="orderId" open="(" close=")" separator=",">
             #{orderId}
         </foreach>
+        AND a.
     </select>
 </mapper>
