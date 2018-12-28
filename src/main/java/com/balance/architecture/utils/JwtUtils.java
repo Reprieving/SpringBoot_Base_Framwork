@@ -98,17 +98,15 @@ public class JwtUtils {
     /**
      * 获取app端 token信息
      */
-    public static User getUserByToken(String token) throws UnsupportedEncodingException {
-        Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
-        JWTVerifier jwtVerifier = JWT.require(algorithm).build();
-
+    public static User getUserByToken(String token) {
         DecodedJWT decodedJWT = null;
         try {
+            Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
+            JWTVerifier jwtVerifier = JWT.require(algorithm).build();
             decodedJWT = jwtVerifier.verify(token);
         } catch (Exception e) {
             throw new LoginException();
         }
-
 
         User user = new User();
         user.setId(decodedJWT.getClaim(TOKEN_CLAIM_USERID).asString());

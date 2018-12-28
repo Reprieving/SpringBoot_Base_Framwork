@@ -7,9 +7,9 @@ import com.balance.architecture.utils.JwtUtils;
 import com.balance.client.RedisClient;
 import com.balance.constance.RedisKeyConst;
 import com.balance.utils.HttpClientUtils;
-import com.balance.utils.ValueCheckUtils;
 import com.balance.entity.user.User;
 import com.balance.service.common.GlobalConfigService;
+import com.balance.utils.ValueCheckUtils;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -40,7 +40,7 @@ public class ThirdPartyService {
 
 
     /** 微信 通过access_token和openId获取用户信息 的 url, 请格式化字符串: 1. access_token, 2.openid */
-    private static final String WX_USERINFO_URL = "https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=zh_CN";
+    private static final String WX_USER_INFO_URL = "https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=zh_CN";
 
     public Map<String, String> binding(String type, String code, String userId) {
         switch (type) {
@@ -74,7 +74,7 @@ public class ThirdPartyService {
      * @return
      */
     public WeiXinInfo getWxInfo(WeiXinInfo weiXinInfo) {
-        String userInfoRes = HttpClientUtils.doGetSSL(String.format(WX_USERINFO_URL,
+        String userInfoRes = HttpClientUtils.doGetSSL(String.format(WX_USER_INFO_URL,
                 weiXinInfo.getAccessToken(), weiXinInfo.getOpenId()));
         log.info("userInfoRes: {}", userInfoRes);
         if (!userInfoRes.contains("openid")) {
@@ -134,7 +134,7 @@ public class ThirdPartyService {
             user.setWxNickname(accessToken4Wx.getNickname());
             user.setWxOpenId(accessToken4Wx.getOpenId());
             userService.createUser(user);
-            redisClient.setForTimeMIN(RedisKeyConst.USER_IP_INFO + user.getUserId(), ip, 5);
+            redisClient.setForTimeMIN(RedisKeyConst.USER_IP_INFO + user.getId(), ip, 5);
         }
         user.setIfRegister(isReg);
         return user;

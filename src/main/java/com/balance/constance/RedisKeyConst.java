@@ -52,4 +52,6 @@ public class RedisKeyConst {
     /** 用户IP信息记录 五分钟 */
     public static final String USER_IP_INFO = "ip_info:";
 
+    /** 用户IP信息记录 五分钟 */
+    public static final String USER_SHARE_TIME= "user:shareTime:%s";
 }

@@ -192,7 +192,7 @@ public class ArticleService extends BaseService {
                 }
 
                 if (vertifyStatus == InformationConst.ARTICLE_VERTIFY_STATUS_PASS) {
-                    Mission mission = missionService.filterTaskByCode(MissionConst.RELEASE_ARTICLE, missionService.selectAll(null, Mission.class));
+                    Mission mission = missionService.filterTaskByCode(MissionConst.RELEASE_ARTICLE);
                     missionCompleteService.createOrUpdateMissionComplete(userId, mission);
                 }
             }

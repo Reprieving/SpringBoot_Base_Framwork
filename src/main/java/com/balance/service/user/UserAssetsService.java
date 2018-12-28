@@ -1,14 +1,11 @@
 package com.balance.service.user;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.client.RedisClient;
 import com.balance.constance.RedisKeyConst;
 import com.balance.constance.SettlementConst;
 import com.balance.constance.UserConst;
-import com.balance.entity.user.User;
 import com.balance.entity.user.UserAssets;
 import com.balance.entity.user.UserFrozenAssets;
 import com.balance.mapper.user.UserAssetsMapper;
@@ -31,7 +28,7 @@ public class UserAssetsService extends BaseService {
     @Autowired
     private RedisClient redisClient;
 
-    public String getSettlementNameById(Integer settlementId) {
+    public static String getSettlementNameById(Integer settlementId) {
         switch (settlementId) {
             case SettlementConst.SETTLEMENT_IH:
                 return "PT";
