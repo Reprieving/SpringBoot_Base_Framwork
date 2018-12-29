@@ -49,7 +49,7 @@ public class AdminGoodsController {
     @RequestMapping("spu/operator/{operatorType}")
     public Result<?> spuOperator(@RequestBody GoodsSpu goodsSpu, @PathVariable Integer operatorType) {
         Pagination pagination = goodsSpu.getPagination();
-        Object object = goodsSpuService.operator(goodsSpu, operatorType, goodsSpu.getDefaultImgUrl(), goodsSpu.getIntroduceImgUrl(), goodsSpu.getDetailImgUrl(), pagination);
+        Object object = goodsSpuService.operator(goodsSpu, operatorType, goodsSpu.getDefaultImgUrl(),goodsSpu.getSpecImgUrl(), goodsSpu.getIntroduceImgUrl(), goodsSpu.getDetailImgUrl(), pagination);
         if (object instanceof String) {
             String message = String.valueOf(object);
             return ResultUtils.success(message);

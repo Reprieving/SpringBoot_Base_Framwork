@@ -36,8 +36,6 @@ public class AppGoodsController {
     @Autowired
     private GoodsSkuService goodsSkuService;
 
-    @Autowired
-    private OrderService orderService;
 
     /**
      * 查询商品
@@ -109,32 +107,4 @@ public class AppGoodsController {
         return ResultUtils.success(goodsCollections);
     }
 
-    /**
-     * 兑换小样礼包
-     *
-     * @param request
-     * @param paramReq
-     * @return
-     * @throws UnsupportedEncodingException
-     */
-    @RequestMapping("beauty/exchange")
-    public Result<?> exchangeBeauty(HttpServletRequest request, GoodsExchangeReq paramReq) throws UnsupportedEncodingException {
-        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        orderService.exchangeSpuPackageOrder(userId, paramReq.getVoucherId(), paramReq.getSpuId(), paramReq.getAddressId());
-        return ResultUtils.success();
-    }
-
-    /**
-     * 扫码领取小样
-     * @param request
-     * @param paramReq
-     * @return
-     * @throws UnsupportedEncodingException
-     */
-    @RequestMapping("beauty/scan")
-    public Result<?> scanBeauty(HttpServletRequest request, GoodsScanReq paramReq) throws UnsupportedEncodingException {
-        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        orderService.scanBeautyOrder(userId, paramReq.getAisleCode(), paramReq.getMachineCode());
-        return ResultUtils.success();
-    }
 }

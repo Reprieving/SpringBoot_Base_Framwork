@@ -5,22 +5,20 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.constance.*;
-import com.balance.entity.common.WeChatPayNotifyRecord;
+import com.balance.controller.app.req.ShopOrderPayReq;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.mission.MissionReward;
 import com.balance.entity.user.*;
-import com.balance.exception.WechatPayNotifyException;
 import com.balance.service.common.GlobalConfigService;
 import com.balance.service.common.WeChatPayService;
-import com.balance.service.user.UserMemberService;
 import com.balance.service.user.UserMerchantService;
+import com.balance.utils.OrderNoUtils;
 import com.balance.utils.WeChatPayCommonUtils;
 import com.balance.utils.ValueCheckUtils;
 import com.balance.controller.app.req.ShopOrderSkuReq;
 import com.balance.entity.common.CodeEntity;
 import com.balance.entity.shop.*;
 import com.balance.mapper.shop.OrderMapper;
-import com.balance.mapper.user.UserMapper;
 import com.balance.mapper.user.UserVoucherMapper;
 import com.balance.service.mission.MissionService;
 import com.balance.service.user.AssetsTurnoverService;
@@ -31,8 +29,6 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
-import org.jdom.JDOMException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +36,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -74,9 +69,6 @@ public class OrderService extends BaseService {
     private OrderMapper orderMapper;
 
     @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
     private UserVoucherMapper userVoucherMapper;
 
     @Autowired
@@ -86,72 +78,36 @@ public class OrderService extends BaseService {
     private UserMerchantService userMerchantService;
 
     @Autowired
-    private UserMemberService userMemberService;
-
-    @Autowired
     private WeChatPayService weChatPayService;
 
     /**
-     * 第三方支付订单
+     * 创建订单
      *
-     * @param userId  用户id
-     * @param orderId 订单id
+     * @param shopOrderPayReq 下单信息
+     * @param request         请求体
      */
-    public void thirdPartyPayOrder(String userId, String orderId) {
-        OrderGoodsInfo orderGoodsInfo = orderMapper.getUserOrderGoodsInfo(userId, orderId);
-        ValueCheckUtils.notEmpty(orderGoodsInfo, "未找到订单或订单已失效");
-
-        if (orderGoodsInfo.getIfPay()) {//如果订单已支付，直接返回
-            return;
-        }
-
-        Integer orderType = orderGoodsInfo.getOrderType();
+    public Map<String,String> payOrder(User user, ShopOrderPayReq shopOrderPayReq, HttpServletRequest request) {
+        Integer orderType = shopOrderPayReq.getOrderType();
         ValueCheckUtils.notEmpty(orderType, "订单状态异常");
         switch (orderType) {
-//            case ShopConst.ORDER_TYPE_SHOPPING: //商城代币购物
-//                break;
+            case ShopConst.ORDER_TYPE_SHOPPING: //商城代币购物
+                return shoppingOrder(shopOrderPayReq.getOrderSkuReqList(),user,shopOrderPayReq.getAddressId(),shopOrderPayReq.getSettlementId());
 
             case ShopConst.ORDER_TYPE_RECEIVE_BEAUTY://线上领取小样
-                break;
+                return receiveBeautyOrder(user, shopOrderPayReq.getSpuId(), shopOrderPayReq.getAddressId(), shopOrderPayReq.getSettlementId(), request);
 
-//            case ShopConst.ORDER_TYPE_SCAN_BEAUTY://线下扫码领取小样
-//                break;
-//
-//            case ShopConst.ORDER_TYPE_EXCHANGE_BEAUTY://线上兑换小样礼包
-//                break;
+            case ShopConst.ORDER_TYPE_SCAN_BEAUTY://线下扫码领取小样
+                return scanBeautyOrder(user.getId(),shopOrderPayReq.getQrCodeStr());
+
+            case ShopConst.ORDER_TYPE_EXCHANGE_BEAUTY://线上兑换小样礼包
+                return exchangeSpuPackageOrder(user.getId(),shopOrderPayReq.getVoucherId(),shopOrderPayReq.getSpuId(),shopOrderPayReq.getAddressId());
 
             case ShopConst.ORDER_TYPE_BECOME_MEMBER://办理年卡会员
-                break;
+                return becomeMemberOrder(user.getId(), shopOrderPayReq.getSettlementId(), request);
+
+            default:
+                throw new BusinessException("数据异常");
         }
-
-
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                //扣除用户资产
-                Integer settlementId = orderGoodsInfo.getSettlementId();
-                BigDecimal orderTotalPrice = orderGoodsInfo.getOrderPrice();
-                UserAssets userAssets = selectOneByWhereString(UserAssets.User_id + " = ", userId, UserAssets.class);
-                BigDecimal assets = userAssetsService.getAssetsBySettlementId(userAssets, settlementId);
-                if (assets.compareTo(orderTotalPrice) == -1) {
-                    throw new BusinessException("用户资产不足");
-                }
-
-                if (userAssetsService.changeUserAssets(userId, orderTotalPrice, settlementId, userAssets) == 0) {
-                    throw new BusinessException("支付失败");
-                }
-
-                if (orderMapper.updateOrderHadPay(orderId, userId) == 0) {
-                    throw new BusinessException("订单数据异常");
-                }
-
-                //增加流水记录
-                String detailStr = "订单结算，订单号为:" + orderGoodsInfo.getOrderNo();
-                assetsTurnoverService.createAssetsTurnover(
-                        userId, AssetTurnoverConst.TURNOVER_TYPE_SHOPPING_ORDER_PAY, orderTotalPrice, userId, AssetTurnoverConst.COMPANY_ID, userAssets, settlementId, detailStr
-                );
-            }
-        });
 
     }
 
@@ -165,7 +121,7 @@ public class OrderService extends BaseService {
      * @param settlementId    支付id
      * @throws BusinessException
      */
-    public void shoppingOrder(List<ShopOrderSkuReq> orderSkuReqList, User user, String addressId, Integer settlementId) throws BusinessException {
+    public Map<String,String> shoppingOrder(List<ShopOrderSkuReq> orderSkuReqList, User user, String addressId, Integer settlementId) throws BusinessException {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
@@ -240,7 +196,7 @@ public class OrderService extends BaseService {
                     }
 
                     Timestamp createTime = new Timestamp(System.currentTimeMillis());
-                    String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
+                    String orderNumber = OrderNoUtils.buildOrderNo();
                     OrderInfo orderInfo = new OrderInfo(
                             orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, orderTotalPrice, orderTotalFreight, ShopConst.ORDER_TYPE_SHOPPING, createTime
                     );
@@ -271,6 +227,7 @@ public class OrderService extends BaseService {
                 }
             }
         });
+        return null;
     }
 
 
@@ -293,11 +250,10 @@ public class OrderService extends BaseService {
 
         switch (settlementId) {
             case SettlementConst.SETTLEMENT_WECHAT_PAY://微信支付对接
-
                 //TODO 领取小样回调URL
                 String receiveBeautyNotifyUrl = "";
 
-                String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
+                String orderNumber = OrderNoUtils.buildOrderNo();
                 Timestamp createTime = new Timestamp(System.currentTimeMillis());
                 OrderInfo orderInfo = new OrderInfo(
                         orderNumber, settlementId, user.getId(), ShopConst.SHOP_OFFICIAL, user.getUserName(), addressId, freight, BigDecimal.ZERO, ShopConst.ORDER_TYPE_BECOME_MEMBER,
@@ -309,54 +265,33 @@ public class OrderService extends BaseService {
                 OrderItem orderItem = new OrderItem(spuId, "", 1, BigDecimal.ZERO, freight, freight);
                 insertIfNotNull(orderItem);
 
-                return weChatPayService.weChatPrePay(
+                Map<String,String> map =  weChatPayService.weChatPrePay(
                         orderInfo.getId(), freight, "美妆链年卡会员办理", WeChatPayCommonUtils.getRemoteHost(request), receiveBeautyNotifyUrl
                 );
+                map.put(OrderInfo.Order_no,orderNumber);
+                map.put(OrderInfo.Create_time,createTime.toString());
 
             case SettlementConst.SETTLEMENT_ALI_PAY://支付宝对接
-                break;
+                return null;
 
             default:
                 throw new BusinessException("错误支付方式");
         }
-        return null;
     }
 
-    /**
-     * 线上领取小样微信支付通知
-     *
-     * @param request
-     * @throws IOException
-     * @throws JDOMException
-     */
-    public void receiveBeautyWechatPayNotify(HttpServletRequest request) throws IOException {
-        WeChatPayNotifyRecord weChatPayNotifyRecord = weChatPayService.notifyAnalyse(request.getInputStream());
-        OrderInfo orderInfo = selectOneById(weChatPayNotifyRecord.getMchOrderId(), OrderInfo.class);
-        if (orderInfo == null) {
-            throw new WechatPayNotifyException("未找到订单信息");
-        }
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                String userId = orderInfo.getUserId();
-                orderMapper.updateOrderHadPay(orderInfo.getId(), userId);
-                insert(weChatPayNotifyRecord);
-                User user = selectOneById(userId, User.class);
-                userAssetsService.updateRMBAssetsByTurnoverType(user, AssetTurnoverConst.TURNOVER_TYPE_BEAUTY_RECEIVE, "被邀请用户线上领取美妆样品服务费");
-            }
-        });
 
-    }
 
 
     /**
      * 扫码领取小样
      *
      * @param userId      用户id
-     * @param aisleCode   小样编码
-     * @param machineCode 小样机器编码
+     * @param qrCodeStr   小样编码
      */
-    public void scanBeautyOrder(String userId, String aisleCode, String machineCode) {
+    public Map<String,String> scanBeautyOrder(String userId, String qrCodeStr) {
+        //TODO 提取qrCodeStr
+        String aisleCode = null;
+        String machineCode = null;
         User user = selectOneById(userId, User.class);
         if (StringUtils.isBlank(user.getWxOpenId())) {
             throw new BusinessException("请绑定微信号后再扫码领取");
@@ -404,8 +339,8 @@ public class OrderService extends BaseService {
                             MissionReward missionReward = missionService.getMissionRewardByMemberType(user.getMemberType(), mission);
                             BigDecimal computeShareProfit = BigDecimalUtils.multiply(
                                     missionReward.getValue(),
-                                    BigDecimalUtils.percentToRate(userMerchantRuler.getComputeReturnRate()
-                                    ));
+                                    BigDecimalUtils.percentToRate(userMerchantRuler.getComputeReturnRate())
+                            );
                             //增加邀请用户颜值
                             Integer computeSettlementId = missionReward.getSettlementId();
                             userAssetsService.changeUserAssets(inviteId, computeShareProfit, computeSettlementId, userAssets);
@@ -434,7 +369,7 @@ public class OrderService extends BaseService {
 
             }
         });
-
+        return null;
     }
 
 
@@ -444,7 +379,7 @@ public class OrderService extends BaseService {
      * @param userId 用户id
      * @param spuId  商品id
      */
-    public void exchangeSpuPackageOrder(String userId, String voucherId, String spuId, String addressId) {
+    public Map<String,String> exchangeSpuPackageOrder(String userId, String voucherId, String spuId, String addressId) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
@@ -472,7 +407,7 @@ public class OrderService extends BaseService {
 
 
                     Timestamp createTime = new Timestamp(System.currentTimeMillis());
-                    String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
+                    String orderNumber = OrderNoUtils.buildOrderNo();
                     OrderInfo orderInfo = new OrderInfo(
                             orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, new BigDecimal(0), orderTotalPrice, ShopConst.ORDER_TYPE_EXCHANGE_BEAUTY,
                             createTime
@@ -523,6 +458,7 @@ public class OrderService extends BaseService {
                 }
             }
         });
+        return null;
     }
 
 
@@ -544,7 +480,7 @@ public class OrderService extends BaseService {
             case SettlementConst.SETTLEMENT_WECHAT_PAY://微信支付对接
                 //年卡会员费用
                 BigDecimal bigDecimal = new BigDecimal(globalConfigService.get(GlobalConfigService.Enum.MEMBER_FREE));
-                String orderNumber = DateFormatUtils.format(System.currentTimeMillis(), "yyyyMMddHHmmssSSS");
+                String orderNumber = OrderNoUtils.buildOrderNo();
                 Timestamp createTime = new Timestamp(System.currentTimeMillis());
                 OrderInfo orderInfo = new OrderInfo(
                         orderNumber, settlementId, userId, ShopConst.SHOP_OFFICIAL, user.getUserName(), "", bigDecimal, BigDecimal.ZERO, ShopConst.ORDER_TYPE_BECOME_MEMBER,
@@ -556,39 +492,15 @@ public class OrderService extends BaseService {
                         orderInfo.getId(), bigDecimal, "美妆链年卡会员办理", WeChatPayCommonUtils.getRemoteHost(request), becomeMemberNotifyUrl
                 );
 
-            case SettlementConst.SETTLEMENT_ALI_PAY://支付宝对接
-                break;
+//            case SettlementConst.SETTLEMENT_ALI_PAY://支付宝对接
+//                break;
 
             default:
                 throw new BusinessException("错误支付方式");
         }
-        return null;
     }
 
-    /**
-     * 办理年卡微信支付通知
-     *
-     * @param request
-     */
-    public void becomeMemberWechatPayNotify(HttpServletRequest request) throws IOException {
-        WeChatPayNotifyRecord weChatPayNotifyRecord = weChatPayService.notifyAnalyse(request.getInputStream());
-        OrderInfo orderInfo = selectOneById(weChatPayNotifyRecord.getMchOrderId(), OrderInfo.class);
-        if (orderInfo == null) {
-            throw new WechatPayNotifyException("未找到订单信息");
-        }
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
 
-                String userId = orderInfo.getUserId();
-                orderMapper.updateOrderHadPay(orderInfo.getId(), orderInfo.getUserId());
-                insert(weChatPayNotifyRecord);
-
-                userMemberService.becomeMember(userId, UserConst.USER_MEMBER_TYPE_COMMON);
-            }
-        });
-
-    }
 
 
     /**

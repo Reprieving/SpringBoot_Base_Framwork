@@ -4,6 +4,9 @@ import com.balance.architecture.dto.Result;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.exception.LoginException;
 import com.balance.architecture.utils.ResultUtils;
+import com.balance.exception.WeChatPayNotifyException;
+import com.balance.utils.MineStringUtils;
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Map;
 
 @ControllerAdvice
 public class BaseController {
@@ -34,6 +38,13 @@ public class BaseController {
         logger.error(getExceptionInfo(e));
         Result<?> result = ResultUtils.error(ResultUtils.RSP_FAIL, e.getMessage());
         return result;
+    }
+
+    @ExceptionHandler(WeChatPayNotifyException.class)
+    @ResponseBody
+    public String weChatPayNotifyExceptionHandler(WeChatPayNotifyException e) {
+        logger.error(getExceptionInfo(e));
+        return ResultUtils.weChatPayFail();
     }
 
     @ExceptionHandler(LoginException.class)

@@ -46,7 +46,6 @@
             a.status as order_status,
             a.logistic_number,
             a.If_investigation,
-            a.if_scan,
             a.address_id,
             a.pay_time,
             a.order_type,
@@ -117,7 +116,6 @@
         <include refid="listOrderGoodsInfo"/>
         WHERE
         a.user_id = #{userId}
-        AND a.if_scan = #{ifScan}
     </select>
 
 </mapper>
