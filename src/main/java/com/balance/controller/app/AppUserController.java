@@ -366,28 +366,19 @@ public class AppUserController {
 
     /**
      * 绑定/更改 手机号码
-     * @param request
-     * @param msgCode
-     * @param phoneNumber
-     * @return
      */
     @PostMapping("bindPhone")
     public Result<?> bindPhone(HttpServletRequest request, String msgCode, String phoneNumber, String userId) {
         if (StringUtils.isBlank(msgCode) || StringUtils.isBlank(phoneNumber)) {
             return ResultUtils.error("缺少必要参数");
         }
-        User user = null;
-        int type = UserConst.MSG_CODE_TYPE_CHANGE_PHONE;
-        try {
+        if (StringUtils.isNotBlank(userId)) {
+            return ResultUtils.success(thirdPartyService.loginBind(msgCode, phoneNumber, userId, IPUtils.getClientIP(request)), "登录成功");
+        } else {
             userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-            userService.bindPhone(msgCode, phoneNumber, userId, type);
-        } catch (Exception e) {
-            type = UserConst.MSG_CODE_TYPE_BINGD_PHONE;
-            user = userService.bindPhone(msgCode, phoneNumber, userId, type);
-            user.setAccessToken(JwtUtils.createToken(user));
-            user.setIfRegister(false);
+            userService.changePhone(msgCode, phoneNumber, userId);
+            return ResultUtils.success();
         }
-        return ResultUtils.success(user, "登录成功");
     }
 
     /**

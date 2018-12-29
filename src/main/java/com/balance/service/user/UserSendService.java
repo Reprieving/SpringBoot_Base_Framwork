@@ -13,6 +13,7 @@ import com.balance.service.common.WjSmsService;
 import com.balance.utils.RandomUtil;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -62,7 +63,7 @@ public class UserSendService extends BaseService {
                 break;
             case UserConst.MSG_CODE_TYPE_BINGD_PHONE:
                 user = userService.selectOneByWhereString(User.Phone_number + " = ", phoneNumber, User.class);
-                if (user != null) {
+                if (user != null && StringUtils.isNotBlank(user.getWxOpenId())) {
                     throw new BusinessException("该手机号码已经绑定其它账号");
                 }
                 msgTypeStr = "【绑定手机号码】";

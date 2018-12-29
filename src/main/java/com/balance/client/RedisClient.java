@@ -43,6 +43,10 @@ public class RedisClient {
         return (String) redisTemplate.opsForValue().get(key);
     }
 
+    public Object get(Object key) {
+        return redisTemplate.opsForValue().get(key);
+    }
+
     /**
      * 设置 String 类型 key-value 并添加过期时间 (毫秒单位)
      *
@@ -62,6 +66,10 @@ public class RedisClient {
      * @param time  过期时间,分钟单位
      */
     public void setForTimeMIN(String key, String value, long time) {
+        redisTemplate.opsForValue().set(key, value, time, TimeUnit.MINUTES);
+    }
+
+    public void setForTimeMIN(Object key, Object value, long time) {
         redisTemplate.opsForValue().set(key, value, time, TimeUnit.MINUTES);
     }
 
