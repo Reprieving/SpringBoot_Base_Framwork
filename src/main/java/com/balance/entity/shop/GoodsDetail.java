@@ -73,4 +73,10 @@ public class GoodsDetail {//商品详情实体
 
     //购买数
     private Integer countBuy;
+
+    //规格图
+    private List<String> specImgUrl;
+
+    //商品类型
+    private Integer spuType;
 }

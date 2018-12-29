@@ -15,6 +15,7 @@
         <result property="brandId" column="brand_id"></result>
         <result property="shopId" column="shop_id"></result>
         <result property="defaultImgUrl" column="default_img_url"></result>
+        <result property="specImgUrl" column="spec_img_url"></result>
         <result property="createTime" column="create_time"></result>
         <result property="status" column="status"></result>
         <result property="spuType" column="spu_type"></result>
@@ -28,10 +29,16 @@
 
     <resultMap id="goodsSpuDetailMap" type="GoodsSpu" extends="goodsSpuSimpleMap">
         <collection property="defaultImg" ofType="GoodsImg">
-            <id property="id" column="spu_id"></id>
-            <result property="name" column="spu_id"></result>
+            <id property="id" column="default_img_url"></id>
+            <result property="name" column="default_img_url"></result>
             <result property="imgUrl" column="default_img_url"></result>
             <result property="url" column="default_img_url"></result>
+        </collection>
+        <collection property="specImg" ofType="GoodsImg">
+            <id property="id" column="spec_img_url"></id>
+            <result property="name" column="spec_img_url"></result>
+            <result property="imgUrl" column="spec_img_url"></result>
+            <result property="url" column="spec_img_url"></result>
         </collection>
         <collection property="allImg" ofType="GoodsImg">
             <id property="id" column="img_id"></id>
@@ -106,7 +113,7 @@
 
     <select id="getGoodsSpu" resultMap="goodsSpuDetailMap">
         SELECT
-          a.id,a.id AS spu_id,a.spu_no,a.goods_name,a.low_price,a.settlement_id,a.default_img_url,
+          a.id,a.id AS spu_id,a.spu_no,a.goods_name,a.low_price,a.settlement_id,a.default_img_url,a.spec_img_url,
           a.create_time,a.spu_type,a.status,a.category_id,a.brand_id,a.shop_id,
           a.goods_description,a.package_unit,a.freight,a.background_color,
           b.img_url,b.img_type,b.id AS img_id

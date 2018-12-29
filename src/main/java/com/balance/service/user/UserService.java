@@ -68,9 +68,6 @@ public class UserService extends BaseService {
     @Autowired
     private AddressService addressService;
 
-    @Autowired
-    private MissionService missionService;
-
     /**
      * 注册用户
      *
@@ -137,6 +134,10 @@ public class UserService extends BaseService {
             userService.createUser(user);
             user1 = selectOneById(user.getId(), User.class);
         }
+
+        user1.setPassword("");
+        user1.setPayPassword("");//敏感信息不返回
+
         user1.setAccessToken(JwtUtils.createToken(user1));
         user1.setIfRegister(ifRegister);
         return user1;

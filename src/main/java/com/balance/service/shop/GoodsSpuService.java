@@ -47,7 +47,7 @@ public class GoodsSpuService extends BaseService {
      * @param defaultImgUrl 商品默认图片url
      * @param detailImgUrls 商品详情图片urls
      */
-    public Integer saveGoodsSpu(GoodsSpu goodsSpu, String defaultImgUrl, List<String> introduceImgUrls, List<String> detailImgUrls) {
+    public Integer saveGoodsSpu(GoodsSpu goodsSpu, String defaultImgUrl, String specImgUrl, List<String> introduceImgUrls, List<String> detailImgUrls) {
         ValueCheckUtils.notEmpty(goodsSpu.getGoodsName(), "商品名不能为空");
         ValueCheckUtils.notEmpty(goodsSpu.getLowPrice(), "商品最低价格不能为空");
         if (goodsSpu.getLowPrice().compareTo(new BigDecimal(0)) == -1) {
@@ -55,7 +55,8 @@ public class GoodsSpuService extends BaseService {
         }
         ValueCheckUtils.notEmpty(goodsSpu.getSettlementId(), "商品支付方式不能为空");
         ValueCheckUtils.notEmpty(goodsSpu.getSpuType(), "商品类型不能为空");
-        ValueCheckUtils.notEmpty(defaultImgUrl, "商品默认图片不能为空");
+        ValueCheckUtils.notEmptyString(defaultImgUrl, "商品默认图片不能为空");
+        ValueCheckUtils.notEmptyString(specImgUrl,"商品规格参数图片不能为空");
         ValueCheckUtils.notEmpty(introduceImgUrls, "商品介绍图片不能为空");
         ValueCheckUtils.notEmpty(detailImgUrls, "商品详情图片不能为空");
 
@@ -71,6 +72,7 @@ public class GoodsSpuService extends BaseService {
             //新增商品
             String spuNo = System.currentTimeMillis() + "" + (int) ((Math.random() * 9 + 1) * 1000);
             goodsSpu.setDefaultImgUrl(defaultImgUrl);
+            goodsSpu.setSpecImgUrl(specImgUrl);
             goodsSpu.setSpuNo(spuNo);
             a = insertIfNotNull(goodsSpu);
         }
@@ -121,10 +123,13 @@ public class GoodsSpuService extends BaseService {
         goodsDetail.setGoodsName(goodsSpu.getGoodsName());
         goodsDetail.setGoodsDescription(goodsSpu.getGoodsDescription());
         goodsDetail.setPrice(goodsSpu.getLowPrice());
+        goodsDetail.setSpecImgUrl(Arrays.asList(goodsSpu.getSpecImgUrl()));
         goodsDetail.setPackageUnit(goodsSpu.getPackageUnit());
         goodsDetail.setFreight(goodsSpu.getFreight());
         goodsDetail.setCountCollection(goodsSpuMapper.countCollection(goodsSpu.getId()));
         goodsDetail.setCountBuy(goodsSpuMapper.countBuy(goodsSpu.getId()));
+        goodsDetail.setSpuType(goodsSpu.getSpuType());
+
 
         //会员享有折扣运费
         if (user.getMemberType() == UserConst.USER_MEMBER_TYPE_COMMON) {
@@ -214,7 +219,7 @@ public class GoodsSpuService extends BaseService {
         GoodsCollection goodsCollection = selectOneByWhereMap(whereMap, GoodsCollection.class);
 
         if (goodsCollection == null) {//收藏商品
-            goodsCollection = new GoodsCollection(userId, spuId, goodsSpu.getGoodsName(),goodsSpu.getGoodsDescription(),goodsSpu.getBackgroundColor(), goodsSpu.getLowPrice(), goodsSpu.getDefaultImgUrl(),goodsSpu.getSpuType());
+            goodsCollection = new GoodsCollection(userId, spuId, goodsSpu.getGoodsName(), goodsSpu.getGoodsDescription(), goodsSpu.getBackgroundColor(), goodsSpu.getLowPrice(), goodsSpu.getDefaultImgUrl(), goodsSpu.getSpuType());
             Integer i = insertIfNotNull(goodsCollection);
             if (i == 0) {
                 throw new BusinessException("收藏商品失败");
@@ -234,8 +239,8 @@ public class GoodsSpuService extends BaseService {
      * @param pagination
      * @return
      */
-    public List<GoodsCollection> listGoodsCollection(String userId, Pagination pagination,Integer spuType) {
-        return goodsSpuMapper.listGoodsCollection(userId,pagination,spuType);
+    public List<GoodsCollection> listGoodsCollection(String userId, Pagination pagination, Integer spuType) {
+        return goodsSpuMapper.listGoodsCollection(userId, pagination, spuType);
     }
 
 
@@ -246,13 +251,13 @@ public class GoodsSpuService extends BaseService {
      * @param operatorType
      * @return
      */
-    public Object operator(GoodsSpu goodsSpu, Integer operatorType, String defaultImgUrl, List<String> introduceImgUrl, List<String> detailImgUrl, Pagination pagination) {
+    public Object operator(GoodsSpu goodsSpu, Integer operatorType, String defaultImgUrl, String specImgUrl, List<String> introduceImgUrl, List<String> detailImgUrl, Pagination pagination) {
         Object o = null;
         switch (operatorType) {
             case ShopConst.OPERATOR_TYPE_INSERT: //添加
                 String msgType = goodsSpu.getId() == null ? "上传" : "更新";
                 o = msgType + "商品成功";
-                if (saveGoodsSpu(goodsSpu, defaultImgUrl, introduceImgUrl, detailImgUrl) == 0) {
+                if (saveGoodsSpu(goodsSpu, defaultImgUrl, specImgUrl, introduceImgUrl, detailImgUrl) == 0) {
                     throw new BusinessException(o + "商品失败");
                 }
                 break;
@@ -264,13 +269,6 @@ public class GoodsSpuService extends BaseService {
                 o = "删除商品成功";
                 if (updateIfNotNull(delGoodsSpu) == 0) {
                     throw new BusinessException("删除商品失败");
-                }
-                break;
-
-            case ShopConst.OPERATOR_TYPE_UPDATE: //更新
-                o = "更新商品成功";
-                if (saveGoodsSpu(goodsSpu, defaultImgUrl, introduceImgUrl, detailImgUrl) == 0) {
-                    throw new BusinessException("更新商品失败");
                 }
                 break;
 

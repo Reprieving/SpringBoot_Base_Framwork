@@ -2,11 +2,9 @@ package com.balance.service.common;
 
 import com.balance.architecture.service.BaseService;
 import com.balance.entity.common.WeChatPayNotifyRecord;
-import com.balance.exception.WechatPayNotifyException;
+import com.balance.exception.WeChatPayNotifyException;
 import com.balance.utils.BigDecimalUtils;
-import com.balance.utils.MineStringUtils;
 import com.balance.utils.WeChatPayCommonUtils;
-import org.bouncycastle.util.Times;
 import org.jdom.JDOMException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -79,7 +77,7 @@ public class WeChatPayService extends BaseService {
      * @param inStream
      * @return
      */
-    public WeChatPayNotifyRecord notifyAnalyse(InputStream inStream) throws WechatPayNotifyException{
+    public WeChatPayNotifyRecord notifyAnalyse(InputStream inStream) throws WeChatPayNotifyException {
         try {
             ByteArrayOutputStream outSteam = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024];
@@ -93,7 +91,7 @@ public class WeChatPayService extends BaseService {
             inStream.close();
 
             if (!WeChatPayCommonUtils.isWechatPaySign(params)) {
-                throw new WechatPayNotifyException("认证异常");
+                throw new WeChatPayNotifyException("认证异常");
 
 //            // 支付失败
 //            return_data.put("return_code", "FAIL");
@@ -118,7 +116,7 @@ public class WeChatPayService extends BaseService {
 
             }
         } catch (IOException | JDOMException e) {
-            throw new WechatPayNotifyException("认证异常");
+            throw new WeChatPayNotifyException("认证异常");
         }
     }
 

@@ -1,6 +1,7 @@
 package com.balance.utils;
 
 import com.balance.architecture.exception.BusinessException;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -26,6 +27,12 @@ public class ValueCheckUtils {
 
     public static void notZero(Integer i, String message) {
         if(i==0){
+            throw new BusinessException(message);
+        }
+    }
+
+    public static void notEmptyString(String str,String message){
+        if(StringUtils.isBlank(str)){
             throw new BusinessException(message);
         }
     }
