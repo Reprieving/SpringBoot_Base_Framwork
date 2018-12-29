@@ -70,6 +70,9 @@ public class AppUserController {
     @Autowired
     private ThirdPartyService thirdPartyService;
 
+    @Autowired
+    private UserMerchantService userMerchantService;
+
 
     /**
      * 发送短信
@@ -501,4 +504,31 @@ public class AppUserController {
         bankCardService.withdrawApply(userId, cardId, amount);
         return ResultUtils.success();
     }
+
+    /**
+     * 节点(商家)用户列表 用户select 选择
+     */
+    @GetMapping("merchant/list")
+    public Result<?> getMerchants(HttpServletRequest request) {
+        return ResultUtils.success(userMerchantService.list(new UserMerchantRuler(), null));
+    }
+
+    /**
+     * 申请 节点(商家) 用户
+     */
+    @PostMapping("merchant/apply")
+    public Result<?> merchantApply(HttpServletRequest request, String merchantRulerId,
+                                   String fullName, String telephone, String email, String location) {
+        UserMerchantApply userMerchantApply = new UserMerchantApply();
+        userMerchantApply.setUserId(JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId());
+        userMerchantApply.setMerchantRulerId(merchantRulerId);
+        userMerchantApply.setFullName(fullName);
+        userMerchantApply.setLocation(location);
+        userMerchantApply.setTelephone(telephone);
+        userMerchantApply.setEmail(email);
+        userMerchantService.merchantApply(userMerchantApply);
+        return ResultUtils.success();
+    }
+
+
 }
