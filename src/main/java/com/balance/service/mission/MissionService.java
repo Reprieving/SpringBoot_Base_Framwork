@@ -299,7 +299,7 @@ public class MissionService extends BaseService {
             stringRedisTemplate.opsForValue().increment(key, 1);
             stringRedisTemplate.expire(key, MineDateUtils.getDaySeconds(), TimeUnit.SECONDS);
         } else {
-            throw new BusinessException("超过了每天分享限制");
+//            throw new BusinessException("超过了每天分享限制");
         }
     }
 

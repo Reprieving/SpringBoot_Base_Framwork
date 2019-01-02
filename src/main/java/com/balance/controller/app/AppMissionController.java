@@ -57,8 +57,18 @@ public class AppMissionController {
      */
     @RequestMapping(value = "/sign/in")
     public Result<?> signIn(HttpServletRequest request) {
-        String userId =  JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         return ResultUtils.success(signInService.signIn(userId));
+    }
+
+    /**
+     * 分享任务
+     */
+    @RequestMapping(value = "share")
+    public Result<?> share(HttpServletRequest request) {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        missionService.share(userId);
+        return ResultUtils.success();
     }
 
 }
