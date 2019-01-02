@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Created by weihuaguo on 2018/12/18 17:32.
  */
 @Alias("Address")
-public class Address  implements Serializable {
+public class Address implements Serializable {
 
     private Integer id;
 
