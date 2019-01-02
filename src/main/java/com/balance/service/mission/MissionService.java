@@ -18,10 +18,12 @@ import com.balance.service.user.CertificationService;
 import com.balance.service.user.UserAssetsService;
 import com.balance.service.user.UserService;
 import com.balance.utils.BigDecimalUtils;
+import com.balance.utils.MineDateUtils;
 import com.balance.utils.ValueCheckUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -29,7 +31,11 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+/**
+ * 任务
+ */
 @Service
 public class MissionService extends BaseService {
 
@@ -56,6 +62,9 @@ public class MissionService extends BaseService {
 
     @Autowired
     private GlobalConfigService globalConfigService;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
 
     /**
@@ -88,8 +97,8 @@ public class MissionService extends BaseService {
                 // 是否已经实名
                 mission.setState(!certificationService.isPassed(userId));
             } else if (taskCode == MissionConst.SHARE) {
-                // 每日分享
-                int share = NumberUtils.toInt(redisClient.get(String.format(RedisKeyConst.USER_SHARE_TIME, userId)), 0);
+                // 是否超过 每日分享 限制
+                int share = NumberUtils.toInt(stringRedisTemplate.opsForValue().get(String.format(RedisKeyConst.USER_SHARE_TIME, userId)), 0);
                 mission.setState(share < globalConfigService.getInt(GlobalConfigService.Enum.DAILY_SHARE_TIME));
             }
         }
@@ -98,7 +107,7 @@ public class MissionService extends BaseService {
 
     public List<Mission> getValidList() {
         return selectListByWhereMap(ImmutableMap.of(Mission.If_valid + "=", true),
-                new Pagination(1, 20),
+                new Pagination(1, 30),
                 Mission.class, ImmutableMap.of(Mission.Sort, CommonConst.MYSQL_DESC));
     }
 
@@ -170,9 +179,6 @@ public class MissionService extends BaseService {
     }
 
 
-
-
-
     /**
      * 根据会员类型获取任务奖励值
      *
@@ -206,6 +212,12 @@ public class MissionService extends BaseService {
         mission.setTaskName(turnoverDesc);
         createAssets(userId, mission);
     }
+
+    public void finishMission(String userId, Integer missionCode) {
+        Mission mission = filterTaskByCode(missionCode);
+        createAssets(userId, mission);
+    }
+
     /**
      * 完成任务并领取奖励
      *
@@ -273,4 +285,23 @@ public class MissionService extends BaseService {
             return false;
         }
     }
+
+
+    /**
+     * 分享
+     * 增加分享记录次数, 增加分享奖励记录
+     */
+    public void share(String userId) {
+        String key = String.format(RedisKeyConst.USER_SHARE_TIME, userId);
+        int share = NumberUtils.toInt(stringRedisTemplate.opsForValue().get(key), 0);
+        if(share < globalConfigService.getInt(GlobalConfigService.Enum.DAILY_SHARE_TIME)) {
+            this.finishMission(userId, MissionConst.SHARE);
+            stringRedisTemplate.opsForValue().increment(key, 1);
+            stringRedisTemplate.expire(key, MineDateUtils.getDaySeconds(), TimeUnit.SECONDS);
+        } else {
+            throw new BusinessException("超过了每天分享限制");
+        }
+    }
+
+
 }
