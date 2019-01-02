@@ -8,4 +8,6 @@ public interface UserFreeCountMapper {
     Integer updateUserSendMsgCount(@Param("userId") String userId);
 
     Integer updateUserFreeLuckDrawCount(@Param("userId")String userId);
+
+    Integer updateUserShareCount(@Param("userId")String userId);
 }

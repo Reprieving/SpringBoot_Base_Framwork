@@ -51,10 +51,10 @@ public interface OrderMapper {
      * 扫码领取小样订单
      *
      * @param userId
-     * @param ifScan
+     * @param orderType
      * @return
      */
-    List<OrderGoodsInfo> listUserBeautyGoodsInfo(@Param("userId") String userId, @Param("ifScan") Boolean ifScan);
+    List<OrderGoodsInfo> listUserBeautyGoodsInfo(@Param("userId") String userId, @Param("orderType") Integer orderType);
 
 
     /**

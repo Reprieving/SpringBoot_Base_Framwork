@@ -116,6 +116,7 @@
         <include refid="listOrderGoodsInfo"/>
         WHERE
         a.user_id = #{userId}
+        AND a.order_type = #{orderType}
     </select>
 
 </mapper>

@@ -62,4 +62,15 @@ public class ShopConst {
     //卡券状态
     public static final int VOUCHER_STATUS_UNUSER = 0; //未使用
     public static final int VOUCHER_STATUS_USERd = 1; //已使用
+
+
+    public static final String WeChatPayNotifyController = "/app/weChatPayNotify"; //微信支付通知Controller路径
+
+
+    public static final String WeChatPayReceiveBeautyNotify = "/receiveBeautyNotify";//领取小样微信支付通知
+    public static final String WeChatPayReceiveBeautyNotifyURL = WeChatPayNotifyController + WeChatPayReceiveBeautyNotify;//领取小样微信支付通知URL
+
+
+    public static final String WeChatPayBecomeMemberNotify = "/becomeMemberNotify";//办理年卡会员微信支付通知
+    public static final String WeChatPayBecomeMemberNotifyURL = WeChatPayNotifyController + WeChatPayBecomeMemberNotify;//办理年卡会员微信支付通知
 }

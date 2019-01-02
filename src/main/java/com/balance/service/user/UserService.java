@@ -5,6 +5,8 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
+import com.balance.entity.common.GlobalConfig;
+import com.balance.service.common.GlobalConfigService;
 import com.balance.utils.ValueCheckUtils;
 import com.balance.client.RedisClient;
 import com.balance.constance.*;
@@ -27,8 +29,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.GeoResult;
 import org.springframework.data.geo.GeoResults;
 import org.springframework.data.redis.connection.RedisGeoCommands;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -68,16 +72,25 @@ public class UserService extends BaseService {
     @Autowired
     private AddressService addressService;
 
+    @Autowired
+    private GlobalConfigService globalConfigService;
+
     /**
      * 注册用户
      *
      * @param user
      * @throws BusinessException
      */
-    public void createUser(User user) throws BusinessException {
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+    public Map<String,String> createUser(User user) throws BusinessException {
+        transactionTemplate.execute(new TransactionCallback<Object>() {
+            @Nullable
             @Override
-            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+            public Object doInTransaction(TransactionStatus transactionStatus) {
+                String inviteCode = user.getInviteCode();
+                if(StringUtils.isNoneBlank(inviteCode)){
+                    User inviteUser = selectOneByWhereString(User.Invite_code+"=",inviteCode,User.class);
+                    user.setInviteId(inviteUser.getId());
+                }
 
                 user.setUserName("");
                 user.setCreateTime(new Timestamp(System.currentTimeMillis()));
@@ -108,8 +121,12 @@ public class UserService extends BaseService {
                 userFreeCount.setUser_id(userId);
                 insertIfNotNull(userFreeCount);
 
+                //跳转URL
+                return ImmutableMap.of("redirectUrl",globalConfigService.get(GlobalConfigService.Enum.REDIRECT_AFTER_REGISTER));
+
             }
         });
+        return null;
     }
 
     /**

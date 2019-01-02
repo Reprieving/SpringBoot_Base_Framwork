@@ -103,7 +103,10 @@ public class GlobalConfigService extends BaseService{
         MEMBER_FREE,
 
         //APP域名
-        APP_DOMAIN_NAME
+        APP_DOMAIN_NAME,
+
+        //注册后重定向URL
+        REDIRECT_AFTER_REGISTER
     }
 
 }

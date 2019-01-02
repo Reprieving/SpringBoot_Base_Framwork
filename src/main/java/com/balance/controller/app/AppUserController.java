@@ -98,8 +98,7 @@ public class AppUserController {
     @RequestMapping("register")
     public Result<?> register(User user) throws BusinessException {
         userSendService.validateMsgCode(user.getUserId(), user.getPhoneNumber(), user.getMsgCode(), UserConst.MSG_CODE_TYPE_LOGINANDREGISTER);
-        userService.createUser(user);
-        return ResultUtils.success("注册成功");
+        return ResultUtils.success(userService.createUser(user));
     }
 
     /**

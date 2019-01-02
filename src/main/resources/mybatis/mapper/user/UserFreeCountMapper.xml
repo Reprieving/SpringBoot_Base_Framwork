@@ -15,4 +15,11 @@
         WHERE user_id = #{userId}
         AND luck_draw_count &lt; 3
     </update>
+
+    <update id="updateUserShareCount">
+      UPDATE user_free_count
+        SET share_count = share_count +1
+        WHERE user_id = #{userId}
+        AND share_count &lt; 3
+    </update>
 </mapper>

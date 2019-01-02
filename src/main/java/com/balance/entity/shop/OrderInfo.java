@@ -80,11 +80,12 @@ public class OrderInfo implements Serializable {
     private Timestamp endTime;
     private Pagination pagination;
 
-    public OrderInfo() {}
+    public OrderInfo() {
+    }
 
     public OrderInfo(
-            String orderNo, Integer settlementId, String userId, String shopId, String userName, String addressId, BigDecimal orderTotalPrice,BigDecimal orderTotalFreight,
-            Integer orderType,Timestamp createTime
+            String orderNo, Integer settlementId, String userId, String shopId, String userName, String addressId, BigDecimal orderTotalPrice, BigDecimal orderTotalFreight,
+            Integer orderType, Integer status, Timestamp createTime
     ) {
         this.orderNo = orderNo;
         this.settlementId = settlementId;
@@ -95,6 +96,7 @@ public class OrderInfo implements Serializable {
         this.price = orderTotalPrice;
         this.freight = orderTotalFreight;
         this.orderType = orderType;
+        this.status = status;
         this.createTime = createTime;
     }
 

@@ -7,6 +7,7 @@ import com.balance.architecture.utils.JwtUtils;
 import com.balance.client.RedisClient;
 import com.balance.constance.RedisKeyConst;
 import com.balance.constance.UserConst;
+import com.balance.mapper.user.UserFreeCountMapper;
 import com.balance.utils.HttpClientUtils;
 import com.balance.entity.user.User;
 import com.balance.service.common.GlobalConfigService;
@@ -41,13 +42,20 @@ public class ThirdPartyService {
     @Autowired
     private RedisClient redisClient;
 
-    /** 微信 通过 code 获取 openId 的 url, 请格式化字符串: 1. appId, 2.appSecret, 3. code */
+    @Autowired
+    private UserFreeCountMapper userFreeCountMapper;
+
+    /**
+     * 微信 通过 code 获取 openId 的 url, 请格式化字符串: 1. appId, 2.appSecret, 3. code
+     */
     private static final String WX_OPEN_ID_URL = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code";
 
     /** 微信获取 ACCESS_TOKE 1. appId, 2.appSecret */
 //    private static final String WX_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s";
 
-    /** 微信 通过access_token和openId获取用户信息 的 url, 请格式化字符串: 1. access_token, 2.openid */
+    /**
+     * 微信 通过access_token和openId获取用户信息 的 url, 请格式化字符串: 1. access_token, 2.openid
+     */
     private static final String WX_USER_INFO_URL = "https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=zh_CN";
 
 
@@ -70,6 +78,7 @@ public class ThirdPartyService {
 
     /**
      * 通过 code 获取 微信信息 包括 accessToken 和 openId
+     *
      * @param code
      * @return
      */
@@ -88,6 +97,7 @@ public class ThirdPartyService {
 
     /**
      * 通过 accessToken 和 openId 获取微信用户信息
+     *
      * @param weiXinInfo
      * @return
      */
@@ -103,6 +113,7 @@ public class ThirdPartyService {
 
     /**
      * 绑定微信
+     *
      * @param userId
      * @param code
      * @return
@@ -132,6 +143,7 @@ public class ThirdPartyService {
 
     /**
      * 微信登录
+     *
      * @param code
      * @return
      */
@@ -162,17 +174,17 @@ public class ThirdPartyService {
      * 第三方登录 绑定手机号码
      */
     public User loginBind(String msgCode, String phoneNumber, String openId, String ip) {
-        WeiXinInfo weiXinInfo = (WeiXinInfo) redisClient.get((Object)(String.format(RedisKeyConst.USER_IP_INFO, openId)));
-        if(weiXinInfo == null || !StringUtils.equals(ip, weiXinInfo.getIp())) {
+        WeiXinInfo weiXinInfo = (WeiXinInfo) redisClient.get((Object) (String.format(RedisKeyConst.USER_IP_INFO, openId)));
+        if (weiXinInfo == null || !StringUtils.equals(ip, weiXinInfo.getIp())) {
             throw new BusinessException("账号状态异常, 请稍后重试");
         }
         userSendService.validateMsgCode(openId, phoneNumber, msgCode, UserConst.MSG_CODE_TYPE_BINGD_PHONE);
         User byPhone = userService.selectOneByWhereString(User.Phone_number + "=", phoneNumber, User.class);
         Boolean isReg = false;
         User user;
-        if(byPhone != null) {
+        if (byPhone != null) {
             // 该手机号码 已经创建账号
-            if(StringUtils.isNotBlank(byPhone.getWxOpenId())) {
+            if (StringUtils.isNotBlank(byPhone.getWxOpenId())) {
                 // 但是已经绑定微信
                 throw new BusinessException("该手机号码已经绑定其它账号");
             }
@@ -205,5 +217,14 @@ public class ThirdPartyService {
                 return ImmutableMap.of("nickname", bindWx(userId, code));
         }
         return null;
+    }
+
+
+    /**
+     * 增加当天分享次數
+     * @param userId
+     */
+    public void shareCountIncrease(String userId) {
+        userFreeCountMapper.updateUserSendMsgCount(userId);
     }
 }

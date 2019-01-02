@@ -25,40 +25,58 @@ public class AppOrderController {
 
     /**
      * 按状态查询订单
+     *
      * @param request
      * @param orderStatus
      * @return
      */
-    @RequestMapping("list/{orderStatus}")
-    public Result<?> list(HttpServletRequest request, @PathVariable("orderStatus")Integer orderStatus,Boolean ifScan, Pagination pagination) throws UnsupportedEncodingException {
+    @RequestMapping("list")
+    public Result<?> listByOrderStatus(HttpServletRequest request, Integer orderStatus, Integer orderType, Pagination pagination) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        List<OrderGoodsInfo> orderInfoList = orderService.listAppOrderGoodsInfo(userId,orderStatus,ifScan,pagination);
+        List<OrderGoodsInfo> orderInfoList = orderService.listAppOrderGoodsInfo(userId, orderStatus, orderType, pagination);
         return ResultUtils.success(orderInfoList);
     }
 
+
     /**
      * 订单详情
+     *
      * @param request
      * @param orderId
      * @return
      */
     @RequestMapping("detail/{orderId}")
-    public Result<?> detail(HttpServletRequest request, @PathVariable("orderId")String orderId){
+    public Result<?> detail(HttpServletRequest request, @PathVariable("orderId") String orderId) {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        OrderGoodsInfo orderGoodsInfo = orderService.getAppOrderGoodsInfo(userId,orderId);
+        OrderGoodsInfo orderGoodsInfo = orderService.getAppOrderGoodsInfo(userId, orderId);
         return ResultUtils.success(orderGoodsInfo);
     }
 
 
     /**
      * 商城下单
+     *
      * @param request
      * @param shopOrderPayReq
      * @return
      */
     @RequestMapping("create")
-    public Object create(HttpServletRequest request,ShopOrderPayReq shopOrderPayReq) throws UnsupportedEncodingException {
+    public Object create(HttpServletRequest request, ShopOrderPayReq shopOrderPayReq) throws UnsupportedEncodingException {
         User user = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME));
-        return ResultUtils.orderPay(shopOrderPayReq.getOrderType(),shopOrderPayReq.getSettlementId(), orderService.payOrder(user,shopOrderPayReq,request));
+        return ResultUtils.orderPay(shopOrderPayReq.getOrderType(), shopOrderPayReq.getSettlementId(), orderService.payOrder(user, shopOrderPayReq, request));
+    }
+
+    /**
+     * 确认收货
+     *
+     * @param request
+     * @param orderId
+     * @return
+     */
+    @RequestMapping("receive")
+    public Result<?> receive(HttpServletRequest request, @PathVariable("orderId") String orderId) {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        orderService.receive(userId, orderId);
+        return ResultUtils.success();
     }
 }
