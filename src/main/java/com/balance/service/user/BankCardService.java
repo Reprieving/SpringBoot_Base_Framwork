@@ -3,6 +3,8 @@ package com.balance.service.user;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.constance.SettlementConst;
+import com.balance.utils.BigDecimalUtils;
 import com.balance.utils.ValueCheckUtils;
 import com.balance.constance.CommonConst;
 import com.balance.constance.RedisKeyConst;
@@ -21,6 +23,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -43,6 +48,12 @@ public class BankCardService extends BaseService {
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private UserAssetsService userAssetsService;
+
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     /**
      * 用户 已经绑定 银行卡列表
@@ -134,7 +145,7 @@ public class BankCardService extends BaseService {
         if (dayAmount > highest) {
             throw new BusinessException("今天提现不能超过" + highest + "元");
         }
-        // TODO 用户余额校验
+
         BankCard bankCard = selectOneById(cardId, BankCard.class);
         if (bankCard == null || !bankCard.getUserId().equals(userId)) {
             throw new BusinessException("银行卡数据异常");
@@ -142,7 +153,18 @@ public class BankCardService extends BaseService {
         BankWithdraw bankWithdraw = new BankWithdraw();
         BeanUtils.copyProperties(bankCard, bankWithdraw);
         bankWithdraw.setAmount(amount);
-        insertIfNotNull(bankWithdraw);
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                //插入提现记录
+                int result1 = insertIfNotNull(bankWithdraw);
+                // 用户余额校验
+                int result2 = userAssetsService.changeUserAssets(userId, BigDecimalUtils.transfer2Negative(amount), SettlementConst.SETTLEMENT_RMB);
+                if (result1 < 1 || result2 < 1) {
+                    throw new BusinessException("提现失败, 请稍后重试");
+                }
+            }
+        });
         stringRedisTemplate.opsForValue().increment(redisKey, amountDouble);
         stringRedisTemplate.expire(redisKey, MineDateUtils.getDaySeconds(), TimeUnit.SECONDS);
     }
@@ -150,10 +172,11 @@ public class BankCardService extends BaseService {
 
     /**
      * 隐藏卡号
+     *
      * @param number
      * @return
      */
-    private String hideNumber (String number) {
+    private String hideNumber(String number) {
         int beginIndex = number.length() - 3;
         return number.substring(0, 4) + " **** **** " + number.substring(beginIndex, (beginIndex + 3));
     }

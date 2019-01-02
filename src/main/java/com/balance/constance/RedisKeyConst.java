@@ -61,4 +61,7 @@ public class RedisKeyConst {
     /** 用户分享次数 string 类型*/
     public static final String USER_SHARE_TIME= "user:shareTime:%s";
 
+    /** 国家省市区数据 hash 类型 hashKey 是父ID*/
+    public static final String ADDRESS_LIST = "address:lsit";
+
 }

@@ -326,7 +326,7 @@ public class AppUserController {
      * @return
      */
     @GetMapping("area/{pid}")
-    public Result<?> area(@PathVariable Integer pid) {
+    public Result<?> area(@PathVariable String pid) {
         return ResultUtils.success(addressService.getByPid(pid));
     }
 

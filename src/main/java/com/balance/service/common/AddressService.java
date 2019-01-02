@@ -1,6 +1,8 @@
 package com.balance.service.common;
 
 import com.balance.architecture.exception.BusinessException;
+import com.balance.client.RedisClient;
+import com.balance.constance.RedisKeyConst;
 import com.balance.entity.common.Address;
 import com.balance.mapper.common.AddressMapper;
 import org.apache.commons.collections.CollectionUtils;
@@ -10,6 +12,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,21 +25,25 @@ public class AddressService {
     @Autowired
     private AddressMapper addressMapper;
 
+    @Autowired
+    private RedisClient redisClient;
+
     /**
-     * 通过 父 ID 获取列表, 查出来第一次缓存
-     * @param pid
-     * @return
+     * 通过 父 ID 获取列表
      */
-    @Cacheable(key = "#pid")
-    public List<Address> getByPid (int pid) {
-        return addressMapper.selectListByPid(pid);
+    public List<Address> getByPid(String pid) {
+        Object hashList = redisClient.getHashKey(RedisKeyConst.ADDRESS_LIST, pid);
+        if (hashList != null) {
+            return (List<Address>) hashList;
+        }
+        return Collections.emptyList();
     }
 
     /**
      * 通过最后一级ID 得到 国家省市区
      */
-    public String getLocation (Integer location) {
-        List<Address> addressList = addressMapper.selectListByPid(location);
+    public String getLocation(Integer location) {
+        List<Address> addressList = getByPid(String.valueOf(location));
         if (CollectionUtils.isNotEmpty(addressList)) {
             throw new BusinessException("地址数据有误");
         }
@@ -66,6 +73,7 @@ public class AddressService {
      * 清除所有缓存
      */
     @CacheEvict(allEntries = true)
-    public void evict() {}
+    public void evict() {
+    }
 
 }
