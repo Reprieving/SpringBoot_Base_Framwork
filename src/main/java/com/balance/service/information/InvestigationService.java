@@ -3,6 +3,7 @@ package com.balance.service.information;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.constance.ShopConst;
 import com.balance.utils.ValueCheckUtils;
 import com.balance.constance.MissionConst;
 import com.balance.entity.information.Investigation;
@@ -65,13 +66,14 @@ public class InvestigationService extends BaseService{
      */
     private String checkInvestigation (String orderId, String userId) {
         OrderInfo orderInfo = selectOneByWhereString(OrderInfo.Id + " = ", orderId, OrderInfo.class);
-        if (orderInfo == null || !orderInfo.getUserId().equals(userId) || orderInfo.getIfInvestigation()) {
-            // 订单为空, 或者订单不是 该登录用户
+        if (orderInfo == null || !orderInfo.getUserId().equals(userId) || orderInfo.getIfInvestigation()
+                || orderInfo.getStatus() != ShopConst.ORDER_STATUS_RECEIVE) {
+            // 订单为空, 或者订单不是 该登录用户, 或 订单不是已收货状态
             throw new BusinessException("数据状态异常");
         }
         List<OrderItem> orderItems = selectListByWhereString(OrderItem.Order_id + " = ", orderId, null, OrderItem.class);
-        if (orderItems == null || orderItems.size() != 1) {
-            // 订单项为空, 或者订单项不是一个
+        if (orderItems == null || orderItems.isEmpty()) {
+            // 订单项为空
             throw new BusinessException("数据状态异常");
         }
         OrderItem orderItem = orderItems.get(0);

@@ -454,22 +454,20 @@ public class UserService extends BaseService {
 
 
     /**
-     * 绑定手机号码
+     * 更换手机号码
      */
-    public User bindPhone(String msgCode, String phoneNumber, String userId, int type) {
+    public void changePhone(String msgCode, String phoneNumber, String userId) {
         User user = userService.selectOneByWhereString(User.Phone_number + " = ", phoneNumber, User.class);
         if (user != null) {
             throw new BusinessException("该手机号码已经绑定其它账号");
         }
-        userSendService.validateMsgCode(userId, phoneNumber, msgCode, type);
+        userSendService.validateMsgCode(userId, phoneNumber, msgCode, UserConst.MSG_CODE_TYPE_CHANGE_PHONE);
         user = new User();
         user.setId(userId);
         user.setPhoneNumber(phoneNumber);
         if (userService.updateIfNotNull(user) < 1) {
             throw new BusinessException("绑定失败");
         }
-        user = getById(userId);
-        return user;
     }
 
     public User getById(String userId) {

@@ -31,12 +31,13 @@ public class GlobalConfigService extends BaseService{
     public void updateGlobalConfigCache() {
         List<GlobalConfig> cfgList = this.getAll();
         if (cfgList != null) {
-            gCfgCache = new HashMap<>();
+            Map<String, String> map = new HashMap<>();
             Iterator<GlobalConfig> it = cfgList.iterator();
             while (it.hasNext()) {
                 GlobalConfig globalConfig = it.next();
-                gCfgCache.put(globalConfig.getConfigKey(), globalConfig.getConfigValue());
+                map.put(globalConfig.getConfigKey(), globalConfig.getConfigValue());
             }
+            gCfgCache = map;
         }
     }
 

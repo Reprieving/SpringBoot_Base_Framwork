@@ -4,14 +4,12 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.constance.AssetTurnoverConst;
-import com.balance.entity.user.UserAssets;
+import com.balance.entity.user.*;
+import com.balance.service.common.AddressService;
 import com.balance.utils.ValueCheckUtils;
 import com.balance.constance.CommonConst;
 import com.balance.constance.SettlementConst;
 import com.balance.constance.UserConst;
-import com.balance.entity.user.User;
-import com.balance.entity.user.UserMerchantRecord;
-import com.balance.entity.user.UserMerchantRuler;
 import com.balance.utils.BigDecimalUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateUtils;
@@ -28,6 +26,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 商户
+ */
 @Service
 public class UserMerchantService extends BaseService {
 
@@ -42,6 +43,9 @@ public class UserMerchantService extends BaseService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AddressService addressService;
 
     public Object operatorUserMerchantRuler(UserMerchantRuler userMerchantRuler, Integer operatorType) {
         Object o = null;
@@ -230,5 +234,22 @@ public class UserMerchantService extends BaseService {
         return null;
     }
 
-
+    /**
+     * 节点(商家) 用户申请
+     */
+    public void merchantApply(UserMerchantApply userMerchantApply) {
+        ValueCheckUtils.notEmpty(userMerchantApply.getFullName(), "请输入姓名");
+        ValueCheckUtils.notEmpty(userMerchantApply.getLocation(), "请选择所在地");
+        ValueCheckUtils.notEmpty(userMerchantApply.getMerchantRulerId(), "请选择节点用户");
+        String telephone = userMerchantApply.getTelephone();
+        ValueCheckUtils.notEmpty(telephone, "请输入联系电话");
+        UserMerchantRuler detail = detail(userMerchantApply.getMerchantRulerId());
+        ValueCheckUtils.notEmpty(detail, "没有找到节点用户信息");
+        if (selectOneByWhereString(UserMerchantApply.Telephone + "=", telephone, UserMerchantApply.class) != null) {
+            throw new BusinessException("您已经申请过了");
+        }
+        String location = addressService.getLocation(Integer.parseInt(userMerchantApply.getLocation()));
+        userMerchantApply.setLocation(location);
+        insertIfNotNull(userMerchantApply);
+    }
 }

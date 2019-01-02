@@ -57,4 +57,11 @@ public class UserConst {
     public static final Integer USER_MERCHANT_TYPE_NONE = 1;//普通用户
     public static final Integer USER_MERCHANT_TYPE_BEING = 2;//商户用户
 
+
+    //节点(商家)申请状态
+    public static final Integer USER_MERCHANT_APPLY_WAIT = 0;//待联系
+    public static final Integer USER_MERCHANT_APPLY_CONNECT = 1;//已联系
+    public static final Integer USER_MERCHANT_APPLY_PASSED = 2;//通过
+    public static final Integer USER_MERCHANT_APPLY_UNPASS = 3;//不通过
+
 }

@@ -46,12 +46,13 @@ public class RedisKeyConst {
         return SAMPLE_MACHINE_ID.replace(SampleMachineLocation.CityCode, cityCode);
     }
 
-    /** 用户每天银行卡提现数量 */
+    /** 用户每天银行卡提现数量 string 类型*/
     public static final String BANK_WITHDRAW_AMOUNT = "bank_withdraw_amount:";
 
-    /** 用户IP信息记录 五分钟 */
-    public static final String USER_IP_INFO = "ip_info:";
+    /** 用户IP信息记录 五分钟 strinig 类型*/
+    public static final String USER_IP_INFO = "user:ipInfo:%s";
 
-    /** 用户IP信息记录 五分钟 */
+    /** 用户分享次数 string 类型*/
     public static final String USER_SHARE_TIME= "user:shareTime:%s";
+
 }

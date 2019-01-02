@@ -187,7 +187,7 @@ public class Mission implements Serializable {
     }
 
     public Boolean getDisplay() {
-        return display;
+        return display == null ? false : display;
     }
 
     public void setDisplay(Boolean display) {

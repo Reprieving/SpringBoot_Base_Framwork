@@ -63,8 +63,10 @@ public class MissionService extends BaseService {
      */
     public List<Mission> getValidList(String userId) {
         List<Mission> missions = getValidList();
-        for (Mission mission : missions) {
-            if (!mission.getDisposable()) {
+        for (int i = 0; i < missions.size(); i++) {
+            Mission mission = missions.get(i);
+            if (!mission.getDisplay()) {
+                missions.remove(i--);
                 continue;
             }
             List<MissionDescription> missionDescriptions = JSONObject.parseArray(mission.getDescription(), MissionDescription.class);
@@ -168,19 +170,7 @@ public class MissionService extends BaseService {
     }
 
 
-    /**
-     * 完成任务并领取奖励
-     *
-     * @param user         用户实体
-     * @param missionCode  任务编码
-     * @param turnoverDesc 流水描述
-     */
-    public BigDecimal finishMission(User user, Integer missionCode, String turnoverDesc) {
-        String userId = user.getId();
-        Mission mission = filterTaskByCode(missionCode);
-        mission.setTaskName(turnoverDesc);
-        return createAssets(userId, mission);
-    }
+
 
 
     /**
@@ -216,7 +206,19 @@ public class MissionService extends BaseService {
         mission.setTaskName(turnoverDesc);
         createAssets(userId, mission);
     }
-
+    /**
+     * 完成任务并领取奖励
+     *
+     * @param user         用户实体
+     * @param missionCode  任务编码
+     * @param turnoverDesc 流水描述
+     */
+    public BigDecimal finishMission(User user, Integer missionCode, String turnoverDesc) {
+        String userId = user.getId();
+        Mission mission = filterTaskByCode(missionCode);
+        mission.setTaskName(turnoverDesc);
+        return createAssets(userId, mission);
+    }
 
     /**
      * 根据编码筛选任务

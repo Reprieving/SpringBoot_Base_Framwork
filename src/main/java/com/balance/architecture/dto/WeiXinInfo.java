@@ -16,6 +16,7 @@ public class WeiXinInfo implements Serializable {
     private String city;
     private String country;
     private String headimgurl;
+    private String ip;
 
     public String getOpenId() {
         return openId;
@@ -87,5 +88,13 @@ public class WeiXinInfo implements Serializable {
 
     public void setHeadimgurl(String headimgurl) {
         this.headimgurl = headimgurl;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 }
