@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.client.RedisClient;
 import com.balance.constance.*;
 import com.balance.controller.app.req.ShopOrderPayReq;
 import com.balance.entity.mission.Mission;
@@ -82,6 +83,9 @@ public class OrderService extends BaseService {
 
     @Autowired
     private WeChatPayService weChatPayService;
+
+    @Autowired
+    private RedisClient redisClient;
 
     /**
      * 创建订单
@@ -391,6 +395,11 @@ public class OrderService extends BaseService {
      * @param spuId  商品id
      */
     public Map<String, String> exchangeSpuPackageOrder(String userId, String voucherId, String spuId, String addressId) {
+        String flag = redisClient.get(RedisKeyConst.USE_VOUCHER_FLAG);
+        if ("0".equals(flag)) {
+            throw new BusinessException("暂不支持兑换礼包,请稍后再试");
+        }
+
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
@@ -482,6 +491,11 @@ public class OrderService extends BaseService {
      * @param userId 用户id
      */
     public Map<String, String> becomeMemberOrder(String userId, Integer settlementId, HttpServletRequest request) {
+        String flag = redisClient.get(RedisKeyConst.BECOME_MEMBER_FLAG);
+        if ("0".equals(flag)) {
+            throw new BusinessException("暂不支持办理年卡会员,请稍后再试");
+        }
+
         User user = selectOneById(userId, User.class);
         if (Objects.equals(user.getMemberType(), UserConst.USER_MEMBER_TYPE_COMMON)) {
             throw new BusinessException("您已是PINKER年卡会员，无须重复办理");
@@ -533,7 +547,7 @@ public class OrderService extends BaseService {
      */
     public List<OrderGoodsInfo> listAppOrderGoodsInfo(String userId, Integer orderStatus, Integer orderType, Pagination pagination) {
         List<OrderGoodsInfo> orderGoodsInfoList;
-        orderGoodsInfoList = orderMapper.listUserOrderGoods(userId, orderStatus,orderType, pagination);
+        orderGoodsInfoList = orderMapper.listUserOrderGoods(userId, orderStatus, orderType, pagination);
         for (OrderGoodsInfo orderGoodsInfo : orderGoodsInfoList) {//订单列表
             for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
                 orderItem.setSpecStr(goodsSpecService.strSpecIdToSpecValue(orderItem.getSpecJson()));

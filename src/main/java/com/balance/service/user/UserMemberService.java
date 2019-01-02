@@ -2,10 +2,15 @@ package com.balance.service.user;
 
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.client.RedisClient;
 import com.balance.constance.*;
+import com.balance.entity.common.GlobalConfig;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.shop.ShopVoucher;
 import com.balance.entity.user.*;
+import com.balance.mapper.common.GlobalConfigMapper;
+import com.balance.mapper.user.UserMemberMapper;
+import com.balance.service.common.GlobalConfigService;
 import com.balance.service.mission.MissionService;
 import com.balance.service.shop.OrderService;
 import com.google.common.collect.ImmutableMap;
@@ -21,7 +26,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -36,6 +43,12 @@ public class UserMemberService extends BaseService {
 
     @Autowired
     private UserAssetsService userAssetsService;
+
+    @Autowired
+    private UserMemberMapper userMemberMapper;
+
+    @Autowired
+    private RedisClient redisClient;
 
     /**
      * 办理年卡
@@ -77,7 +90,40 @@ public class UserMemberService extends BaseService {
                 missionService.finishMission(userId, MissionConst.APPLY_YEAR_CARD, "办理年卡");
 
                 //年卡分润
-                userAssetsService.updateRMBAssetsByTurnoverType(user,AssetTurnoverConst.TURNOVER_TYPE_MEMBER_BECOME,"邀请的用户办理年卡分润");
+                userAssetsService.updateRMBAssetsByTurnoverType(user, AssetTurnoverConst.TURNOVER_TYPE_MEMBER_BECOME, "邀请的用户办理年卡分润");
+            }
+        });
+    }
+
+
+    /**
+     * 取消逾期的会员
+     *
+     * @param expireTime
+     */
+    public void cancelExpireMember(String expireTime) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                redisClient.set(RedisKeyConst.BECOME_MEMBER_FLAG, "0");
+
+                List<UserMemberRecord> userMemberRecords = userMemberMapper.listExpireMember(expireTime);
+                List<String> memberRecordIds = new ArrayList<>(userMemberRecords.size());
+                List<String> userIds = new ArrayList<>(userMemberRecords.size());
+                userMemberRecords.forEach(e -> {
+                    memberRecordIds.add(e.getId());
+                    userIds.add(e.getUserId());
+                });
+
+                if (memberRecordIds.size() > 0) {
+                    userMemberMapper.updateMemberRecord(memberRecordIds);
+                }
+
+                if (userIds.size() > 0) {
+                    userMemberMapper.updateUserMemberType(userIds, UserConst.USER_MEMBER_TYPE_NONE);
+                }
+
+                redisClient.set(RedisKeyConst.BECOME_MEMBER_FLAG, "1");
             }
         });
     }

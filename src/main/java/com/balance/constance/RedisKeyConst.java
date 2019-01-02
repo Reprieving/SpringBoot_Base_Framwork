@@ -46,6 +46,12 @@ public class RedisKeyConst {
         return SAMPLE_MACHINE_ID.replace(SampleMachineLocation.CityCode, cityCode);
     }
 
+    //办理会员开关
+    public static final String BECOME_MEMBER_FLAG = "become_member_flag:";
+
+    //卡券兑换开关
+    public static final String USE_VOUCHER_FLAG = "user_voucher_flag:";
+
     /** 用户每天银行卡提现数量 string 类型*/
     public static final String BANK_WITHDRAW_AMOUNT = "bank_withdraw_amount:";
 

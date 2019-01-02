@@ -1,10 +1,7 @@
 package com.balance.mapper.application;
 
-import com.balance.entity.application.LockRepositoryOrder;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface LockRepositoryMapper {

@@ -4,6 +4,7 @@
 <mapper namespace="com.balance.mapper.user.UserVoucherMapper">
     <resultMap id="userVoucherRecordMap" type="UserVoucherRecord">
         <id property="id" column="id"></id>
+        <result property="userId" column="user_id"></result>
         <result property="quantity" column="quantity"></result>
         <result property="createTime" column="create_time"></result>
         <result property="unableTime" column="unable_time"></result>
@@ -40,6 +41,17 @@
         SET quantity = quantity - 1,version = version + 1
         WHERE
           quantity > 0 AND id = #{userVoucherRecordId} AND version = #{version}
+    </update>
+
+    <select id="listExpireVoucher" resultMap="userVoucherRecordMap">
+        SELECT id,user_id FROM user_voucher_record WHERE unable_time = DATE_FORMAT( #{expireTime}, '%Y-%m-%d' )
+    </select>
+
+    <update id="updateExpireVoucher">
+        UPDATE user_voucher_record SET if_valid = FALSE WHERE id IN
+        <foreach collection="ids" separator="," open="(" close=")" item="id">
+            #{id}
+        </foreach>
     </update>
 
 </mapper>

@@ -106,7 +106,7 @@ public class GlobalConfigService extends BaseService{
         APP_DOMAIN_NAME,
 
         //注册后重定向URL
-        REDIRECT_AFTER_REGISTER
+        REDIRECT_AFTER_REGISTER,
     }
 
 }
