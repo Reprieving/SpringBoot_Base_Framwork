@@ -251,7 +251,7 @@ public class OrderService extends BaseService {
         switch (settlementId) {
             case SettlementConst.SETTLEMENT_WECHAT_PAY://微信支付对接
                 //TODO 领取小样回调URL
-                String receiveBeautyNotifyUrl = "";
+                String receiveBeautyNotifyUrl = globalConfigService.get(GlobalConfigService.Enum.APP_DOMAIN_NAME)+"";
 
                 String orderNumber = OrderNoUtils.buildOrderNo();
                 Timestamp createTime = new Timestamp(System.currentTimeMillis());

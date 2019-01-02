@@ -15,16 +15,21 @@ public class AppWeChatPayNotifyController {
     @Autowired
     private OrderNotifyService orderNotifyService;
 
-
+    //线上领取小样微信支付回调
     @RequestMapping("receiveBeautyNotify")
     @ResponseBody
     public String receiveBeautyNotify(HttpServletRequest request) throws IOException {
         return orderNotifyService.receiveBeautyWeChatPayNotify(request);
     }
 
-    @RequestMapping("receiveBeautyNotify")
+    //办理年卡会员微信支付回调
+    @RequestMapping("becomeMemberNotify")
     @ResponseBody
     public String becomeMemberNotify(HttpServletRequest request) throws IOException {
         return orderNotifyService.becomeMemberWeChatPayNotify(request);
     }
+
+
+
+
 }

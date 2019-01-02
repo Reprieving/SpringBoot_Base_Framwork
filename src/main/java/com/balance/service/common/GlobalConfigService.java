@@ -99,7 +99,10 @@ public class GlobalConfigService extends BaseService{
         DAILY_SHARE_TIME,
 
         //年卡会员办理费用
-        MEMBER_FREE
+        MEMBER_FREE,
+
+        //APP域名
+        APP_DOMAIN_NAME
     }
 
 }
