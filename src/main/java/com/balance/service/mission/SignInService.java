@@ -143,14 +143,15 @@ public class SignInService extends BaseService {
             c.add(Calendar.DATE, i);
             Date d = c.getTime();
             String day = format.format(d);
+            boolean hasSign = false;
             for (SignIn signIn : signList) {
-                boolean hasSign = false;
                 Timestamp signTime = signIn.getSignTime();
                 if (signTime != null && day.equals(format.format(signTime))) {
                     hasSign = true;
+                    break;
                 }
-                signInApp.setHasSign(hasSign);
             }
+            signInApp.setHasSign(hasSign);
             signInApp.setSignTimeStr(day);
             signListAppReturn.add(signInApp);
         }
