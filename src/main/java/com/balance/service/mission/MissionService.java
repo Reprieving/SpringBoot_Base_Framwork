@@ -30,6 +30,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * 任务
+ */
 @Service
 public class MissionService extends BaseService {
 
@@ -88,7 +91,7 @@ public class MissionService extends BaseService {
                 // 是否已经实名
                 mission.setState(!certificationService.isPassed(userId));
             } else if (taskCode == MissionConst.SHARE) {
-                // 每日分享
+                // 是否超过 每日分享 限制
                 int share = NumberUtils.toInt(redisClient.get(String.format(RedisKeyConst.USER_SHARE_TIME, userId)), 0);
                 mission.setState(share < globalConfigService.getInt(GlobalConfigService.Enum.DAILY_SHARE_TIME));
             }
@@ -98,7 +101,7 @@ public class MissionService extends BaseService {
 
     public List<Mission> getValidList() {
         return selectListByWhereMap(ImmutableMap.of(Mission.If_valid + "=", true),
-                new Pagination(1, 20),
+                new Pagination(1, 30),
                 Mission.class, ImmutableMap.of(Mission.Sort, CommonConst.MYSQL_DESC));
     }
 
@@ -170,9 +173,6 @@ public class MissionService extends BaseService {
     }
 
 
-
-
-
     /**
      * 根据会员类型获取任务奖励值
      *
@@ -206,6 +206,12 @@ public class MissionService extends BaseService {
         mission.setTaskName(turnoverDesc);
         createAssets(userId, mission);
     }
+
+    public void finishMission(String userId, Integer missionCode) {
+        Mission mission = filterTaskByCode(missionCode);
+        createAssets(userId, mission);
+    }
+
     /**
      * 完成任务并领取奖励
      *
@@ -273,4 +279,21 @@ public class MissionService extends BaseService {
             return false;
         }
     }
+
+
+    /**
+     * 分享
+     * 增加分享记录次数, 增加分享奖励记录
+     */
+    public void share(String userId) {
+        int share = NumberUtils.toInt(redisClient.get(String.format(RedisKeyConst.USER_SHARE_TIME, userId)), 0);
+        if(share < globalConfigService.getInt(GlobalConfigService.Enum.DAILY_SHARE_TIME)) {
+            this.finishMission(userId, MissionConst.SHARE);
+            redisClient.increment(String.format(RedisKeyConst.USER_SHARE_TIME, userId), 1);
+        } else {
+            throw new BusinessException("超过了每天分享限制");
+        }
+    }
+
+
 }
