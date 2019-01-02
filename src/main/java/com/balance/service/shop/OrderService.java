@@ -13,9 +13,7 @@ import com.balance.entity.user.*;
 import com.balance.service.common.GlobalConfigService;
 import com.balance.service.common.WeChatPayService;
 import com.balance.service.user.UserMerchantService;
-import com.balance.utils.OrderNoUtils;
-import com.balance.utils.WeChatPayCommonUtils;
-import com.balance.utils.ValueCheckUtils;
+import com.balance.utils.*;
 import com.balance.controller.app.req.ShopOrderSkuReq;
 import com.balance.entity.common.CodeEntity;
 import com.balance.entity.shop.*;
@@ -24,7 +22,6 @@ import com.balance.mapper.user.UserVoucherMapper;
 import com.balance.service.mission.MissionService;
 import com.balance.service.user.AssetsTurnoverService;
 import com.balance.service.user.UserAssetsService;
-import com.balance.utils.BigDecimalUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
@@ -312,30 +309,14 @@ public class OrderService extends BaseService {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                //扫码接口
-                PostMethod post = null;
-                try {
-                    HttpClient client = new HttpClient();
-                    post = new PostMethod("http://pinkjewelry.cn/pinkjewelry/payment/freeCollenctionGoods");
-                    post.addRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");//在头文件中设置转码
-                    NameValuePair[] data = {new NameValuePair("openid", user.getWxOpenId()), new NameValuePair("aisle_code", aisleCode), new NameValuePair("machine_code", machineCode)};
-                    post.setRequestBody(data);
-                    client.executeMethod(post);
-                    String result = new String(post.getResponseBodyAsString().getBytes("utf-8"));
-
-                    CodeEntity codeEntity = JSONObject.parseObject(result, CodeEntity.class);
-                    if (codeEntity != null && codeEntity.getCode() != "00") {
-                        throw new BusinessException("库存异常");
-                    }
-                    //完成任务，并增加颜值
-                    missionService.finishMission(user, MissionConst.OBTAIN_BEAUTY, "APP线上领取小样");
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
-                } finally {
-                    if (post != null) {
-                        post.releaseConnection();
-                    }
+                Map<String,String> paramMap = ImmutableMap.of("openid", user.getWxOpenId(),"aisle_code", aisleCode,"machine_code", machineCode);
+                String result = HttpClientUtils.doPost("http://pinkjewelry.cn/pinkjewelry/payment/freeCollenctionGoods",paramMap,HttpClientUtils.CHARSET);
+                CodeEntity codeEntity = JSONObject.parseObject(result, CodeEntity.class);
+                if (codeEntity != null && codeEntity.getCode() != "00") {
+                    throw new BusinessException(ScanBeautyUtils.buildErrorMessage(codeEntity.getCode()));
                 }
+                //完成任务，并增加颜值
+                missionService.finishMission(user, MissionConst.OBTAIN_BEAUTY, "APP线上领取小样");
 
                 if (user.getType() == UserConst.USER_MERCHANT_TYPE_BEING) {
                     //查询用户商户签约记录
@@ -381,8 +362,13 @@ public class OrderService extends BaseService {
         });
 
         //TODO 获取小样信息接口,创建订单
-//                orderInfo.setIfPay(true);
-//                orderInfo.setIfInvestigation(true);
+        //扫码接口
+        Map<String,String> paramMap = ImmutableMap.of("aisle_code", aisleCode,"machine_code", machineCode);
+        String result = HttpClientUtils.doPost("http://pinkjewelry.cn/pinkjewelry/payment/freeCollenctionGoods",paramMap,HttpClientUtils.CHARSET);
+        CodeEntity codeEntity = JSONObject.parseObject(result, CodeEntity.class);
+        if (codeEntity != null && codeEntity.getCode() != "00") {
+            throw new BusinessException(ScanBeautyUtils.buildErrorMessage(codeEntity.getCode()));
+        }
 
         return null;
     }
