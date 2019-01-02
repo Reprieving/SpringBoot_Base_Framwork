@@ -30,6 +30,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -72,10 +73,11 @@ public class MissionService extends BaseService {
      */
     public List<Mission> getValidList(String userId) {
         List<Mission> missions = getValidList();
-        for (int i = 0; i < missions.size(); i++) {
-            Mission mission = missions.get(i);
+        Iterator<Mission> iterator = missions.iterator();
+        while (iterator.hasNext()) {
+            Mission mission = iterator.next();
             if (!mission.getDisplay()) {
-                missions.remove(i--);
+                iterator.remove();
                 continue;
             }
             List<MissionDescription> missionDescriptions = JSONObject.parseArray(mission.getDescription(), MissionDescription.class);
