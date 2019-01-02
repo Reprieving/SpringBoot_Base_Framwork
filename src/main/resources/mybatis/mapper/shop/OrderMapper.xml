@@ -72,11 +72,16 @@
       UPDATE order_info SET if_pay = TRUE ,pay_time = NOW() WHERE id = #{orderId} AND user_id = #{userId} AND if_pay = FALSE;
     </update>
 
-    <select id="listUserOrderGoodsByStatus" resultMap="OrderGoodsInfoMap">
+    <select id="listUserOrderGoods" resultMap="OrderGoodsInfoMap">
         <include refid="listOrderGoodsInfo"/>
         WHERE
         a.user_id = #{userId}
-        AND a.status = #{orderStatus}
+        <if test="orderStatus!=null ">
+            AND a.status = #{orderStatus}
+        </if>
+        <if test="orderType!=null ">
+            AND a.order_type = #{orderType}
+        </if>
     </select>
 
     <select id="getUserOrderGoodsInfo" resultMap="OrderGoodsInfoMap">

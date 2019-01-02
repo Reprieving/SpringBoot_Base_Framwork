@@ -29,11 +29,9 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
-import org.aspectj.weaver.ast.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -375,12 +373,13 @@ public class OrderService extends BaseService {
                         logger.error("用户id为：" + userId + "的用户类型异常，该用户现用户类型为商户，但在商户签约表中无有效记录");
                     }
                 }
-
-                //TODO 获取小样信息接口,创建订单
-//                orderInfo.setIfPay(true);
-//                orderInfo.setIfInvestigation(true);
             }
         });
+
+        //TODO 获取小样信息接口,创建订单
+//                orderInfo.setIfPay(true);
+//                orderInfo.setIfInvestigation(true);
+
         return null;
     }
 
@@ -534,14 +533,10 @@ public class OrderService extends BaseService {
      */
     public List<OrderGoodsInfo> listAppOrderGoodsInfo(String userId, Integer orderStatus, Integer orderType, Pagination pagination) {
         List<OrderGoodsInfo> orderGoodsInfoList;
-        if (orderType != null) {
-            orderGoodsInfoList = orderMapper.listUserBeautyGoodsInfo(userId, orderType);
-        } else {
-            orderGoodsInfoList = orderMapper.listUserOrderGoodsByStatus(userId, orderStatus, pagination);
-            for (OrderGoodsInfo orderGoodsInfo : orderGoodsInfoList) {//订单列表
-                for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
-                    orderItem.setSpecStr(goodsSpecService.strSpecIdToSpecValue(orderItem.getSpecJson()));
-                }
+        orderGoodsInfoList = orderMapper.listUserOrderGoods(userId, orderStatus,orderType, pagination);
+        for (OrderGoodsInfo orderGoodsInfo : orderGoodsInfoList) {//订单列表
+            for (OrderItem orderItem : orderGoodsInfo.getOrderItemList()) {//订单商品列表
+                orderItem.setSpecStr(goodsSpecService.strSpecIdToSpecValue(orderItem.getSpecJson()));
             }
         }
 

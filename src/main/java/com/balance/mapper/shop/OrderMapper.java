@@ -20,7 +20,7 @@ public interface OrderMapper {
      * @param pagination
      * @return
      */
-    List<OrderGoodsInfo> listUserOrderGoodsByStatus(@Param("userId") String userId, @Param("orderStatus") Integer orderStatus, @Param("pagination") Pagination pagination);
+    List<OrderGoodsInfo> listUserOrderGoods(@Param("userId") String userId, @Param("orderStatus") Integer orderStatus,@Param("orderType") Integer orderType, @Param("pagination") Pagination pagination);
 
     /**
      * 用户订单详情

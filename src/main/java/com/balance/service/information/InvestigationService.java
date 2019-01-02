@@ -66,8 +66,7 @@ public class InvestigationService extends BaseService{
      */
     private String checkInvestigation (String orderId, String userId) {
         OrderInfo orderInfo = selectOneByWhereString(OrderInfo.Id + " = ", orderId, OrderInfo.class);
-        if (orderInfo == null || !orderInfo.getUserId().equals(userId) || orderInfo.getIfInvestigation()
-                || orderInfo.getStatus() != ShopConst.ORDER_STATUS_RECEIVE) {
+        if (orderInfo == null || !orderInfo.getUserId().equals(userId) || orderInfo.getIfInvestigation()) {
             // 订单为空, 或者订单不是 该登录用户, 或 订单不是已收货状态
             throw new BusinessException("数据状态异常");
         }

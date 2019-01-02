@@ -73,7 +73,7 @@ public class AppOrderController {
      * @param orderId
      * @return
      */
-    @RequestMapping("receive")
+    @RequestMapping("receive/{orderId}")
     public Result<?> receive(HttpServletRequest request, @PathVariable("orderId") String orderId) {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         orderService.receive(userId, orderId);

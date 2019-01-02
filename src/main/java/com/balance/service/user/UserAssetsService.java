@@ -123,7 +123,7 @@ public class UserAssetsService extends BaseService {
         String assetColumnName = null;
         switch (settlementId) {
             case SettlementConst.SETTLEMENT_IH:
-                assetColumnName = UserAssets.Id;
+                assetColumnName = UserAssets.Ih;
                 break;
 
             case SettlementConst.SETTLEMENT_ETH:
