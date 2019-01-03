@@ -27,15 +27,12 @@ public class Mission implements Serializable {
     @Column(name = Task_code)
     private Integer taskCode; //任务编码
 
-    @JsonIgnore
     @Column(name = Reward)
     private String reward; //普通用户奖励值 json数组
 
-    @JsonIgnore
     @Column(name = Member_reward)
     private String memberReward; //会员用户奖励值 json数组
 
-    @JsonIgnore
     @Column(name = Description)
     private String description; //描述 json数组
 
