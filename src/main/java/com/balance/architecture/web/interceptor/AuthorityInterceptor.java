@@ -19,7 +19,7 @@ public class AuthorityInterceptor implements HandlerInterceptor {
 
     private static final List<String> excludePath = new ArrayList<>(Arrays.asList(
             "/admin/subscriber/login","/app/user/msg/send","/app/user/login","/app/user/wx/synchronizing"
-            ,"/app/user/checkVer", "/app/user/bindPhone"));
+            ,"/app/user/register", "/app/user/bindPhone"));
 
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
