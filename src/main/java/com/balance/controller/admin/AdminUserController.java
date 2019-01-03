@@ -50,7 +50,8 @@ public class AdminUserController {
      * @return
      */
     @GetMapping("list")
-    public Result<?> list(Pagination pagination, String userName, String phoneNumber, Integer type, Integer level) {
+    public Result<?> list(Pagination pagination, String userName, String phoneNumber,
+                          Integer type, Integer level, Integer sex, Integer memberType, Integer status) {
         HashMap<String, Object> whereMap = Maps.newHashMap();
         if (StringUtils.isNotBlank(userName)) {
             whereMap.put(User.User_name + " = ", userName);
@@ -58,8 +59,20 @@ public class AdminUserController {
         if (StringUtils.isNotBlank(phoneNumber)) {
             whereMap.put(User.Phone_number + " = ", phoneNumber);
         }
+        if (StringUtils.isNotBlank(phoneNumber)) {
+            whereMap.put(User.Phone_number + " = ", phoneNumber);
+        }
         if (type != null) {
             whereMap.put(User.Type + " = ", type);
+        }
+        if (sex != null) {
+            whereMap.put(User.Sex + " = ", sex);
+        }
+        if (memberType != null) {
+            whereMap.put(User.Member_type + " = ", memberType);
+        }
+        if (status != null) {
+            whereMap.put(User.Status + " = ", status);
         }
         if (level != null) {
             whereMap.put(User.Level + " = ", level);
