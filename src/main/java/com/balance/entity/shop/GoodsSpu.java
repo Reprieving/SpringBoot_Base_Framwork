@@ -4,6 +4,8 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
+import com.balance.constance.SettlementConst;
+import com.balance.constance.ShopConst;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
@@ -141,5 +143,18 @@ public class GoodsSpu implements Serializable{
         pagination.setPageNum(this.pageNum);
         pagination.setPageSize(this.pageSize);
         return pagination;
+    }
+
+    public static GoodsSpu buildBeautyGoodsSpu(Beauty beauty) {
+        GoodsSpu goodsSpu = new GoodsSpu();
+        goodsSpu.setGoodsName(beauty.getName());
+        goodsSpu.setGoodsDescription(beauty.getSpecification());
+        goodsSpu.setLowPrice(new BigDecimal(beauty.getPrice()));
+        goodsSpu.setDefaultImgUrl(beauty.getImage_home());
+        goodsSpu.setSettlementId(SettlementConst.SETTLEMENT_FREE);
+        goodsSpu.setFreight(BigDecimal.ZERO);
+        goodsSpu.setSpuType(ShopConst.SPU_TYPE_BEAUTY);
+
+        return goodsSpu;
     }
 }

@@ -1,11 +1,9 @@
 package com.balance.service.user;
 
-import com.alibaba.fastjson.JSONObject;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
-import com.balance.entity.common.GlobalConfig;
 import com.balance.service.common.GlobalConfigService;
 import com.balance.utils.ValueCheckUtils;
 import com.balance.client.RedisClient;
@@ -17,7 +15,6 @@ import com.balance.mapper.common.AutoIncreaseIdMapper;
 import com.balance.mapper.user.UserMapper;
 import com.balance.service.common.AddressService;
 import com.balance.service.common.AliOSSBusiness;
-import com.balance.service.mission.MissionService;
 import com.balance.utils.EncryptUtils;
 import com.balance.utils.RandomUtil;
 import com.google.common.collect.ImmutableMap;
@@ -81,15 +78,22 @@ public class UserService extends BaseService {
      * @param user
      * @throws BusinessException
      */
-    public Map<String,String> createUser(User user) throws BusinessException {
-        transactionTemplate.execute(new TransactionCallback<Object>() {
+    public Map<String, String> createUser(User user) throws BusinessException {
+        User userPo = selectOneByWhereString(User.Phone_number + "=", user.getPhoneNumber(), User.class);
+        if (userPo != null) {
+            throw new BusinessException("该手机号已注册");
+        }
+
+        return transactionTemplate.execute(new TransactionCallback<Map<String, String>>() {
             @Nullable
             @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
+            public Map<String, String> doInTransaction(TransactionStatus transactionStatus) {
                 String inviteCode = user.getInviteCode();
-                if(StringUtils.isNoneBlank(inviteCode)){
-                    User inviteUser = selectOneByWhereString(User.Invite_code+"=",inviteCode,User.class);
-                    user.setInviteId(inviteUser.getId());
+                if (StringUtils.isNoneBlank(inviteCode)) {
+                    User inviteUser = selectOneByWhereString(User.Invite_code + "=", inviteCode, User.class);
+                    if (inviteUser != null) {
+                        user.setInviteId(inviteUser.getId());
+                    }
                 }
 
                 user.setUserName("");
@@ -122,11 +126,10 @@ public class UserService extends BaseService {
                 insertIfNotNull(userFreeCount);
 
                 //跳转URL
-                return ImmutableMap.of("redirectUrl",globalConfigService.get(GlobalConfigService.Enum.REDIRECT_AFTER_REGISTER));
-
+                return ImmutableMap.of("redirectUrl", globalConfigService.get(GlobalConfigService.Enum.REDIRECT_AFTER_REGISTER));
             }
         });
-        return null;
+
     }
 
     /**
@@ -234,7 +237,7 @@ public class UserService extends BaseService {
      * @return
      */
     public List<InviteUserRecord> listInviteUser(String userId, Integer inviteType, Pagination pagination) {
-        return userMapper.listInviteUser(userId,inviteType,pagination);
+        return userMapper.listInviteUser(userId, inviteType, pagination);
     }
 
 
@@ -407,7 +410,7 @@ public class UserService extends BaseService {
      */
     public User allUserInfo(String userId) {
         User user = userMapper.getUserInfo(userId);
-        if(user.getCertStatus() == null){
+        if (user.getCertStatus() == null) {
             user.setCertStatus(0);
         }
         return user;
@@ -416,42 +419,24 @@ public class UserService extends BaseService {
     /**
      * 微信用户同步
      *
-     * @param userStr
+     * @param wxOpenId
+     * @param phoneNumber
      */
-    public void synchronizingWX(String userStr) {
+    public void synchronizingWX(String wxOpenId, String phoneNumber) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                if (CommonConst.WX_USER_SYNCHRONIZED) {
-                    if (StringUtils.isBlank(userStr)) {
-                        throw new BusinessException("用户字符串不能为空");
-                    }
-                    List<User> userList = JSONObject.parseArray(userStr, User.class);
-                    CommonConst.WX_USER_SYNCHRONIZED = false;
-                    for (User user : userList) {
-                        if (StringUtils.isBlank(user.getWxOpenId())) {
-                            continue;
-                        }
-                        UserInviteCodeId userInviteCodeId = new UserInviteCodeId();
-                        autoIncreaseIdMapper.insertUserInviteCode(userInviteCodeId);
-                        user.setInviteCode(RandomUtil.randomInviteCode(userInviteCodeId.getId()));
-                    }
-                    try {
-                        insertBatch(userList, false);
-                    } catch (Exception e) {
-                        CommonConst.WX_USER_SYNCHRONIZED = true;
-                        throw new BusinessException("同步用户数据失败");
-                    }
-                    CommonConst.WX_USER_SYNCHRONIZED = true;
-                } else {
-                    throw new BusinessException("数据正在同步,请稍后再试");
-                }
+                User user = new User();
+                user.setWxOpenId(wxOpenId);
+                user.setPhoneNumber(phoneNumber);
+                insertIfNotNull(user);
             }
         });
     }
 
     /**
      * 解绑 第三方
+     *
      * @param type
      * @param userId
      */

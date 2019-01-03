@@ -73,6 +73,9 @@ public class GlobalConfigService extends BaseService{
         OSS_COMMON_BUCKET_NAME,
         OSS_SENSITIVE_BUCKET_NAME,
 
+        OSS_APP_CLIENT_BUCKET_NAME,//app客户端bucket
+
+
         //系统域名
         SYSTEM_DOMAIN,
 

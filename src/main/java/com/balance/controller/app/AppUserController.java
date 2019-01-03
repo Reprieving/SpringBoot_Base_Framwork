@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -77,8 +78,8 @@ public class AppUserController {
      */
     @RequestMapping("msg/send")
     public Result<?> sendMsg4register(HttpServletRequest request, User userReq) throws BusinessException, UnsupportedEncodingException {
-        String msgCode = userSendService.createMsgRecord(request,userReq);
-        return ResultUtils.success("发送短信成功："+msgCode);
+        String msgCode = userSendService.createMsgRecord(request, userReq);
+        return ResultUtils.success("发送短信成功：" + msgCode);
 //        return ResultUtils.success("发送短信成功");
     }
 
@@ -92,7 +93,8 @@ public class AppUserController {
     @RequestMapping("register")
     public Result<?> register(User user) throws BusinessException {
         userSendService.validateMsgCode(user.getUserId(), user.getPhoneNumber(), user.getMsgCode(), UserConst.MSG_CODE_TYPE_LOGINANDREGISTER);
-        return ResultUtils.success(userService.createUser(user));
+        Map<String, String> map = userService.createUser(user);
+        return ResultUtils.success(map);
     }
 
     /**
@@ -102,7 +104,7 @@ public class AppUserController {
      * @return
      */
     @RequestMapping("login")
-    public Result<?> login(User user, String code, HttpServletRequest request)  {
+    public Result<?> login(User user, String code, HttpServletRequest request) {
         User userInfo;
         if (code != null) {
             userInfo = thirdPartyService.wxLogin(code, IPUtils.getClientIP(request));
@@ -114,19 +116,20 @@ public class AppUserController {
 
     /**
      * 用户节点下数据
+     *
      * @param request
      * @return
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("treeDownNode/{memberType}")
-    public Result<?> treeDownNode(HttpServletRequest request,@PathVariable Integer memberType) throws UnsupportedEncodingException {
+    public Result<?> treeDownNode(HttpServletRequest request, @PathVariable Integer memberType) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
 
         List<User> allUser = userService.listUser4InviteRecord(memberType);
         List<User> treeUser = new ArrayList<>();
-        TreeNodeUtils.filterUserDownTreeNode(userId,allUser,treeUser);
+        TreeNodeUtils.filterUserDownTreeNode(userId, allUser, treeUser);
 
-        Map<String,Object> map = ImmutableMap.of("count",treeUser.size(),"dataList",treeUser);
+        Map<String, Object> map = ImmutableMap.of("count", treeUser.size(), "dataList", treeUser);
         return ResultUtils.success(map);
     }
 
@@ -165,9 +168,9 @@ public class AppUserController {
      * @return
      */
     @RequestMapping("inviteCode/settle/{inviteCode}")
-    public Result<?> settleInviteCode(HttpServletRequest request,@PathVariable String inviteCode) throws UnsupportedEncodingException {
+    public Result<?> settleInviteCode(HttpServletRequest request, @PathVariable String inviteCode) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        userService.updateInviteCode(userId,inviteCode);
+        userService.updateInviteCode(userId, inviteCode);
         return ResultUtils.success();
     }
 
@@ -180,9 +183,9 @@ public class AppUserController {
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("inviteRecord/{inviteType}")
-    public Result<?> inviteRecord(HttpServletRequest request,Pagination pagination,@PathVariable Integer inviteType) throws UnsupportedEncodingException {
+    public Result<?> inviteRecord(HttpServletRequest request, Pagination pagination, @PathVariable Integer inviteType) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        return ResultUtils.success(userService.listInviteUser(userId,inviteType,pagination));
+        return ResultUtils.success(userService.listInviteUser(userId, inviteType, pagination));
     }
 
     /**
@@ -196,7 +199,7 @@ public class AppUserController {
     public Result<?> settleHeadPic(HttpServletRequest request, MultipartFile file) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
         Object o = userService.updateHeadPic(userId, file);
-        return ResultUtils.success(o,"设置头像成功");
+        return ResultUtils.success(o, "设置头像成功");
     }
 
     /**
@@ -210,9 +213,9 @@ public class AppUserController {
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("cert")
-    public Result<?> cert(HttpServletRequest request,String realName,String licenseNumber, MultipartFile frontFiles,MultipartFile backFiles) throws BusinessException, UnsupportedEncodingException {
+    public Result<?> cert(HttpServletRequest request, String realName, String licenseNumber, MultipartFile frontFiles, MultipartFile backFiles) throws BusinessException, UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        certificationService.createCert(userId, realName,licenseNumber,frontFiles,backFiles);
+        certificationService.createCert(userId, realName, licenseNumber, frontFiles, backFiles);
         return ResultUtils.success("申请实名认证成功");
     }
 
@@ -223,7 +226,7 @@ public class AppUserController {
      */
     @RequestMapping("pwd/reset")
     public Result<?> resetPassword(HttpServletRequest request, User userReq) throws UnsupportedEncodingException {
-        userService.resetPassword(request,userReq.getNewPassword(),userReq.getPhoneNumber(),userReq.getMsgCode(),userReq.getMsgType());
+        userService.resetPassword(request, userReq.getNewPassword(), userReq.getPhoneNumber(), userReq.getMsgCode(), userReq.getMsgType());
         return ResultUtils.success("重置密码成功");
     }
 
@@ -302,6 +305,7 @@ public class AppUserController {
 
     /**
      * 市内小样机
+     *
      * @param request
      * @param sl
      * @return
@@ -310,7 +314,7 @@ public class AppUserController {
     @ResponseBody
     @RequestMapping(value = "citySampleMachine")
     public Result<?> citySampleMachine(HttpServletRequest request, SampleMachineLocation sl) throws UnsupportedEncodingException {
-        List<SampleMachineLocation> slList = sampleMachineService.listSampleMachineLocation(sl.getCityCode(),sl.getCoordinateX(),sl.getCoordinateY());
+        List<SampleMachineLocation> slList = sampleMachineService.listSampleMachineLocation(sl.getCityCode(), sl.getCoordinateX(), sl.getCoordinateY());
         return ResultUtils.success(slList);
     }
 
@@ -335,6 +339,7 @@ public class AppUserController {
 
     /**
      * 检查短信验证码有效性
+     *
      * @param request
      * @param type
      * @param msgCode
@@ -366,24 +371,26 @@ public class AppUserController {
 
     /**
      * 办理年卡会员
+     *
      * @param request
      * @return
      */
     @RequestMapping("member/become")
     public Result<?> becomeMember(HttpServletRequest request) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        userMemberService.becomeMember(userId,UserConst.USER_MEMBER_TYPE_COMMON);
+        userMemberService.becomeMember(userId, UserConst.USER_MEMBER_TYPE_COMMON);
         return ResultUtils.success("办理年卡会员成功");
     }
 
     /**
      * wx用户同步数据
+     *
      * @return
      * @throws UnsupportedEncodingException
      */
     @RequestMapping("wx/synchronizing")
-    public Result<?> synchronizingWX(@RequestParam("userStr") String userStr){
-        userService.synchronizingWX(userStr);
+    public Result<?> synchronizingWX(String wxOpenId, String phoneNumber) {
+        userService.synchronizingWX(wxOpenId, phoneNumber);
         return ResultUtils.success("数据同步成功");
     }
 

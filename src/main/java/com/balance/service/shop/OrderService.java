@@ -23,9 +23,6 @@ import com.balance.service.mission.MissionService;
 import com.balance.service.user.AssetsTurnoverService;
 import com.balance.service.user.UserAssetsService;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +35,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
@@ -246,10 +242,10 @@ public class OrderService extends BaseService {
     public Map<String, String> receiveBeautyOrder(User user, String spuId, String addressId, Integer settlementId, HttpServletRequest request) {
         GoodsSpu goodsSpu = selectOneById(spuId, GoodsSpu.class);
         ValueCheckUtils.notEmpty(goodsSpu, "未找到商品记录");
-        transactionTemplate.execute(new TransactionCallback<Object>() {
+        return transactionTemplate.execute(new TransactionCallback<Map<String, String>>() {
             @Nullable
             @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
+            public Map<String, String> doInTransaction(TransactionStatus transactionStatus) {
                 //小样邮费
                 BigDecimal freight = goodsSpu.getFreight();
                 if (user.getMemberType() == UserConst.USER_MEMBER_TYPE_COMMON) {
@@ -288,7 +284,6 @@ public class OrderService extends BaseService {
                 }
             }
         });
-        return null;
     }
 
 
@@ -299,9 +294,12 @@ public class OrderService extends BaseService {
      * @param qrCodeStr 小样编码
      */
     public Map<String, String> scanBeautyOrder(String userId, String qrCodeStr) {
+        Map<String, String> urlParamMap = MineStringUtils.convertUrlParam2Map(qrCodeStr);
+
         //TODO 提取qrCodeStr
-        String aisleCode = null;
-        String machineCode = null;
+        String aisleCode = urlParamMap.get("a");
+        String machineCode = urlParamMap.get("m");
+
         User user = selectOneById(userId, User.class);
         if (StringUtils.isBlank(user.getWxOpenId())) {
             throw new BusinessException("请绑定微信号后再扫码领取");
@@ -309,12 +307,34 @@ public class OrderService extends BaseService {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                Map<String,String> paramMap = ImmutableMap.of("openid", user.getWxOpenId(),"aisle_code", aisleCode,"machine_code", machineCode);
-                String result = HttpClientUtils.doPost("http://pinkjewelry.cn/pinkjewelry/payment/freeCollenctionGoods",paramMap,HttpClientUtils.CHARSET);
-                CodeEntity codeEntity = JSONObject.parseObject(result, CodeEntity.class);
-                if (codeEntity != null && codeEntity.getCode() != "00") {
-                    throw new BusinessException(ScanBeautyUtils.buildErrorMessage(codeEntity.getCode()));
+                Map<String, String> paramMap = ImmutableMap.of("openid", user.getWxOpenId(), "aisle_code", aisleCode, "machine_code", machineCode);
+                String result = HttpClientUtils.doPost("http://pinkjewelry.cn/pinkjewelry/payment/freeCollenctionGoods", paramMap, HttpClientUtils.CHARSET);
+                CodeEntity<Beauty> codeEntity = JSONObject.parseObject(result, CodeEntity.class);
+                if (codeEntity.getCode() != "00") {
+                    throw new BusinessException(ScanBeautyUtils.buildMessage(codeEntity.getCode()));
                 }
+                Beauty beauty = codeEntity.getData();
+
+                GoodsSpu beautyGoodsSpu = GoodsSpu.buildBeautyGoodsSpu(beauty);
+                insertIfNotNull(beautyGoodsSpu);
+
+                Timestamp createTime = new Timestamp(System.currentTimeMillis());
+                String orderNumber = OrderNoUtils.buildOrderNo();
+                OrderInfo orderInfo = new OrderInfo(
+                        orderNumber, beautyGoodsSpu.getSettlementId(), userId, ShopConst.SHOP_OFFICIAL, user.getUserName(), "", BigDecimal.ZERO,
+                        beautyGoodsSpu.getFreight(), ShopConst.ORDER_TYPE_SCAN_BEAUTY, ShopConst.ORDER_STATUS_RECEIVE, createTime
+                );
+                orderInfo.setIfPay(true);
+                orderInfo.setIfInvestigation(true);
+
+
+                OrderItem orderItem = new OrderItem(beautyGoodsSpu.getSpuId(), "", 1, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+
+                if (insertIfNotNull(orderInfo) == 0 || insertIfNotNull(orderItem) == 0) {
+                    throw new BusinessException("兑换失败");
+                }
+
+
                 //完成任务，并增加颜值
                 missionService.finishMission(user, MissionConst.OBTAIN_BEAUTY, "APP线上领取小样");
 
@@ -361,14 +381,6 @@ public class OrderService extends BaseService {
             }
         });
 
-        //TODO 获取小样信息接口,创建订单
-        //扫码接口
-        Map<String,String> paramMap = ImmutableMap.of("aisle_code", aisleCode,"machine_code", machineCode);
-        String result = HttpClientUtils.doPost("http://pinkjewelry.cn/pinkjewelry/payment/freeCollenctionGoods",paramMap,HttpClientUtils.CHARSET);
-        CodeEntity codeEntity = JSONObject.parseObject(result, CodeEntity.class);
-        if (codeEntity != null && codeEntity.getCode() != "00") {
-            throw new BusinessException(ScanBeautyUtils.buildErrorMessage(codeEntity.getCode()));
-        }
 
         return null;
     }
@@ -489,10 +501,10 @@ public class OrderService extends BaseService {
         //TODO 办理年卡回调URL
         String becomeMemberNotifyUrl = globalConfigService.get(GlobalConfigService.Enum.APP_DOMAIN_NAME) + ShopConst.WeChatPayBecomeMemberNotifyURL;
 
-        transactionTemplate.execute(new TransactionCallback<Object>() {
+        return transactionTemplate.execute(new TransactionCallback<Map<String, String>>() {
             @Nullable
             @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
+            public Map<String, String> doInTransaction(TransactionStatus transactionStatus) {
                 switch (settlementId) {
                     case SettlementConst.SETTLEMENT_WECHAT_PAY://微信支付对接
                         //年卡会员费用
@@ -517,7 +529,7 @@ public class OrderService extends BaseService {
                 }
             }
         });
-        return null;
+
 
     }
 
