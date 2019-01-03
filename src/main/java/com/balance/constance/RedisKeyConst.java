@@ -64,4 +64,7 @@ public class RedisKeyConst {
     /** 国家省市区数据 hash 类型 hashKey 是父ID*/
     public static final String ADDRESS_LIST = "address:lsit";
 
+    /** 一些公共的资源数据 */
+    public static final String COMMON_RESOURCE = "common:resource";
+
 }

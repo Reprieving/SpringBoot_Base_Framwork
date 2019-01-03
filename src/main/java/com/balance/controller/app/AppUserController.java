@@ -56,12 +56,6 @@ public class AppUserController {
     private RedisClient redisClient;
 
     @Autowired
-    private AddressService addressService;
-
-    @Autowired
-    private AppUpgradeService appUpgradeService;
-
-    @Autowired
     private BankCardService bankCardService;
 
     @Autowired
@@ -320,16 +314,6 @@ public class AppUserController {
         return ResultUtils.success(slList);
     }
 
-    /**
-     * 获取省市联动数据
-     * @param pid
-     * @return
-     */
-    @GetMapping("area/{pid}")
-    public Result<?> area(@PathVariable String pid) {
-        return ResultUtils.success(addressService.getByPid(pid));
-    }
-
 
     /**
      * 绑定第三方
@@ -401,17 +385,6 @@ public class AppUserController {
     public Result<?> synchronizingWX(@RequestParam("userStr") String userStr){
         userService.synchronizingWX(userStr);
         return ResultUtils.success("数据同步成功");
-    }
-
-    /**
-     * app 检查版本
-     */
-    @RequestMapping("checkVer")
-    public Result<?> checkVersion(String device, String version) {
-        if (StringUtils.isBlank(device) || StringUtils.isBlank(version)) {
-            return ResultUtils.error("缺少必要参数");
-        }
-        return ResultUtils.success(appUpgradeService.checkVersion(device, version));
     }
 
 
