@@ -63,6 +63,13 @@ public class UserConst {
     public static final Integer USER_MERCHANT_APPLY_WAIT = 0;//待联系
     public static final Integer USER_MERCHANT_APPLY_CONNECT = 1;//已联系
     public static final Integer USER_MERCHANT_APPLY_PASSED = 2;//通过
-    public static final Integer USER_MERCHANT_APPLY_UNPASS = 3;//不通过
+    public static final Integer USER_MERCHANT_APPLY_NOTPASS = 3;//不通过
 
+    //银行卡提现状态
+    /** 待处理 */
+    public static final int WITHDRAW_STATE_PENDING = 0;
+    /** 通过 */
+    public static final int WITHDRAW_STATE_PASSED = 1;
+    /** 不通过 */
+    public static final int WITHDRAW_STATE_NOTPASS = 2;
 }

@@ -7,6 +7,7 @@ import com.balance.architecture.utils.ResultUtils;
 import com.balance.constance.CommonConst;
 import com.balance.entity.user.*;
 import com.balance.service.user.AssetsTurnoverService;
+import com.balance.service.user.BankCardService;
 import com.balance.service.user.CertificationService;
 import com.balance.service.user.UserMerchantService;
 import com.google.common.collect.ImmutableMap;
@@ -40,6 +41,9 @@ public class AdminUserController {
     @Autowired
     private UserMerchantService userMerchantService;
 
+
+    @Autowired
+    private BankCardService bankCardService;
 
     /**
      * 会员列表
@@ -207,4 +211,20 @@ public class AdminUserController {
         return result > 0 ? ResultUtils.success() : ResultUtils.error("操作失败");
     }
 
+    /**
+     * 银行卡提现 列表
+     */
+    @PostMapping("listBankWithdraw")
+    public Result<?> listBankWithdraw(@RequestBody Pagination<BankWithdraw> pagination) {
+        return ResultUtils.success(bankCardService.listBankWithdraw(pagination), pagination.getTotalRecordNumber());
+    }
+
+    /**
+     * 银行卡提现 更新状态
+     */
+    @GetMapping("updateBankWithdraw")
+    public Result<?> updateBankWithdraw(String id, int state) {
+        bankCardService.updateBankWithdraw(id, state);
+        return ResultUtils.success();
+    }
 }

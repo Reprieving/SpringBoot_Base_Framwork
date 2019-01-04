@@ -4,6 +4,7 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.constance.SettlementConst;
+import com.balance.mapper.user.BankWithdrawMapper;
 import com.balance.utils.BigDecimalUtils;
 import com.balance.utils.ValueCheckUtils;
 import com.balance.constance.CommonConst;
@@ -54,6 +55,9 @@ public class BankCardService extends BaseService {
 
     @Autowired
     private TransactionTemplate transactionTemplate;
+
+    @Autowired
+    private BankWithdrawMapper bankWithdrawMapper;
 
     /**
      * 用户 已经绑定 银行卡列表
@@ -169,6 +173,38 @@ public class BankCardService extends BaseService {
         stringRedisTemplate.expire(redisKey, MineDateUtils.getDaySeconds(), TimeUnit.SECONDS);
     }
 
+    /**
+     * 后台 银行卡 提现列表
+     */
+    public List<BankWithdraw> listBankWithdraw(Pagination<BankWithdraw> pagination) {
+        return bankWithdrawMapper.selectByPage(pagination);
+    }
+
+    /**
+     * 更新 银行卡提现 状态
+     */
+    public void updateBankWithdraw(String id, int state) {
+        BankWithdraw bankWithdraw = selectOneById(id, BankWithdraw.class);
+        if (bankWithdraw == null || bankWithdraw.getState() != UserConst.WITHDRAW_STATE_PENDING) {
+            throw new BusinessException("数据状态异常");
+        }
+        int result1;
+        int result2;
+        if (state == UserConst.WITHDRAW_STATE_PASSED) {
+            //通过, 仅更新状态
+            result2 = 1;
+        } else if (state == UserConst.WITHDRAW_STATE_NOTPASS){
+            //不通过, 退款
+            result2 = userAssetsService.changeUserAssets(bankWithdraw.getUserId(), bankWithdraw.getAmount(), SettlementConst.SETTLEMENT_RMB);
+        } else {
+            throw new BusinessException("参数异常");
+        }
+        bankWithdraw.setState(state);
+        result1 = bankWithdrawMapper.updateState(bankWithdraw);
+        if (result1 < 1 || result2 < 1) {
+            throw new BusinessException("操作失败");
+        }
+    }
 
     /**
      * 隐藏卡号
