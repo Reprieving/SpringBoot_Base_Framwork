@@ -31,7 +31,7 @@ public class UserMerchantApply implements Serializable {
     private String fullName;//姓名
 
     @Column(name = Location)
-    private String location;//姓名
+    private String location;//地区
 
     @Column(name = Telephone)
     private String telephone;//联系电话

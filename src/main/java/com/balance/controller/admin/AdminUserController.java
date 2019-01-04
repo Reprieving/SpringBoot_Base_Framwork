@@ -4,14 +4,12 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ResultUtils;
-import com.balance.entity.user.AssetsTurnover;
-import com.balance.entity.user.Certification;
-import com.balance.entity.user.User;
-import com.balance.entity.user.UserAssets;
-import com.balance.entity.user.UserMerchantRuler;
+import com.balance.constance.CommonConst;
+import com.balance.entity.user.*;
 import com.balance.service.user.AssetsTurnoverService;
 import com.balance.service.user.CertificationService;
 import com.balance.service.user.UserMerchantService;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户 会员
@@ -43,11 +42,6 @@ public class AdminUserController {
 
     /**
      * 会员列表
-     *
-     * @param pagination
-     * @param userName
-     * @param phoneNumber
-     * @return
      */
     @GetMapping("list")
     public Result<?> list(Pagination pagination, String userName, String phoneNumber,
@@ -55,9 +49,6 @@ public class AdminUserController {
         HashMap<String, Object> whereMap = Maps.newHashMap();
         if (StringUtils.isNotBlank(userName)) {
             whereMap.put(User.User_name + " = ", userName);
-        }
-        if (StringUtils.isNotBlank(phoneNumber)) {
-            whereMap.put(User.Phone_number + " = ", phoneNumber);
         }
         if (StringUtils.isNotBlank(phoneNumber)) {
             whereMap.put(User.Phone_number + " = ", phoneNumber);
@@ -77,7 +68,8 @@ public class AdminUserController {
         if (level != null) {
             whereMap.put(User.Level + " = ", level);
         }
-        List<User> userList = baseService.selectListByWhereMap(whereMap, pagination, User.class);
+        Map<String, Object> orderMap = ImmutableMap.of(User.Create_time, CommonConst.MYSQL_DESC);
+        List<User> userList = baseService.selectListByWhereMap(whereMap, pagination, User.class, orderMap);
         return ResultUtils.success(userList, pagination.getTotalRecordNumber());
     }
 
@@ -176,6 +168,42 @@ public class AdminUserController {
     public Result<?> userTypeUpdate(HttpServletRequest request, @RequestBody User user) {
         System.out.println(user);
         return ResultUtils.success("设置商户节点成功");
+    }
+
+    /**
+     * 节点(商家)申请 列表
+     */
+    @GetMapping("listMerchantApply")
+    public Result<?> listMerchantApply(Pagination pagination, String fullName, String telephone,
+                          String merchantRulerId, Integer state) {
+        HashMap<String, Object> whereMap = Maps.newHashMap();
+        if (StringUtils.isNotBlank(fullName)) {
+            whereMap.put(UserMerchantApply.Full_name + " = ", fullName);
+        }
+        if (StringUtils.isNotBlank(telephone)) {
+            whereMap.put(UserMerchantApply.Telephone + " = ", telephone);
+        }
+        if (StringUtils.isNotBlank(merchantRulerId)) {
+            whereMap.put(UserMerchantApply.Merchant_ruler_id + " = ", merchantRulerId);
+        }
+        if (state != null) {
+            whereMap.put(UserMerchantApply.State + " = ", state);
+        }
+        Map<String, Object> orderMap = ImmutableMap.of(UserMerchantApply.Create_time, CommonConst.MYSQL_DESC);
+        return ResultUtils.success(baseService.selectListByWhereMap(whereMap, pagination, UserMerchantApply.class, orderMap),
+                pagination.getTotalRecordNumber());
+    }
+
+    /**
+     * 节点(商家)申请 更新状态
+     */
+    @GetMapping("updateMerchantApply")
+    public Result<?> updateMerchantApply(String id, int state) {
+        UserMerchantApply userMerchantApply = new UserMerchantApply();
+        userMerchantApply.setId(id);
+        userMerchantApply.setState(state);
+        int result = baseService.updateIfNotNull(userMerchantApply);
+        return result > 0 ? ResultUtils.success() : ResultUtils.error("操作失败");
     }
 
 }
