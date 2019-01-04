@@ -90,4 +90,12 @@ public interface GoodsSpuMapper {
      * @return
      */
     List<GoodsCollection> listGoodsCollection(@Param("userId") String userId, @Param("pagination") Pagination pagination, @Param("spuType") Integer spuType);
+
+    /**
+     * 扣除库存
+     *
+     * @param spuId
+     * @param stockNum
+     */
+    void decreaseStock(@Param("spuId") String spuId, @Param("stockNum") Integer stockNum);
 }

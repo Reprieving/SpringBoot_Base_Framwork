@@ -13,6 +13,8 @@ public class ResultUtils {
     public static final Integer RSP_FAIL = -1;//error request
     public static final Integer RSP_LOGIN = 1;//re-login
 
+    public static final Integer RSP_USER_VOUCHER_RECORD_NONE = -1000;//用户没有兑换券
+
 
     public static final String WECHATPAY_RETURN_CODE_FIELD = "return_code";
     public static final String WECHATPAY_RETURN_MSG_FIELD = "return_msg";
@@ -76,6 +78,15 @@ public class ResultUtils {
         return result;
     }
 
+    public static Result<?> error(Integer rspUserVoucherRecordNone, Map<String, Object> map, String message) {
+        Result result = new Result();
+        result.setStateCode(rspUserVoucherRecordNone);
+        result.setData(map);
+        result.setMessage(message);
+        return result;
+
+    }
+
     //request fail
     public static Result reLogin(String msg) {
         Result result = new Result();
@@ -111,9 +122,10 @@ public class ResultUtils {
 
     /**
      * 订单请求返回参数处理
-     * @param orderType 订单类型
+     *
+     * @param orderType    订单类型
      * @param settlementId 支付类型
-     * @param returnMap 返回的内容
+     * @param returnMap    返回的内容
      * @return
      */
     public static Object orderPay(Integer orderType, Integer settlementId, Map<String, String> returnMap) {
@@ -140,5 +152,6 @@ public class ResultUtils {
 
 
     }
+
 
 }

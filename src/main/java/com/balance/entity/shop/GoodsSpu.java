@@ -8,6 +8,7 @@ import com.balance.constance.SettlementConst;
 import com.balance.constance.ShopConst;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
+import sun.misc.Version;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -17,7 +18,7 @@ import java.util.List;
 @Data
 @Alias("GoodsSpu")
 @Table(name = "goods_spu")//商品spu表
-public class GoodsSpu implements Serializable{
+public class GoodsSpu implements Serializable {
     private static final long serialVersionUID = -4987682283871933822L;
 
     @Id
@@ -44,6 +45,9 @@ public class GoodsSpu implements Serializable{
 
     @Column(name = Low_price)
     private BigDecimal lowPrice;//最低价格
+
+    @Column(name = Stock)
+    private Integer stock;//库存
 
     @Column(name = Settlement_id)
     private Integer settlementId;//支付方式id
@@ -80,6 +84,7 @@ public class GoodsSpu implements Serializable{
     @Column(name = If_valid)
     private Boolean ifValid;//是否有效
 
+
     //扩展属性
     //spuId
     private String spuId;
@@ -96,9 +101,9 @@ public class GoodsSpu implements Serializable{
     //所有图片集合
     private List<GoodsImg> allImg;
     //默认图对象
-    private  List<GoodsImg> defaultImg;
+    private List<GoodsImg> defaultImg;
     //规格图对象
-    private  List<GoodsImg> specImg;
+    private List<GoodsImg> specImg;
     //详情图url
     private List<String> detailImgUrl;
     //详情图对象列表
@@ -126,6 +131,7 @@ public class GoodsSpu implements Serializable{
     public static final String Goods_description = "goods_description";
     public static final String Freight = "freight";
     public static final String Low_price = "low_price";
+    public static final String Stock = "stock";
     public static final String Settlement_id = "settlement_id";
     public static final String Category_id = "category_id";
     public static final String Brand_id = "brand_id";
@@ -139,7 +145,7 @@ public class GoodsSpu implements Serializable{
     public static final String If_valid = "if_valid";
 
     public Pagination buildPagination() {
-        Pagination pagination =  new Pagination();
+        Pagination pagination = new Pagination();
         pagination.setPageNum(this.pageNum);
         pagination.setPageSize(this.pageSize);
         return pagination;

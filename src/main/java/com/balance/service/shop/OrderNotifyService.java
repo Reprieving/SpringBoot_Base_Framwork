@@ -5,20 +5,27 @@ import com.balance.architecture.utils.ResultUtils;
 import com.balance.constance.AssetTurnoverConst;
 import com.balance.constance.UserConst;
 import com.balance.entity.common.WeChatPayNotifyRecord;
+import com.balance.entity.shop.GoodsSpu;
+import com.balance.entity.shop.OrderGoodsInfo;
 import com.balance.entity.shop.OrderInfo;
+import com.balance.entity.shop.OrderItem;
 import com.balance.entity.user.User;
 import com.balance.exception.WeChatPayNotifyException;
+import com.balance.mapper.shop.GoodsSpuMapper;
 import com.balance.mapper.shop.OrderMapper;
 import com.balance.service.common.WeChatPayService;
 import com.balance.service.user.UserAssetsService;
 import com.balance.service.user.UserMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.List;
 
 @Service
 public class OrderNotifyService extends BaseService {
@@ -31,6 +38,9 @@ public class OrderNotifyService extends BaseService {
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private GoodsSpuMapper goodsSpuMapper;
 
     @Autowired
     private UserMemberService userMemberService;
@@ -58,6 +68,10 @@ public class OrderNotifyService extends BaseService {
                 insert(weChatPayNotifyRecord);
                 User user = selectOneById(userId, User.class);
                 userAssetsService.updateRMBAssetsByTurnoverType(user, AssetTurnoverConst.TURNOVER_TYPE_BEAUTY_RECEIVE, "被邀请用户线上领取美妆样品服务费");
+
+                List<OrderItem> orderItemList = selectListByWhereString(OrderItem.Order_id + "=", orderInfo.getId(), null, OrderItem.class);
+
+                orderItemList.forEach(orderItem -> goodsSpuMapper.decreaseStock(orderItem.getSpuId(), 1));
             }
         });
 

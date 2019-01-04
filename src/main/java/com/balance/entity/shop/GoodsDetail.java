@@ -11,6 +11,9 @@ import java.util.Map;
 @Data
 public class GoodsDetail {//商品详情实体
 
+    //spu id
+    private String spuId;
+
     //spu规格id
     private String spuSpecId;
 

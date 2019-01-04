@@ -21,6 +21,7 @@ public class UserConst {
 
     //短信验证码类型
     public static final int MSG_CODE_TYPE_LOGINANDREGISTER = 1;//注册
+    public static final int MSG_CODE_TYPE_INVITEREGISTER = 11;//注册
     public static final int MSG_CODE_TYPE_RESET_LOGINPWD = 2;//重置登录密码
     public static final int MSG_CODE_TYPE_SETTLE_PAYPWD = 3;//设置支付密码
     public static final int MSG_CODE_TYPE_RESET_PAYPWD = 4;//重置支付密码

@@ -3,7 +3,10 @@ package com.balance.entity.user;
 import com.balance.architecture.mybatis.annotation.Column;
 import com.balance.architecture.mybatis.annotation.Id;
 import com.balance.architecture.mybatis.annotation.Table;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.ibatis.type.Alias;
 import sun.misc.Version;
 
@@ -33,7 +36,7 @@ public class UserVoucherRecord implements Serializable{
     public Boolean ifValid;
 
     @Column(name = Enable_day_time)
-    public Integer enableDayTime;
+    public Integer enableDayTime; //
 
     @Column(name = Create_time)
     public Timestamp createTime;
@@ -74,6 +77,14 @@ public class UserVoucherRecord implements Serializable{
         this.quantity = quantity;
         this.voucherId = voucherId;
         this.unableTime = unableTime;
+    }
+
+    public static void main(String[] args) {
+        UserVoucherRecord record = new UserVoucherRecord();
+        System.out.println(record.hashCode());
+
+        UserVoucherRecord record1 = new UserVoucherRecord();
+        System.out.println(record1.hashCode());
     }
 
 }

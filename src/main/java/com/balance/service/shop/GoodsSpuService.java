@@ -56,7 +56,7 @@ public class GoodsSpuService extends BaseService {
         ValueCheckUtils.notEmpty(goodsSpu.getSettlementId(), "商品支付方式不能为空");
         ValueCheckUtils.notEmpty(goodsSpu.getSpuType(), "商品类型不能为空");
         ValueCheckUtils.notEmptyString(defaultImgUrl, "商品默认图片不能为空");
-        ValueCheckUtils.notEmptyString(specImgUrl,"商品规格参数图片不能为空");
+        ValueCheckUtils.notEmptyString(specImgUrl, "商品规格参数图片不能为空");
         ValueCheckUtils.notEmpty(introduceImgUrls, "商品介绍图片不能为空");
         ValueCheckUtils.notEmpty(detailImgUrls, "商品详情图片不能为空");
 
@@ -120,6 +120,7 @@ public class GoodsSpuService extends BaseService {
 
         User user = selectOneById(userId, User.class);
 
+        goodsDetail.setSpuId(goodsSpu.getId());
         goodsDetail.setGoodsName(goodsSpu.getGoodsName());
         goodsDetail.setGoodsDescription(goodsSpu.getGoodsDescription());
         goodsDetail.setPrice(goodsSpu.getLowPrice());

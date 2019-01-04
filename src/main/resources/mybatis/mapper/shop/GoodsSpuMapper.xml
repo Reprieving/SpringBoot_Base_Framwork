@@ -68,8 +68,13 @@
         <result property="countCollection" column="count_collection"></result>
         <result property="countBuy" column="count_buy"></result>
     </resultMap>
-    
-    
+
+
+    <update id="decreaseStock">
+      UPDATE goods_spu SET stock = stock - #{stockNum},version = version + 1 WHERE id = #{spuId}
+    </update>
+
+
     <delete id="deleteSpuImg">
         DELETE FROM goods_img WHERE spu_id = #{spuId}
     </delete>

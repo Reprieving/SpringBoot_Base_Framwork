@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -59,12 +60,10 @@ public class WeChatPayService extends BaseService {
         Map<String, String> resultMap = null;
         try {
             resultMap = WeChatPayCommonUtils.doXMLParse(result);
-        } catch (JDOMException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            resultMap.put("package","Sign=WXPay");
+            resultMap.put("timestamp", String.valueOf(Instant.now().getEpochSecond()));
+        } catch (JDOMException | IOException e) {
+            throw new WeChatPayNotifyException("认证异常");
         }
 
         return resultMap;
@@ -120,5 +119,9 @@ public class WeChatPayService extends BaseService {
         }
     }
 
+
+    public static void main(String[] args) {
+        System.out.println(Instant.now().getEpochSecond());
+    }
 
 }

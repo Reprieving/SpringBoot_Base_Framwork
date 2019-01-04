@@ -10,6 +10,8 @@ import com.balance.controller.app.req.ShopOrderPayReq;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.mission.MissionReward;
 import com.balance.entity.user.*;
+import com.balance.exception.UserVoucherNoneException;
+import com.balance.mapper.shop.GoodsSpuMapper;
 import com.balance.service.common.GlobalConfigService;
 import com.balance.service.common.WeChatPayService;
 import com.balance.service.user.UserMerchantService;
@@ -79,6 +81,9 @@ public class OrderService extends BaseService {
 
     @Autowired
     private RedisClient redisClient;
+
+    @Autowired
+    private GoodsSpuMapper goodsSpuMapper;
 
     /**
      * 创建订单
@@ -205,6 +210,8 @@ public class OrderService extends BaseService {
 
                     for (OrderItem orderItem : orderItemList) {
                         orderItem.setOrderId(orderInfo.getId());
+                        //扣库存
+                        goodsSpuMapper.decreaseStock(orderItem.getSpuId(), orderItem.getNumber());
                     }
                     insertBatch(orderItemList, false);
 
@@ -267,14 +274,19 @@ public class OrderService extends BaseService {
                         orderInfo.setIfInvestigation(true);
                         insertIfNotNull(orderInfo);
 
-                        OrderItem orderItem = new OrderItem(spuId, "", 1, BigDecimal.ZERO, freight, freight);
+                        OrderItem orderItem = new OrderItem(orderInfo.getId(), spuId, "", 1, BigDecimal.ZERO, freight, freight);
                         insertIfNotNull(orderItem);
 
                         Map<String, String> map = weChatPayService.weChatPrePay(
                                 orderInfo.getId(), freight, "美妆链年卡会员办理", WeChatPayCommonUtils.getRemoteHost(request), receiveBeautyNotifyUrl
                         );
+
+                        //扣库存
+                        goodsSpuMapper.decreaseStock(orderItem.getSpuId(), 1);
+
                         map.put(OrderInfo.Order_no, orderNumber);
                         map.put(OrderInfo.Create_time, createTime.toString());
+                        return map;
 
                     case SettlementConst.SETTLEMENT_ALI_PAY://支付宝对接
                         return null;
@@ -327,12 +339,10 @@ public class OrderService extends BaseService {
                 orderInfo.setIfPay(true);
                 orderInfo.setIfInvestigation(true);
 
+                insertIfNotNull(orderInfo);
 
-                OrderItem orderItem = new OrderItem(beautyGoodsSpu.getSpuId(), "", 1, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
-
-                if (insertIfNotNull(orderInfo) == 0 || insertIfNotNull(orderItem) == 0) {
-                    throw new BusinessException("兑换失败");
-                }
+                OrderItem orderItem = new OrderItem(orderInfo.getId(), beautyGoodsSpu.getSpuId(), "", 1, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+                insertIfNotNull(orderItem);
 
 
                 //完成任务，并增加颜值
@@ -381,7 +391,6 @@ public class OrderService extends BaseService {
             }
         });
 
-
         return null;
     }
 
@@ -402,6 +411,10 @@ public class OrderService extends BaseService {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
                 UserVoucherRecord userVoucherRecord = userVoucherMapper.getUserVoucher(userId, voucherId);
+                if (userVoucherRecord == null) {
+                    throw new UserVoucherNoneException();
+                }
+
                 if (userVoucherRecord.getQuantity() == 0) {
                     throw new BusinessException("卡券已用光");
                 }
@@ -423,7 +436,6 @@ public class OrderService extends BaseService {
                     Integer settlementId = SettlementConst.SETTLEMENT_VOUCHER;
                     BigDecimal orderTotalPrice = goodsSpu.getLowPrice();
 
-
                     Timestamp createTime = new Timestamp(System.currentTimeMillis());
                     String orderNumber = OrderNoUtils.buildOrderNo();
                     OrderInfo orderInfo = new OrderInfo(
@@ -433,12 +445,13 @@ public class OrderService extends BaseService {
                     orderInfo.setIfPay(true);
                     orderInfo.setIfInvestigation(true);
 
+                    insertIfNotNull(orderInfo);
 
-                    OrderItem orderItem = new OrderItem(spuId, "", 1, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+                    OrderItem orderItem = new OrderItem(orderInfo.getId(), spuId, "", 1, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+                    insertIfNotNull(orderItem);
 
-                    if (insertIfNotNull(orderInfo) == 0 || insertIfNotNull(orderItem) == 0) {
-                        throw new BusinessException("兑换失败");
-                    }
+                    //扣库存
+                    goodsSpuMapper.decreaseStock(orderItem.getSpuId(), 1);
 
                     missionService.finishMission(user, MissionConst.EXCHANGE_PACKAGE, "兑换礼包");
 

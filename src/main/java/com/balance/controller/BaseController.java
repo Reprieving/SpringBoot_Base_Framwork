@@ -1,11 +1,11 @@
-package com.balance.architecture.controller;
+package com.balance.controller;
 
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.exception.LoginException;
 import com.balance.architecture.utils.ResultUtils;
+import com.balance.exception.UserVoucherNoneException;
 import com.balance.exception.WeChatPayNotifyException;
-import com.balance.utils.MineStringUtils;
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +39,16 @@ public class BaseController {
         Result<?> result = ResultUtils.error(ResultUtils.RSP_FAIL, e.getMessage());
         return result;
     }
+
+    @ExceptionHandler(UserVoucherNoneException.class)
+    @ResponseBody
+    public Result<?> userVoucherNoneExceptionHandler(UserVoucherNoneException e) {
+        logger.error(getExceptionInfo(e));
+        Map<String,Object> map = ImmutableMap.of("voucherBuyUrl","http://www.baidu.com");
+        Result<?> result = ResultUtils.error(ResultUtils.RSP_USER_VOUCHER_RECORD_NONE,map, e.getMessage());
+        return result;
+    }
+
 
     @ExceptionHandler(WeChatPayNotifyException.class)
     @ResponseBody

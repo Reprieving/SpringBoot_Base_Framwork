@@ -59,11 +59,14 @@ public class UserSendService extends BaseService {
         String msgTypeStr = "";
         switch (msgType) {
             case UserConst.MSG_CODE_TYPE_LOGINANDREGISTER:
+                msgTypeStr = "【注册/登陆】";
+                break;
+            case UserConst.MSG_CODE_TYPE_INVITEREGISTER:
                 User userPo = selectOneByWhereString(User.Phone_number + "=", userReq.getPhoneNumber(), User.class);
                 if (userPo != null) {
                     throw new BusinessException("该手机号已注册");
                 }
-                msgTypeStr = "【注册/登陆】";
+                msgTypeStr = "【邀请码注册】";
                 break;
             case UserConst.MSG_CODE_TYPE_BINGD_PHONE:
                 user = userService.selectOneByWhereString(User.Phone_number + " = ", phoneNumber, User.class);

@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Data
 @Alias("OrderItem")
 @Table(name = "order_item")//订单详情表
-public class OrderItem implements Serializable{
+public class OrderItem implements Serializable {
     private static final long serialVersionUID = 7195245867662678593L;
 
     @Id
@@ -42,9 +42,20 @@ public class OrderItem implements Serializable{
     private Integer status;
 
 
-    public OrderItem(){}
+    public OrderItem() {
+    }
 
     public OrderItem(String goodsSpuId, String goodsSkuId, Integer number, BigDecimal price, BigDecimal totalPrice, BigDecimal freight) {
+        this.goodsSpuId = goodsSpuId;
+        this.goodsSkuId = goodsSkuId;
+        this.number = number;
+        this.price = price;
+        this.totalPrice = totalPrice;
+        this.freight = freight;
+    }
+
+    public OrderItem(String orderId, String goodsSpuId, String goodsSkuId, Integer number, BigDecimal price, BigDecimal totalPrice, BigDecimal freight) {
+        this.orderId = orderId;
         this.goodsSpuId = goodsSpuId;
         this.goodsSkuId = goodsSkuId;
         this.number = number;
