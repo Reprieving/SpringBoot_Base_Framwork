@@ -47,8 +47,6 @@ public class UserVoucherRecord implements Serializable{
     @Column(name = Status)
     public Integer status;
 
-    @Column(name = Version)
-    public Integer version;
 
     //扩展属性
     public String voucherName;

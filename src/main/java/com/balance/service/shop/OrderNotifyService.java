@@ -5,8 +5,6 @@ import com.balance.architecture.utils.ResultUtils;
 import com.balance.constance.AssetTurnoverConst;
 import com.balance.constance.UserConst;
 import com.balance.entity.common.WeChatPayNotifyRecord;
-import com.balance.entity.shop.GoodsSpu;
-import com.balance.entity.shop.OrderGoodsInfo;
 import com.balance.entity.shop.OrderInfo;
 import com.balance.entity.shop.OrderItem;
 import com.balance.entity.user.User;
@@ -17,7 +15,6 @@ import com.balance.service.common.WeChatPayService;
 import com.balance.service.user.UserAssetsService;
 import com.balance.service.user.UserMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -71,7 +68,7 @@ public class OrderNotifyService extends BaseService {
 
                 List<OrderItem> orderItemList = selectListByWhereString(OrderItem.Order_id + "=", orderInfo.getId(), null, OrderItem.class);
 
-                orderItemList.forEach(orderItem -> goodsSpuMapper.decreaseStock(orderItem.getSpuId(), 1));
+                orderItemList.forEach(orderItem -> goodsSpuMapper.decreaseSpuStock(orderItem.getSpuId(), 1));
             }
         });
 

@@ -38,9 +38,9 @@
     <update id="decreaseQuantity">
         UPDATE
           user_voucher_record
-        SET quantity = quantity - 1,version = version + 1
+        SET quantity = quantity - 1
         WHERE
-          quantity > 0 AND id = #{userVoucherRecordId} AND version = #{version}
+          quantity > 0 AND id = #{userVoucherRecordId}
     </update>
 
     <select id="listExpireVoucher" resultMap="userVoucherRecordMap">

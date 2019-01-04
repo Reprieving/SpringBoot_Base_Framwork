@@ -38,7 +38,8 @@ public class AdminUserController {
     private CertificationService certificationService;
 
     @Autowired
-    private UserMerchantService userMerchantRulerService;
+    private UserMerchantService userMerchantService;
+
 
     /**
      * 会员列表
@@ -148,7 +149,7 @@ public class AdminUserController {
     @RequestMapping("merchantRuler/operator/{operatorType}")
     public Result<?> operatorMerchant(HttpServletRequest request, @RequestBody UserMerchantRuler userMerchantRuler, @PathVariable Integer operatorType) throws UnsupportedEncodingException {
         Pagination pagination = userMerchantRuler.getPagination();
-        Object object = userMerchantRulerService.operatorUserMerchantRuler(userMerchantRuler, operatorType);
+        Object object = userMerchantService.operatorUserMerchantRuler(userMerchantRuler, operatorType);
         if (object instanceof String) {
             String message = String.valueOf(object);
             return ResultUtils.success(message);
@@ -164,9 +165,9 @@ public class AdminUserController {
      * @param user
      * @return
      */
-    @RequestMapping("userType/update")
+    @RequestMapping("beMerchant")
     public Result<?> userTypeUpdate(HttpServletRequest request, @RequestBody User user) {
-        System.out.println(user);
+        userMerchantService.becomeMerchant(user.getId(),user.getMerchantRankName(),user.getCountMachine());
         return ResultUtils.success("设置商户节点成功");
     }
 

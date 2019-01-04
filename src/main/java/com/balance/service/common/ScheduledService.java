@@ -3,6 +3,7 @@ package com.balance.service.common;
 
 import com.balance.service.user.MiningRewardService;
 import com.balance.service.user.UserMemberService;
+import com.balance.service.user.UserMerchantService;
 import com.balance.service.user.UserVoucherService;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +24,21 @@ public class ScheduledService {
     @Autowired
     private MiningRewardService miningRewardService;
 
+    @Autowired
+    private UserMerchantService userMerchantService;
+
     //更新逾期的会员记录
     @Scheduled(cron = "0 0 0 * * ?")
     public void cancelMemberRecord() {
         String expireTime = DateFormatUtils.format(new Date(), "yyyy-MM-dd");
         userMemberService.cancelExpireMember(expireTime);
+    }
+
+    //更新逾期的商户记录
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void cancelExpireMerchant() {
+        String expireTime = DateFormatUtils.format(new Date(), "yyyy-MM-dd");
+        userMerchantService.cancelExpireMember(expireTime);
     }
 
     //作废逾期的卡券
@@ -39,8 +50,9 @@ public class ScheduledService {
 
     //挖矿收益
     @Scheduled(cron = "0 0 0 * * ?")
-    public void createMining(){
+    public void createMining() {
         miningRewardService.createMining();
     }
+
 
 }

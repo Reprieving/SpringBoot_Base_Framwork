@@ -8,6 +8,8 @@
         <result property="spuNo" column="spu_no"></result>
         <result property="goodsName" column="goods_name"></result>
         <result property="lowPrice" column="low_price"></result>
+        <result property="ifSku" column="if_sku"></result>
+        <result property="stock" column="stock"></result>
         <result property="settlementId" column="settlement_id"></result>
         <result property="categoryId" column="category_id"></result>
         <result property="categoryName" column="category_name"></result>
@@ -70,10 +72,9 @@
     </resultMap>
 
 
-    <update id="decreaseStock">
-      UPDATE goods_spu SET stock = stock - #{stockNum},version = version + 1 WHERE id = #{spuId}
+    <update id="decreaseSpuStock">
+      UPDATE goods_spu SET stock = stock - #{stockNum} WHERE id = #{spuId} AND stock - #{stockNum} >-1
     </update>
-
 
     <delete id="deleteSpuImg">
         DELETE FROM goods_img WHERE spu_id = #{spuId}
@@ -119,7 +120,7 @@
     <select id="getGoodsSpu" resultMap="goodsSpuDetailMap">
         SELECT
           a.id,a.id AS spu_id,a.spu_no,a.goods_name,a.low_price,a.settlement_id,a.default_img_url,a.spec_img_url,
-          a.create_time,a.spu_type,a.status,a.category_id,a.brand_id,a.shop_id,
+          a.create_time,a.spu_type,a.status,a.category_id,a.brand_id,a.shop_id,a.if_sku,a.stock,
           a.goods_description,a.package_unit,a.freight,a.background_color,
           b.img_url,b.img_type,b.id AS img_id
         FROM goods_spu a

@@ -11,6 +11,7 @@ import com.balance.entity.mission.Mission;
 import com.balance.entity.mission.MissionReward;
 import com.balance.entity.user.*;
 import com.balance.exception.UserVoucherNoneException;
+import com.balance.mapper.shop.GoodsSkuMapper;
 import com.balance.mapper.shop.GoodsSpuMapper;
 import com.balance.service.common.GlobalConfigService;
 import com.balance.service.common.WeChatPayService;
@@ -85,6 +86,9 @@ public class OrderService extends BaseService {
     @Autowired
     private GoodsSpuMapper goodsSpuMapper;
 
+    @Autowired
+    private GoodsSkuMapper goodsSkuMapper;
+
     /**
      * 创建订单
      *
@@ -144,6 +148,8 @@ public class OrderService extends BaseService {
                     //2.计算订单总价格
                     String skuOrSpuId;
                     BigDecimal skuOrSpuPrice;
+                    Boolean ifSku = goodsSpu.getIfSku();
+
 
                     if (StringUtils.isNotBlank(orderSkuReq.getSpecIdStr())) {//有sku的商品计算价格
                         Map<String, Object> skuWhereMap = ImmutableMap.of(GoodsSku.Spu_id + " = ", spuId, GoodsSku.Spec_json + " = ", orderSkuReq.getSpecIdStr());
@@ -179,10 +185,10 @@ public class OrderService extends BaseService {
                     List<OrderItem> orderItemsList;
                     if (shopOrderItemMap.containsKey(shopId)) {
                         orderItemsList = shopOrderItemMap.get(shopId);
-                        orderItemsList.add(new OrderItem(spuId, skuOrSpuId, orderSkuReq.getNumber(), skuOrSpuPrice, spuTotalPrice, freight));
+                        orderItemsList.add(new OrderItem(spuId, skuOrSpuId, orderSkuReq.getNumber(), skuOrSpuPrice, spuTotalPrice, freight, ifSku));
                     } else {
                         orderItemsList = new ArrayList<>();
-                        orderItemsList.add(new OrderItem(spuId, skuOrSpuId, orderSkuReq.getNumber(), skuOrSpuPrice, spuTotalPrice, freight));
+                        orderItemsList.add(new OrderItem(spuId, skuOrSpuId, orderSkuReq.getNumber(), skuOrSpuPrice, spuTotalPrice, freight, ifSku));
                         shopOrderItemMap.put(shopId, orderItemsList);
                     }
                 }
@@ -211,7 +217,15 @@ public class OrderService extends BaseService {
                     for (OrderItem orderItem : orderItemList) {
                         orderItem.setOrderId(orderInfo.getId());
                         //扣库存
-                        goodsSpuMapper.decreaseStock(orderItem.getSpuId(), orderItem.getNumber());
+                        Integer i;
+                        if (orderItem.getIfSku()) {//扣sku库存
+                            i = goodsSkuMapper.decreaseSkuStock(orderItem.getGoodsSkuId(), orderItem.getNumber());
+                        } else {//扣spu库存
+                            i = goodsSpuMapper.decreaseSpuStock(orderItem.getSpuId(), orderItem.getNumber());
+                        }
+                        if (i == 0) {
+                            throw new BusinessException("商品库存不足");
+                        }
                     }
                     insertBatch(orderItemList, false);
 
@@ -282,7 +296,7 @@ public class OrderService extends BaseService {
                         );
 
                         //扣库存
-                        goodsSpuMapper.decreaseStock(orderItem.getSpuId(), 1);
+                        goodsSpuMapper.decreaseSpuStock(orderItem.getSpuId(), 1);
 
                         map.put(OrderInfo.Order_no, orderNumber);
                         map.put(OrderInfo.Create_time, createTime.toString());
@@ -421,7 +435,7 @@ public class OrderService extends BaseService {
 
                 if (shopVoucherService.checkIfPackageVoucher(userVoucherRecord.getVoucherType())) {
                     //扣除用户优惠券数量
-                    if (userVoucherMapper.decreaseQuantity(userVoucherRecord.getId(), userVoucherRecord.getVersion()) == 0) {
+                    if (userVoucherMapper.decreaseQuantity(userVoucherRecord.getId()) == 0) {
                         throw new BusinessException("兑换失败");
                     }
 
@@ -451,7 +465,7 @@ public class OrderService extends BaseService {
                     insertIfNotNull(orderItem);
 
                     //扣库存
-                    goodsSpuMapper.decreaseStock(orderItem.getSpuId(), 1);
+                    goodsSpuMapper.decreaseSpuStock(orderItem.getSpuId(), 1);
 
                     missionService.finishMission(user, MissionConst.EXCHANGE_PACKAGE, "兑换礼包");
 

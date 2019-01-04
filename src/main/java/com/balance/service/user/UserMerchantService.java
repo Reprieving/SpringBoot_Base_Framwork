@@ -3,13 +3,12 @@ package com.balance.service.user;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
-import com.balance.constance.AssetTurnoverConst;
+import com.balance.client.RedisClient;
+import com.balance.constance.*;
 import com.balance.entity.user.*;
+import com.balance.mapper.user.UserMerchantMapper;
 import com.balance.service.common.AddressService;
 import com.balance.utils.ValueCheckUtils;
-import com.balance.constance.CommonConst;
-import com.balance.constance.SettlementConst;
-import com.balance.constance.UserConst;
 import com.balance.utils.BigDecimalUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateUtils;
@@ -22,6 +21,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +46,9 @@ public class UserMerchantService extends BaseService {
 
     @Autowired
     private AddressService addressService;
+
+    @Autowired
+    private UserMerchantMapper userMerchantMapper;
 
     public Object operatorUserMerchantRuler(UserMerchantRuler userMerchantRuler, Integer operatorType) {
         Object o = null;
@@ -222,12 +225,13 @@ public class UserMerchantService extends BaseService {
 
     /**
      * 通过id获取指定的商户等级规则
+     *
      * @param userMerchantRulerId
      * @return
      */
-    public UserMerchantRuler filterMerchantRulerById(String userMerchantRulerId){
-        for(UserMerchantRuler ur :list(null,null)){
-            if(ur.getId().equals(userMerchantRulerId)){
+    public UserMerchantRuler filterMerchantRulerById(String userMerchantRulerId) {
+        for (UserMerchantRuler ur : list(null, null)) {
+            if (ur.getId().equals(userMerchantRulerId)) {
                 return ur;
             }
         }
@@ -251,5 +255,34 @@ public class UserMerchantService extends BaseService {
         String location = addressService.getLocation(Integer.parseInt(userMerchantApply.getLocation()));
         userMerchantApply.setLocation(location);
         insertIfNotNull(userMerchantApply);
+    }
+
+    /**
+     * 取消逾期的商户
+     *
+     * @param expireTime
+     */
+    public void cancelExpireMember(String expireTime) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                List<UserMerchantRecord> userMerchantRecordList = userMerchantMapper.listExpireMerchant(expireTime);
+                List<String> userMerchantIds = new ArrayList<>(userMerchantRecordList.size());
+                List<String> userIds = new ArrayList<>(userMerchantRecordList.size());
+                userMerchantRecordList.forEach(e -> {
+                    userMerchantIds.add(e.getId());
+                    userIds.add(e.getUserId());
+                });
+
+                if (userMerchantIds.size() > 0) {
+                    userMerchantMapper.updateMerchantRecord(userMerchantIds);
+                }
+
+                if (userIds.size() > 0) {
+                    userMerchantMapper.updateUserUserType(userIds, UserConst.USER_MERCHANT_TYPE_NONE);
+                }
+
+            }
+        });
     }
 }

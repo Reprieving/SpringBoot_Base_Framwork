@@ -84,6 +84,8 @@ public class GoodsSpu implements Serializable {
     @Column(name = If_valid)
     private Boolean ifValid;//是否有效
 
+    @Column(name = If_sku)
+    private Boolean ifSku;//是否有sku
 
     //扩展属性
     //spuId
@@ -143,6 +145,8 @@ public class GoodsSpu implements Serializable {
     public static final String Spu_type = "spu_type";
     public static final String Status = "status";
     public static final String If_valid = "if_valid";
+    public static final String If_sku = "If_sku";
+
 
     public Pagination buildPagination() {
         Pagination pagination = new Pagination();

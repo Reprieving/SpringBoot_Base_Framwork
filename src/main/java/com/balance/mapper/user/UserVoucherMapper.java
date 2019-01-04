@@ -32,7 +32,7 @@ public interface UserVoucherMapper {
      * @param userVoucherRecordId
      * @return
      */
-    Integer decreaseQuantity(@Param("userVoucherRecordId") String userVoucherRecordId, @Param("version") Integer version);
+    Integer decreaseQuantity(@Param("userVoucherRecordId") String userVoucherRecordId);
 
     /**
      * 作废逾期卡券

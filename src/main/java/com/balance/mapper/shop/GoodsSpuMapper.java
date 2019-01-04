@@ -97,5 +97,5 @@ public interface GoodsSpuMapper {
      * @param spuId
      * @param stockNum
      */
-    void decreaseStock(@Param("spuId") String spuId, @Param("stockNum") Integer stockNum);
+    Integer decreaseSpuStock(@Param("spuId") String spuId, @Param("stockNum") Integer stockNum);
 }

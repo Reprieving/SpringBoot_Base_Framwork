@@ -41,17 +41,20 @@ public class OrderItem implements Serializable {
     @Column(name = Status)
     private Integer status;
 
+    //扩展属性
+    private Boolean ifSku;
 
     public OrderItem() {
     }
 
-    public OrderItem(String goodsSpuId, String goodsSkuId, Integer number, BigDecimal price, BigDecimal totalPrice, BigDecimal freight) {
+    public OrderItem(String goodsSpuId, String goodsSkuId, Integer number, BigDecimal price, BigDecimal totalPrice, BigDecimal freight,Boolean ifSku) {
         this.goodsSpuId = goodsSpuId;
         this.goodsSkuId = goodsSkuId;
         this.number = number;
         this.price = price;
         this.totalPrice = totalPrice;
         this.freight = freight;
+        this.ifSku = ifSku;
     }
 
     public OrderItem(String orderId, String goodsSpuId, String goodsSkuId, Integer number, BigDecimal price, BigDecimal totalPrice, BigDecimal freight) {
@@ -62,6 +65,7 @@ public class OrderItem implements Serializable {
         this.price = price;
         this.totalPrice = totalPrice;
         this.freight = freight;
+
     }
 
     //DB Column name

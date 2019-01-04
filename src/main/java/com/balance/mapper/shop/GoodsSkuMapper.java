@@ -21,4 +21,11 @@ public interface GoodsSkuMapper {
      * @return
      */
     GoodsSku getGoodsSku(String skuId);
+
+    /**
+     * 扣除sku库存
+     * @param goodsSkuId
+     * @param stockNum
+     */
+    Integer decreaseSkuStock(@Param("skuId")String goodsSkuId, @Param("stockNum")Integer stockNum);
 }

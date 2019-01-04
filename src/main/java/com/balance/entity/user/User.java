@@ -92,9 +92,9 @@ public class User implements Serializable{ //用户信息
     private BigDecimal eth; //ETH
     private BigDecimal ore; //矿石
     private Integer certStatus; //认证状态
-    private BigDecimal totalIncome = new BigDecimal(0);//总收益
-    private BigDecimal todayIncome = new BigDecimal(0);//今日收益
-    private Integer countMachine = 0;//小样机数量
+    private BigDecimal totalIncome;//总收益
+    private BigDecimal todayIncome;//今日收益
+    private Integer countMachine;//小样机数量
     private String merchantRankName;//商户等级名称
 
 

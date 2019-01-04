@@ -22,6 +22,10 @@
         </collection>
     </resultMap>
 
+    <update id="decreaseSkuStock">
+      UPDATE goods_sku SET stock = stock - #{stockNum} WHERE id = #{skuId} AND stock - #{stockNum} >-1
+    </update>
+
 
     <delete id="deleteSkuImg">
       DELETE FROM goods_img WHERE spu_id = #{spuId} AND sku_id = #{skuId}
