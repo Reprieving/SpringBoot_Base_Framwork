@@ -10,6 +10,9 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * 银行卡提现
+ */
 @Data
 @Alias("BankWithdraw")
 @Table(name = "bank_withdraw")
@@ -45,6 +48,8 @@ public class BankWithdraw implements Serializable {
     @Column(name = Update_time)
     private Date updateTime;
 
+    //扩展
+    private String userName;
 
     //DB Column name
     public static final String Id = "id";
