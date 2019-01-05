@@ -23,16 +23,21 @@
       FROM user_voucher_record a
         LEFT JOIN shop_voucher b ON a.voucher_id = b.id
         LEFT JOIN shop_info c ON b.shop_id = c.id
-      WHERE a.user_id = #{userId} AND a.if_valid = TRUE
+      WHERE a.user_id = #{userId}
     </sql>
 
     <select id="listUserVoucher" resultMap="userVoucherRecordMap">
         <include refid="findUserVoucher"/>
     </select>
 
+    <select id="listGoodsVoucher" resultMap="userVoucherRecordMap">
+        <include refid="findUserVoucher"/>
+        AND a.if_valid = TRUE
+    </select>
+
     <select id="getUserVoucher" resultMap="userVoucherRecordMap">
         <include refid="findUserVoucher"/>
-        AND b.id = #{voucherId}
+        AND a.id = #{voucherId}
     </select>
 
     <update id="decreaseQuantity">
@@ -47,11 +52,17 @@
         SELECT id,user_id FROM user_voucher_record WHERE unable_time = DATE_FORMAT( #{expireTime}, '%Y-%m-%d' )
     </select>
 
+
     <update id="updateExpireVoucher">
         UPDATE user_voucher_record SET if_valid = FALSE WHERE id IN
         <foreach collection="ids" separator="," open="(" close=")" item="id">
             #{id}
         </foreach>
+    </update>
+
+    <update id="cancelVoucherValidity">
+      UPDATE user_voucher_record SET if_valid = FALSE
+      WHERE id = #{voucherId} AND if_valid = TRUE AND user_id = #{userId}
     </update>
 
 </mapper>

@@ -20,16 +20,27 @@ public class AppVoucherController {
     private UserVoucherService userVoucherService;
 
     /**
-     * 获取用户的卡券列表
+     * 获取用户有效的的卡券列表
      * @param request
      * @return
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping("list/{ifValid}")
-    public Result<?> voucherList(HttpServletRequest request, @PathVariable Integer ifValid) throws UnsupportedEncodingException {
+    @RequestMapping("listOnUser")
+    public Result<?> listOnUser(HttpServletRequest request) throws UnsupportedEncodingException {
         String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
-        return ResultUtils.success(userVoucherService.listUserVoucher(userId,ifValid));
+        return ResultUtils.success(userVoucherService.listUserVoucher(userId));
     }
 
 
+    /**
+     * 获取用户有效的的卡券列表
+     * @param request
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @RequestMapping("listOnGoodsSpu/{spuId}")
+    public Result<?> listOnGoodsSpu(HttpServletRequest request,@PathVariable String spuId) throws UnsupportedEncodingException {
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+        return ResultUtils.success(userVoucherService.listGoodsVoucher(userId,spuId));
+    }
 }

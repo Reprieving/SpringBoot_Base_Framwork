@@ -107,4 +107,17 @@ public class AppGoodsController {
         return ResultUtils.success(goodsCollections);
     }
 
+    /**
+     * 商品对应的卡券列表
+     * @param request
+     * @param spuId
+     * @return
+     */
+    @RequestMapping("vouchers/{spuId}")
+    public Result<?> vouchers(HttpServletRequest request,@PathVariable Integer spuId){
+        String userId = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME)).getId();
+
+        return ResultUtils.success();
+    }
+
 }

@@ -6,7 +6,8 @@ public class ShopConst {
     //spu类型
     public static final int SPU_TYPE_GOODS = 1;//商城商品
     public static final int SPU_TYPE_BEAUTY = 2;//美妆商品
-    public static final int SPU_TYPE_PACKAGE = 2;//礼包商品
+    public static final int SPU_TYPE_PACKAGE = 2;//小样礼包商品
+    public static final int SPU_TYPE_BIRTHDAY = 3;//生日礼包商品
 
     //商品状态
     public static final int GOODS_STATUS_OUTSALE = 0;//下架
@@ -58,6 +59,10 @@ public class ShopConst {
     public static final int VOUCHER_TYPE_BEAUTY_PACKAGE_DEDUCTION = 11; //小样礼包抵扣券
     public static final int VOUCHER_TYPE_BIRTH_PACKAGE_DEDUCTION = 12; //生日礼包抵扣券
     public static final int VOUCHER_TYPE_PACKAGE_DISCOUNT = 2; //折扣券
+
+
+    public static final String VOUCHER_ABLEDATALIST_KEY = "ableDataList"; //可用卡券json key
+    public static final String VOUCHER_UNABLEDATALIST_KEY = "unableDataList";//不可用卡券json key
 
     //卡券状态
     public static final int VOUCHER_STATUS_UNUSER = 0; //未使用

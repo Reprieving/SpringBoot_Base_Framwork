@@ -10,6 +10,7 @@ import com.balance.architecture.exception.LoginException;
 import com.balance.constance.UserConst;
 import com.balance.entity.sys.Subscriber;
 import com.balance.entity.user.User;
+import org.apache.commons.lang.time.DateUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -20,7 +21,7 @@ public class JwtUtils {
     /**
      * 过期时间15分钟
      */
-    public static final long EXPIRE_TIME = 60 * 60 * 1000 * 24 * 500;
+    public static final Integer ALIVE_DAY_TIME = 30;
 
     /**
      * token私钥
@@ -66,6 +67,7 @@ public class JwtUtils {
     public static String createToken(String userName, String userId) {
         String token;
         try {
+            Date expireDate = DateUtils.addMonths(new Date(),ALIVE_DAY_TIME);
             Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
             Map<String, Object> map = new HashMap<>();
             map.put("alg", "HS256");
@@ -73,7 +75,7 @@ public class JwtUtils {
             token = JWT.create().withHeader(map)
                     .withClaim(TOKEN_CLAIM_USERNAME, userName)
                     .withClaim(TOKEN_CLAIM_USERID, userId)
-                    .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME))
+                    .withExpiresAt(expireDate)
                     .sign(algorithm);
         } catch (Exception e) {
             throw new BusinessException("create token error");

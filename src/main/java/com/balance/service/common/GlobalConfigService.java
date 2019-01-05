@@ -75,6 +75,7 @@ public class GlobalConfigService extends BaseService{
 
         OSS_APP_CLIENT_BUCKET_NAME,//app客户端bucket
 
+        BECOME_MEMBER_BEAUTY_PACKAGE_VOUCHER_COUNT,//办理年卡会员
 
         //系统域名
         SYSTEM_DOMAIN,
@@ -110,6 +111,9 @@ public class GlobalConfigService extends BaseService{
 
         //注册后重定向URL
         REDIRECT_AFTER_REGISTER,
+
+        //礼包兑换卡券购买重定向URL
+        BEAUTY_PACKAGE_VOUCHER_BUY_REDIRECT,
     }
 
 }

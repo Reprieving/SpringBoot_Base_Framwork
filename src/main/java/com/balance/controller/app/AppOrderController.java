@@ -63,7 +63,8 @@ public class AppOrderController {
     @RequestMapping("create")
     public Object create(HttpServletRequest request, @RequestBody ShopOrderPayReq shopOrderPayReq) throws UnsupportedEncodingException {
         User user = JwtUtils.getUserByToken(request.getHeader(JwtUtils.ACCESS_TOKEN_NAME));
-        return ResultUtils.orderPay(shopOrderPayReq.getOrderType(), shopOrderPayReq.getSettlementId(), orderService.payOrder(user, shopOrderPayReq, request));
+//        return ResultUtils.orderPay(shopOrderPayReq.getOrderType(), shopOrderPayReq.getSettlementId(), orderService.payOrder(user, shopOrderPayReq, request));
+        return ResultUtils.success(orderService.payOrder(user, shopOrderPayReq, request));
     }
 
     /**

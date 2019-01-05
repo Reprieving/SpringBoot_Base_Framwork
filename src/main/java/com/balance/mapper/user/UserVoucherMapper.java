@@ -15,7 +15,7 @@ public interface UserVoucherMapper {
      * @param userId
      * @return
      */
-    List<UserVoucherRecord> listUserVoucher(@Param("userId") String userId, @Param("ifValid") Integer ifValid);
+    List<UserVoucherRecord> listUserVoucher(@Param("userId") String userId);
 
     /**
      * 查找用户指定的卡券信息
@@ -34,6 +34,7 @@ public interface UserVoucherMapper {
      */
     Integer decreaseQuantity(@Param("userVoucherRecordId") String userVoucherRecordId);
 
+
     /**
      * 作废逾期卡券
      *
@@ -43,8 +44,25 @@ public interface UserVoucherMapper {
 
     /**
      * 查询当天逾期的卡券
+     *
      * @param expireTime
      * @return
      */
     List<UserVoucherRecord> listExpireVoucher(@Param("expireTime") String expireTime);
+
+    /**
+     * 查询商品对应的卡券
+     *
+     * @param userId
+     * @return
+     */
+    List<UserVoucherRecord> listGoodsVoucher(@Param("userId") String userId);
+
+    /**
+     * 作废卡券
+     * @param userId
+     * @param voucherId
+     * @return
+     */
+    Integer cancelVoucherValidity(@Param("userId") String userId, @Param("voucherId") String voucherId);
 }

@@ -134,6 +134,9 @@ public class OrderService extends BaseService {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                ShoppingAddress shoppingAddress = selectOneById(addressId, ShoppingAddress.class);
+                ValueCheckUtils.notEmpty(shoppingAddress, "未找到收货地址记录");
+
                 ValueCheckUtils.notEmpty(user, "未找到用户");
                 String userId = user.getId();
                 Map<String, List<OrderItem>> shopOrderItemMap = new HashMap<>(); // 商铺Id对应的订单
@@ -263,6 +266,10 @@ public class OrderService extends BaseService {
     public Map<String, String> receiveBeautyOrder(User user, String spuId, String addressId, Integer settlementId, HttpServletRequest request) {
         GoodsSpu goodsSpu = selectOneById(spuId, GoodsSpu.class);
         ValueCheckUtils.notEmpty(goodsSpu, "未找到商品记录");
+
+        ShoppingAddress shoppingAddress = selectOneById(addressId, ShoppingAddress.class);
+        ValueCheckUtils.notEmpty(shoppingAddress, "未找到收货地址记录");
+
         return transactionTemplate.execute(new TransactionCallback<Map<String, String>>() {
             @Nullable
             @Override
@@ -421,6 +428,9 @@ public class OrderService extends BaseService {
             throw new BusinessException("暂不支持兑换礼包,请稍后再试");
         }
 
+        ShoppingAddress shoppingAddress = selectOneById(addressId, ShoppingAddress.class);
+        ValueCheckUtils.notEmpty(shoppingAddress, "未找到收货地址记录");
+
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
@@ -429,13 +439,9 @@ public class OrderService extends BaseService {
                     throw new UserVoucherNoneException();
                 }
 
-                if (userVoucherRecord.getQuantity() == 0) {
-                    throw new BusinessException("卡券已用光");
-                }
-
                 if (shopVoucherService.checkIfPackageVoucher(userVoucherRecord.getVoucherType())) {
-                    //扣除用户优惠券数量
-                    if (userVoucherMapper.decreaseQuantity(userVoucherRecord.getId()) == 0) {
+                    //作废用户优惠券
+                    if (userVoucherMapper.cancelVoucherValidity(userId, voucherId) == 0) {
                         throw new BusinessException("兑换失败");
                     }
 
