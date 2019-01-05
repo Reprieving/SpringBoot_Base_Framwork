@@ -1,6 +1,7 @@
 package com.balance.controller.admin;
 
 import com.balance.architecture.dto.Result;
+import com.balance.architecture.utils.UUIDUtils;
 import com.balance.utils.Base64DecodedMultipartFile;
 import com.balance.architecture.utils.ResultUtils;
 import com.balance.service.common.AliOSSBusiness;
@@ -14,6 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.Map;
 
@@ -26,8 +31,7 @@ public class AdminUploadController {
 
     @RequestMapping("common")
     public Result<?> create(MultipartFile file) {
-        String fileDirectory = DateFormatUtils.format(new Date(), "yyyy-MM-dd|HH");
-        String url = aliOSSBusiness.uploadCommonPic(file, fileDirectory);
+        String url = aliOSSBusiness.uploadCommonPic(file);
         Map<String, Object> map = ImmutableMap.of("url", url);
         return ResultUtils.success(map);
     }
@@ -61,5 +65,13 @@ public class AdminUploadController {
         }
         Base64DecodedMultipartFile base64DecodedMultipartFile = new Base64DecodedMultipartFile(bytes, dataPrix);
         return create(base64DecodedMultipartFile);
+    }
+
+    /**
+     * 上传 APP 包
+     */
+    @PostMapping("uploadApp")
+    public Result<?> uploadApp(MultipartFile multipartFile) {
+        return ResultUtils.success(ImmutableMap.of("url", aliOSSBusiness.uploadAppClient(multipartFile)));
     }
 }
