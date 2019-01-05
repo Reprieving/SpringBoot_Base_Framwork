@@ -74,9 +74,8 @@ public class CertificationService extends BaseService {
         ValueCheckUtils.notEmpty(frontFiles, "证件背面图不能为空");
 
         Certification certification = new Certification();
-        String fileDirectory = DateFormatUtils.format(new Date(), "yyyy-MM-dd|HH");
-        certification.setPositivePhotoUrl(aliOSSBusiness.uploadCommonPic(frontFiles, fileDirectory));
-        certification.setReversePhotoUrl(aliOSSBusiness.uploadCommonPic(backFiles, fileDirectory));
+        certification.setPositivePhotoUrl(aliOSSBusiness.uploadCommonPic(frontFiles));
+        certification.setReversePhotoUrl(aliOSSBusiness.uploadCommonPic(backFiles));
 
         certification.setUserId(userId);
         certification.setRealName(realName);

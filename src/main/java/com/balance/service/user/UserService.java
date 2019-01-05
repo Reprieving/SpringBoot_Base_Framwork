@@ -171,8 +171,7 @@ public class UserService extends BaseService {
      * @param file   头像图片
      */
     public String updateHeadPic(String userId, @RequestParam("file") MultipartFile file) {
-        String fileDirectory = DateFormatUtils.format(new Date(), "yyyy-MM-dd|HH");
-        String imgUrl = aliOSSBusiness.uploadCommonPic(file, fileDirectory);
+        String imgUrl = aliOSSBusiness.uploadCommonPic(file);
 
         User user = new User();
         user.setId(userId);

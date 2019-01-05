@@ -112,9 +112,13 @@ public class AdminConfigController {
     public Result<?> listAppUpgrade(@RequestBody Pagination<AppUpgrade> pagination) {
         Map<String, Object> orderMap = ImmutableMap.of(AppUpgrade.Create_time, CommonConst.MYSQL_DESC);
         String device = pagination.getParam().getDevice();
+        Boolean state = pagination.getParam().isState();
         Map<String, Object> whereMap = Maps.newHashMap();
         if (device != null) {
             whereMap.put(AppUpgrade.Device + " = ", device);
+        }
+        if (state != null) {
+            whereMap.put(AppUpgrade.State + " = ", state);
         }
         return ResultUtils.success(baseService.selectListByWhereMap(whereMap, pagination, AppUpgrade.class, orderMap), pagination.getTotalRecordNumber());
     }
