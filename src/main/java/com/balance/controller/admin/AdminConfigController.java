@@ -1,19 +1,26 @@
 package com.balance.controller.admin;
 
 import com.alibaba.fastjson.JSONObject;
+import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.dto.Result;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.ResultUtils;
+import com.balance.constance.CommonConst;
+import com.balance.entity.common.AppUpgrade;
 import com.balance.entity.common.GlobalConfig;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.mission.MissionDescription;
 import com.balance.entity.mission.MissionReward;
+import com.balance.service.common.AppUpgradeService;
 import com.balance.service.common.GlobalConfigService;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 配置相关
@@ -27,6 +34,9 @@ public class AdminConfigController {
 
     @Autowired
     private GlobalConfigService globalConfigService;
+
+    @Autowired
+    private AppUpgradeService appUpgradeService;
 
     /**
      * 全局配置项 列表
@@ -95,6 +105,27 @@ public class AdminConfigController {
     }
 
 
+    /**
+     * APP更新配置 列表
+     */
+    @PostMapping("listAppUpgrade")
+    public Result<?> listAppUpgrade(@RequestBody Pagination<AppUpgrade> pagination) {
+        Map<String, Object> orderMap = ImmutableMap.of(AppUpgrade.Create_time, CommonConst.MYSQL_DESC);
+        String device = pagination.getParam().getDevice();
+        Map<String, Object> whereMap = Maps.newHashMap();
+        if (device != null) {
+            whereMap.put(AppUpgrade.Device + " = ", device);
+        }
+        return ResultUtils.success(baseService.selectListByWhereMap(whereMap, pagination, AppUpgrade.class, orderMap), pagination.getTotalRecordNumber());
+    }
 
+    /**
+     * APP更新配置 保存
+     */
+    @PostMapping("saveAppUpgrade")
+    public Result<?> saveAppUpgrade(AppUpgrade appUpgrade) {
+        appUpgradeService.save(appUpgrade);
+        return ResultUtils.success();
+    }
 
 }

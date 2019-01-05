@@ -47,6 +47,7 @@
         <if test="param.userName != null">
             and ui.user_name = #{param.userName}
         </if>
+        order by t.create_time desc
     </select>
 
     <select id="listUserTurnover" resultMap="BaseResultMap">

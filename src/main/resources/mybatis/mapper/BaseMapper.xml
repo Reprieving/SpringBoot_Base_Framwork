@@ -55,7 +55,7 @@
             </trim>
         </if>
 
-        <if test="orderMap !=null and whereMap.size > 0">
+        <if test="orderMap !=null and orderMap.size > 0">
             ORDER BY
             <foreach collection="orderMap" index="key" item="value">
                 ${key} ${value}
