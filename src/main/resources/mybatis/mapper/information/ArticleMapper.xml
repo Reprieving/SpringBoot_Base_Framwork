@@ -17,7 +17,7 @@
     </resultMap>
     <sql id="Base_Column_List">
       t.id, t.article_title, t.article_type, t.if_valid, t.verify_status, t.create_by,
-      t.create_time, t.article_cover, t.content_type, t.sort, LEFT(t.`article_content`, 200) 'article_content',
+      t.create_time, t.article_cover, t.content_type, t.sort, LEFT(t.`article_content`, 300) 'article_content',
       t.summary
     </sql>
 

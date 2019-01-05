@@ -7,6 +7,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.exception.LoginException;
+import com.balance.constance.UserConst;
 import com.balance.entity.sys.Subscriber;
 import com.balance.entity.user.User;
 
@@ -54,6 +55,9 @@ public class JwtUtils {
      * @return
      */
     public static String createToken(User user) {
+        if (user.getStatus() != UserConst.USER_STATUS_NORMAL) {
+            throw new BusinessException("账号已被冻结");
+        }
         user.setPassword("");
         user.setPayPassword("");
         return createToken(user.getUserName(), user.getId());
