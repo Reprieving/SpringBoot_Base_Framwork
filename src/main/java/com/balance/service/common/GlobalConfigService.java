@@ -104,7 +104,7 @@ public class GlobalConfigService extends BaseService{
         DAILY_SHARE_TIME,
 
         //年卡会员办理费用
-        MEMBER_FREE,
+        MEMBER_PRICE,
 
         //APP域名
         APP_DOMAIN_NAME,
@@ -114,6 +114,27 @@ public class GlobalConfigService extends BaseService{
 
         //礼包兑换卡券购买重定向URL
         BEAUTY_PACKAGE_VOUCHER_BUY_REDIRECT,
+
+        //每周线上领取小样次数
+        BEAUTY_RECEIVE_WEEK_TIMES,
+
+        //用户发送短信最大数
+        SEND_MSG_MAX_COUNT,
+
+        //免费抽奖最大次数
+        FREE_LUCK_MAX_COUNT,
+
+        //分享最大次数
+        SHARE_MAX_COUNT,
+
+        //普通用户购买卡券价格
+        COMMON_USER_BUY_BEAUTY_VOUCHER_PRICE,
+
+        //会员用户购买卡券价格
+        MEMBER_USER_BUY_BEAUTY_VOUCHER_PRICE,
+
+        //购买的卡券有效天数
+        BUYING_VOUCHER_ALIVE_DAY_TIMES,
     }
 
 }

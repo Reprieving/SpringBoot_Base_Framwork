@@ -3,23 +3,19 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.balance.mapper.user.UserFreeCountMapper">
 
-    <update id="updateUserSendMsgCount">
+    <update id="updateUserFreeCount">
         UPDATE user_free_count
-        SET send_msg_count = send_msg_count +1
+        SET ${field} = #{field} +1
         WHERE user_id = #{userId}
-        AND send_msg_count &lt; 3
-    </update>
-    <update id="updateUserFreeLuckDrawCount">
-      UPDATE user_free_count
-        SET luck_draw_count = luck_draw_count +1
-        WHERE user_id = #{userId}
-        AND luck_draw_count &lt; 3
+        AND #{field} &lt; #{maxCount}
     </update>
 
-    <update id="updateUserShareCount">
-      UPDATE user_free_count
-        SET share_count = share_count +1
-        WHERE user_id = #{userId}
-        AND share_count &lt; 3
+    <update id="initMaxCount">
+        UPDATE user_free_count
+        <trim prefix="SET" suffixOverrides=",">
+            <foreach collection="fields" item="field" separator=",">
+                ${field} = 0
+            </foreach>
+        </trim>
     </update>
 </mapper>

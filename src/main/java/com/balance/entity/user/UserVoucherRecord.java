@@ -30,7 +30,7 @@ public class UserVoucherRecord implements Serializable{
     public String voucherId;
 
     @Column(name = Quantity)
-    public String quantity;
+    public Integer quantity;
 
     @Column(name = If_valid)
     public Boolean ifValid;
@@ -72,6 +72,7 @@ public class UserVoucherRecord implements Serializable{
 
     public UserVoucherRecord(String userId, Integer quantity,String voucherId,Timestamp unableTime) {
         this.userId = userId;
+        this.quantity = quantity;
         this.voucherId = voucherId;
         this.unableTime = unableTime;
     }

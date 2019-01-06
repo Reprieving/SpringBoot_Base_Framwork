@@ -7,6 +7,7 @@ import com.balance.architecture.utils.JwtUtils;
 import com.balance.client.RedisClient;
 import com.balance.constance.RedisKeyConst;
 import com.balance.constance.UserConst;
+import com.balance.entity.common.UserFreeCount;
 import com.balance.mapper.user.UserFreeCountMapper;
 import com.balance.utils.HttpClientUtils;
 import com.balance.entity.user.User;
@@ -124,6 +125,7 @@ public class ThirdPartyService {
         User user = userService.getById(userId);
         String openId = weiXinInfo.getOpenId();
         String oldOpenId = user.getWxOpenId();
+        String phoneNumber = user.getPhoneNumber();
         if (StringUtils.isNotBlank(oldOpenId) && oldOpenId.equals(openId)) {
             throw new BusinessException("不能重复绑定同一个微信");
         }
@@ -138,6 +140,10 @@ public class ThirdPartyService {
         String nickname = weiXinInfo.getNickname();
         user.setWxNickname(nickname);
         ValueCheckUtils.notZero(userService.updateIfNotNull(user), "绑定失败");
+
+        Map<String, String> paramMap = ImmutableMap.of("openid", openId, "phone", phoneNumber);
+        HttpClientUtils.doPost("http://pinkjewelry.cn/pinkjewelry/officialAccounts/customizedRegister", paramMap, HttpClientUtils.CHARSET);
+
         return nickname;
     }
 
@@ -222,9 +228,11 @@ public class ThirdPartyService {
 
     /**
      * 增加当天分享次數
+     *
      * @param userId
      */
     public void shareCountIncrease(String userId) {
-        userFreeCountMapper.updateUserSendMsgCount(userId);
+        Integer shareMaxCount = Integer.valueOf(globalConfigService.get(GlobalConfigService.Enum.SHARE_MAX_COUNT));
+        userFreeCountMapper.updateUserFreeCount(userId, UserFreeCount.Share_count, shareMaxCount);
     }
 }

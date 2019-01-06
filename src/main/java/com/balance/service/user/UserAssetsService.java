@@ -7,6 +7,7 @@ import com.balance.constance.AssetTurnoverConst;
 import com.balance.constance.RedisKeyConst;
 import com.balance.constance.SettlementConst;
 import com.balance.constance.UserConst;
+import com.balance.entity.common.SystemExceptionRecord;
 import com.balance.entity.user.*;
 import com.balance.mapper.user.UserAssetsMapper;
 import com.google.common.collect.ImmutableMap;
@@ -214,7 +215,7 @@ public class UserAssetsService extends BaseService {
 
 
     /**
-     * 根据账单记录更新用户人民币资产
+     * 根据账单记录更新用户人民币资产（线上领取小样分润）
      *
      * @param turnoverType
      */
@@ -258,7 +259,8 @@ public class UserAssetsService extends BaseService {
                 }
 
             } else {
-                logger.error("用户id为：" + userId + "的用户类型异常，该用户现用户类型为商户，但在商户签约表中无有效记录");
+                SystemExceptionRecord systemExceptionRecord = new SystemExceptionRecord("用户id为：" + userId + "的用户类型异常，该用户现用户类型为商户，但在商户签约表中无有效记录");
+                insertIfNotNull(systemExceptionRecord);
             }
         }
     }

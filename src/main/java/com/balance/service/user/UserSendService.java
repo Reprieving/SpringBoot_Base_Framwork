@@ -4,6 +4,8 @@ import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.architecture.utils.JwtUtils;
+import com.balance.entity.common.UserFreeCount;
+import com.balance.service.common.GlobalConfigService;
 import com.balance.utils.ValueCheckUtils;
 import com.balance.constance.UserConst;
 import com.balance.entity.user.MsgRecord;
@@ -32,6 +34,9 @@ public class UserSendService extends BaseService {
 
     @Autowired
     private UserFreeCountMapper userFreeCountMapper;
+
+    @Autowired
+    private GlobalConfigService globalConfigService;
 
     /**
      * 新建短信发送记录
@@ -115,7 +120,8 @@ public class UserSendService extends BaseService {
         //验证发送短信次数
         List<MsgRecord> msgRecords = selectListByWhereString(MsgRecord.User_id + "=", userId, new Pagination(), MsgRecord.class);
 //        if (msgRecords.size() > 0) {
-//            Integer result = userFreeCountMapper.updateUserSendMsgCount(userId);
+        Integer sendMsgMaxCount = Integer.valueOf(globalConfigService.get(GlobalConfigService.Enum.SEND_MSG_MAX_COUNT));
+        Integer result = userFreeCountMapper.updateUserFreeCount(userId, UserFreeCount.Send_msg_count, sendMsgMaxCount);
 //            if (result == 0) {
 //                throw new BusinessException("当天发送短信次数已到达上限3条");
 //            }

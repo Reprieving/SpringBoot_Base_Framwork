@@ -1,5 +1,6 @@
 package com.balance.service.common;
 
+import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
 import com.balance.entity.common.WeChatPayNotifyRecord;
 import com.balance.exception.WeChatPayNotifyException;
@@ -37,7 +38,7 @@ public class WeChatPayService extends BaseService {
      * @return
      */
     public Map<String, String> weChatPrePay(String tradeNo, BigDecimal orderPrice, String description, String requestIp, String notifyUrl) {
-        String weChatPayAppId = globalConfigService.get(GlobalConfigService.Enum.WECHAT_PAY_APP_ID);
+        String weChatPayAppId = globalConfigService.get(GlobalConfigService.Enum.APP_WEIXIN_APP_ID);
         String mchId = globalConfigService.get(GlobalConfigService.Enum.WECHAT_MCH_ID);
 
         SortedMap<String, Object> parameterMap = new TreeMap<String, Object>();
@@ -60,11 +61,13 @@ public class WeChatPayService extends BaseService {
         Map<String, String> resultMap = null;
         try {
             resultMap = WeChatPayCommonUtils.doXMLParse(result);
-            resultMap.put("package","Sign=WXPay");
+            checkResult(resultMap);
+            resultMap.put("package", "Sign=WXPay");
             resultMap.put("timestamp", String.valueOf(Instant.now().getEpochSecond()));
         } catch (JDOMException | IOException e) {
             throw new WeChatPayNotifyException("认证异常");
         }
+
 
         return resultMap;
     }
@@ -117,6 +120,25 @@ public class WeChatPayService extends BaseService {
         } catch (IOException | JDOMException e) {
             throw new WeChatPayNotifyException("认证异常");
         }
+    }
+
+
+    /**
+     * 判断微信支付结果
+     *
+     * @param resultMap
+     */
+    public void checkResult(Map<String, String> resultMap) {
+        String returnCode = resultMap.get("return_code");
+        if (returnCode.equals("SUCCESS")) {
+            String resultCode = resultMap.get("result_code");
+            if (resultCode.equals("FAIL")) {
+                throw new BusinessException(resultMap.get("err_code_des"));
+            }
+        } else {
+            throw new BusinessException(resultMap.get("return_msg"));
+        }
+
     }
 
 

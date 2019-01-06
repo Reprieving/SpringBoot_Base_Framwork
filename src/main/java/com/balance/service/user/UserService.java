@@ -122,7 +122,7 @@ public class UserService extends BaseService {
 
                 //增加用户每天免费次数记录
                 UserFreeCount userFreeCount = new UserFreeCount();
-                userFreeCount.setUser_id(userId);
+                userFreeCount.setUserId(userId);
                 insertIfNotNull(userFreeCount);
 
                 //跳转URL

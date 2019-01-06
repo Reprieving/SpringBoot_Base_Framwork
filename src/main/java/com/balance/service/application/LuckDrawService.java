@@ -3,6 +3,7 @@ package com.balance.service.application;
 import com.balance.architecture.dto.Pagination;
 import com.balance.architecture.exception.BusinessException;
 import com.balance.architecture.service.BaseService;
+import com.balance.service.common.GlobalConfigService;
 import com.balance.utils.ValueCheckUtils;
 import com.balance.constance.ApplicationConst;
 import com.balance.constance.AssetTurnoverConst;
@@ -41,6 +42,9 @@ public class LuckDrawService extends BaseService {
 
     @Autowired
     private TransactionTemplate transactionTemplate;
+
+    @Autowired
+    private GlobalConfigService globalConfigService;
 
     /**
      * 获取抽奖界面数据
@@ -121,7 +125,9 @@ public class LuckDrawService extends BaseService {
                     if (freeLuckDrawNumber == 0) {
                         throw new BusinessException("免费抽奖次数已用完");
                     }
-                    userFreeCountMapper.updateUserFreeLuckDrawCount(userId);
+                    Integer freeLuckMaxCount = Integer.valueOf(globalConfigService.get(GlobalConfigService.Enum.FREE_LUCK_MAX_COUNT));
+
+                    userFreeCountMapper.updateUserFreeCount(userId, UserFreeCount.Luck_draw_count, freeLuckMaxCount);
                     flag = false;
                 } else if (settlementId == SettlementConst.SETTLEMENT_IH) { //IH方式抽奖
                     if (userAssets.getIh().compareTo(ApplicationConst.LUCKDRAW_IH) == -1) {

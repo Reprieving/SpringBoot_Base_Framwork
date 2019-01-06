@@ -7,6 +7,7 @@ import com.balance.architecture.service.BaseService;
 import com.balance.client.RedisClient;
 import com.balance.constance.*;
 import com.balance.controller.app.req.ShopOrderPayReq;
+import com.balance.entity.common.SystemExceptionRecord;
 import com.balance.entity.mission.Mission;
 import com.balance.entity.mission.MissionReward;
 import com.balance.entity.user.*;
@@ -113,6 +114,9 @@ public class OrderService extends BaseService {
 
             case ShopConst.ORDER_TYPE_BECOME_MEMBER://办理年卡会员
                 return becomeMemberOrder(user.getId(), shopOrderPayReq.getSettlementId(), request);
+
+            case ShopConst.ORDER_TYPE_BUY_BEAUTY_PACKAGE_VOUCHER://购买小样礼包卡券
+                return buyVoucherOrder(user.getId(), shopOrderPayReq.getSettlementId(), request);
 
             default:
                 throw new BusinessException("数据异常");
@@ -355,7 +359,7 @@ public class OrderService extends BaseService {
                 String orderNumber = OrderNoUtils.buildOrderNo();
                 OrderInfo orderInfo = new OrderInfo(
                         orderNumber, beautyGoodsSpu.getSettlementId(), userId, ShopConst.SHOP_OFFICIAL, user.getUserName(), "", BigDecimal.ZERO,
-                        beautyGoodsSpu.getFreight(), ShopConst.ORDER_TYPE_SCAN_BEAUTY, ShopConst.ORDER_STATUS_RECEIVE, createTime
+                        beautyGoodsSpu.getFreight(), ShopConst.ORDER_TYPE_SCAN_BEAUTY, ShopConst.ORDER_STATUS_DELIVERY, createTime
                 );
                 orderInfo.setIfPay(true);
                 orderInfo.setIfInvestigation(true);
@@ -406,7 +410,8 @@ public class OrderService extends BaseService {
                         }
 
                     } else {
-                        logger.error("用户id为：" + userId + "的用户类型异常，该用户现用户类型为商户，但在商户签约表中无有效记录");
+                        SystemExceptionRecord systemExceptionRecord = new SystemExceptionRecord("用户id为：" + userId + "的用户类型异常，该用户现用户类型为商户，但在商户签约表中无有效记录");
+                        insertIfNotNull(systemExceptionRecord);
                     }
                 }
             }
@@ -460,7 +465,7 @@ public class OrderService extends BaseService {
                     String orderNumber = OrderNoUtils.buildOrderNo();
                     OrderInfo orderInfo = new OrderInfo(
                             orderNumber, settlementId, userId, shopId, user.getUserName(), addressId, new BigDecimal(0), orderTotalPrice, ShopConst.ORDER_TYPE_EXCHANGE_BEAUTY,
-                            ShopConst.ORDER_STATUS_NONE, createTime
+                            ShopConst.ORDER_STATUS_DELIVERY, createTime
                     );
                     orderInfo.setIfPay(true);
                     orderInfo.setIfInvestigation(true);
@@ -503,7 +508,8 @@ public class OrderService extends BaseService {
                             }
 
                         } else {
-                            logger.error("用户id为：" + userId + "的用户类型异常，该用户现用户类型为商户，但在商户签约表中无有效记录");
+                            SystemExceptionRecord systemExceptionRecord = new SystemExceptionRecord("用户id为：" + userId + "的用户类型异常，该用户现用户类型为商户，但在商户签约表中无有效记录");
+                            insertIfNotNull(systemExceptionRecord);
                         }
                     }
 
@@ -541,12 +547,12 @@ public class OrderService extends BaseService {
                 switch (settlementId) {
                     case SettlementConst.SETTLEMENT_WECHAT_PAY://微信支付对接
                         //年卡会员费用
-                        BigDecimal bigDecimal = new BigDecimal(globalConfigService.get(GlobalConfigService.Enum.MEMBER_FREE));
+                        BigDecimal bigDecimal = new BigDecimal(globalConfigService.get(GlobalConfigService.Enum.MEMBER_PRICE));
                         String orderNumber = OrderNoUtils.buildOrderNo();
                         Timestamp createTime = new Timestamp(System.currentTimeMillis());
                         OrderInfo orderInfo = new OrderInfo(
                                 orderNumber, settlementId, userId, ShopConst.SHOP_OFFICIAL, user.getUserName(), "", bigDecimal, BigDecimal.ZERO, ShopConst.ORDER_TYPE_BECOME_MEMBER,
-                                ShopConst.ORDER_STATUS_RECEIVE, createTime
+                                ShopConst.ORDER_STATUS_DELIVERY, createTime
                         );
                         orderInfo.setIfPay(false);
 
@@ -562,8 +568,55 @@ public class OrderService extends BaseService {
                 }
             }
         });
+    }
+
+    /**
+     * 购买小样礼包卡券
+     *
+     * @param userId 用户id
+     */
+    public Map<String, String> buyVoucherOrder(String userId, Integer settlementId, HttpServletRequest request) {
+        String buyVoucherNotifyUrl = globalConfigService.get(GlobalConfigService.Enum.APP_DOMAIN_NAME) + ShopConst.WeChatPayBuyBeautyVoucherNotifyURL;
+
+        User user = selectOneById(userId, User.class);
+
+        BigDecimal voucherPrice;
+
+        if (UserConst.USER_MEMBER_TYPE_NONE == user.getMemberType()) {
+            voucherPrice = new BigDecimal(globalConfigService.get(GlobalConfigService.Enum.COMMON_USER_BUY_BEAUTY_VOUCHER_PRICE));
+        } else if (UserConst.USER_MEMBER_TYPE_COMMON == user.getMemberType()) {
+            voucherPrice = new BigDecimal(globalConfigService.get(GlobalConfigService.Enum.MEMBER_USER_BUY_BEAUTY_VOUCHER_PRICE));
+        } else {
+            throw new BusinessException("错误会员类型");
+        }
 
 
+        return transactionTemplate.execute(new TransactionCallback<Map<String, String>>() {
+            @Nullable
+            @Override
+            public Map<String, String> doInTransaction(TransactionStatus transactionStatus) {
+                switch (settlementId) {
+                    case SettlementConst.SETTLEMENT_WECHAT_PAY://微信支付对接
+                        String orderNumber = OrderNoUtils.buildOrderNo();
+                        Timestamp createTime = new Timestamp(System.currentTimeMillis());
+                        OrderInfo orderInfo = new OrderInfo(
+                                orderNumber, settlementId, userId, ShopConst.SHOP_OFFICIAL, user.getUserName(), "", voucherPrice, BigDecimal.ZERO, ShopConst.ORDER_TYPE_BUY_BEAUTY_PACKAGE_VOUCHER,
+                                ShopConst.ORDER_STATUS_DELIVERY, createTime
+                        );
+                        orderInfo.setIfPay(false);
+
+                        return weChatPayService.weChatPrePay(
+                                orderInfo.getId(), voucherPrice, "购买小样礼包卡券", WeChatPayCommonUtils.getRemoteHost(request), buyVoucherNotifyUrl
+                        );
+
+//            case SettlementConst.SETTLEMENT_ALI_PAY://支付宝对接
+//                break;
+
+                    default:
+                        throw new BusinessException("错误支付方式");
+                }
+            }
+        });
     }
 
 
@@ -645,6 +698,22 @@ public class OrderService extends BaseService {
     }
 
     /**
+     * 更新订单状态
+     *
+     * @param orderId
+     * @param status
+     */
+    public void payOrder(String orderId, Integer status) {
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setId(orderId);
+        orderInfo.setStatus(status);
+        orderInfo.setIfPay(true);
+        if (updateIfNotNull(orderInfo) == 0) {
+            throw new BusinessException("更新订单状态失败");
+        }
+    }
+
+    /**
      * 更新可填写问卷的订单状态
      *
      * @param orderId
@@ -675,7 +744,7 @@ public class OrderService extends BaseService {
         ValueCheckUtils.notEmpty(orderType, "订单类型异常");
         switch (orderType) {
             case ShopConst.ORDER_TYPE_SHOPPING: //商城代币购物
-
+                updateOrderStatus(orderId,ShopConst.ORDER_STATUS_RECEIVE);
                 break;
 
             case ShopConst.ORDER_TYPE_RECEIVE_BEAUTY://线上领取小样
@@ -691,6 +760,10 @@ public class OrderService extends BaseService {
                 break;
 
             case ShopConst.ORDER_TYPE_BECOME_MEMBER://办理年卡会员
+
+                break;
+
+            case ShopConst.ORDER_TYPE_BUY_BEAUTY_PACKAGE_VOUCHER://购买小样礼包卡券
 
                 break;
 

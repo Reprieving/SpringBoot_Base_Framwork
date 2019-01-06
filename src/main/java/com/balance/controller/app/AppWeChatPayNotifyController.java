@@ -31,5 +31,11 @@ public class AppWeChatPayNotifyController {
         return orderNotifyService.becomeMemberWeChatPayNotify(request);
     }
 
+    //购买小样礼包微信支付回调
+    @RequestMapping(ShopConst.WeChatPayBuyBeautyVoucherNotify)
+    @ResponseBody
+    public String buyBeautyVoucherNotify(HttpServletRequest request) throws IOException {
+        return orderNotifyService.buyBeautyVoucherWeChatPayNotify(request);
+    }
 
 }

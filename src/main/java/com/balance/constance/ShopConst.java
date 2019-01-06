@@ -52,6 +52,7 @@ public class ShopConst {
     public static final int ORDER_TYPE_SCAN_BEAUTY = 3;//线下扫码领取小样
     public static final int ORDER_TYPE_EXCHANGE_BEAUTY = 4;//线上兑换小样礼包
     public static final int ORDER_TYPE_BECOME_MEMBER = 5;//办理年卡会员
+    public static final int ORDER_TYPE_BUY_BEAUTY_PACKAGE_VOUCHER = 6;//购买卡券
 
 
     //卡券类型
@@ -75,7 +76,9 @@ public class ShopConst {
     public static final String WeChatPayReceiveBeautyNotify = "/receiveBeautyNotify";//领取小样微信支付通知
     public static final String WeChatPayReceiveBeautyNotifyURL = WeChatPayNotifyController + WeChatPayReceiveBeautyNotify;//领取小样微信支付通知URL
 
-
     public static final String WeChatPayBecomeMemberNotify = "/becomeMemberNotify";//办理年卡会员微信支付通知
-    public static final String WeChatPayBecomeMemberNotifyURL = WeChatPayNotifyController + WeChatPayBecomeMemberNotify;//办理年卡会员微信支付通知
+    public static final String WeChatPayBecomeMemberNotifyURL = WeChatPayNotifyController + WeChatPayBecomeMemberNotify;//办理年卡会员微信支付通知URL
+
+    public static final String WeChatPayBuyBeautyVoucherNotify = "/buyBeautyVoucherNotify";//购买小样礼包卡券微信支付通知
+    public static final String WeChatPayBuyBeautyVoucherNotifyURL = WeChatPayNotifyController + WeChatPayBuyBeautyVoucherNotify;//小样礼包卡券微信支付通知URL
 }

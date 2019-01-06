@@ -281,7 +281,6 @@ public class UserMerchantService extends BaseService {
                 if (userIds.size() > 0) {
                     userMerchantMapper.updateUserUserType(userIds, UserConst.USER_MERCHANT_TYPE_NONE);
                 }
-
             }
         });
     }
